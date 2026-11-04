@@ -1,4 +1,5 @@
 # Additional Maatram screens
+
 - [x] Implement opportunities listing, details, registration overlay and event guide.
 - [x] Implement communities listing and overview.
 - [x] Implement chat, attachments and quick-share interfaces.

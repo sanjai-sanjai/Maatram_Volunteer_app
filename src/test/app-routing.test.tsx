@@ -8,13 +8,13 @@ import { routeTree } from "@/routeTree.gen";
 // network the test run lacks, and jsdom never loads the stylesheets React waits on.
 describe("App routing", () => {
   it.each([
-    ['/impact', '/impact'],
-    ['/opportunities/palm-seeds', '/opportunities_/$opportunityId'],
-    ['/opportunities/palm-seeds/guide', '/opportunities_/$opportunityId_/guide'],
-    ['/community/palm-plantation', '/community_/$communityId'],
-    ['/community/palm-plantation/chat', '/community_/$communityId_/chat'],
-    ['/fund-request/success', '/fund-request_/success'],
-  ])('matches %s as an independent content page', (path, routeId) => {
+    ["/impact", "/impact"],
+    ["/opportunities/palm-seeds", "/opportunities_/$opportunityId"],
+    ["/opportunities/palm-seeds/guide", "/opportunities_/$opportunityId_/guide"],
+    ["/community/palm-plantation", "/community_/$communityId"],
+    ["/community/palm-plantation/chat", "/community_/$communityId_/chat"],
+    ["/fund-request/success", "/fund-request_/success"],
+  ])("matches %s as an independent content page", (path, routeId) => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
     const matches = router.matchRoutes(path);
     expect(matches.at(-1)?.routeId).toBe(routeId);

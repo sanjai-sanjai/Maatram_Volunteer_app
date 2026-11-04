@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { defaultDraft, fillPercent, recipientsFor, totalMatches, validateDetails, validateGuide } from "@/data/admin-mock";
+import {
+  defaultDraft,
+  fillPercent,
+  recipientsFor,
+  totalMatches,
+  validateDetails,
+  validateGuide,
+} from "@/data/admin-mock";
 
 describe("Admin rules", () => {
   it("maps audience tiers to 300 / 1,500 / 4,500 recipients", () => {
@@ -13,6 +20,8 @@ describe("Admin rules", () => {
     expect(validateDetails({ ...defaultDraft, volunteers: 51 })["volunteers"]).toBeTruthy();
     expect(validateDetails({ ...defaultDraft, volunteers: 50 })["volunteers"]).toBeUndefined();
   });
-  it("requires an event image", () => expect(validateDetails({ ...defaultDraft, image: null })["image"]).toBeTruthy());
-  it("rejects an invalid contact email", () => expect(validateGuide({ ...defaultDraft, email: "nope" })["contact"]).toBeTruthy());
+  it("requires an event image", () =>
+    expect(validateDetails({ ...defaultDraft, image: null })["image"]).toBeTruthy());
+  it("rejects an invalid contact email", () =>
+    expect(validateGuide({ ...defaultDraft, email: "nope" })["contact"]).toBeTruthy());
 });

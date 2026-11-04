@@ -15,7 +15,12 @@ export function BottomNav({ active }: { active: string }) {
   return (
     <nav className="mq-dashboard__bottom-nav" aria-label="Main navigation">
       {items.map((i) => (
-        <Link key={i.to} to={i.to} className="mq-dashboard__nav-item" aria-current={active === i.label ? "page" : undefined}>
+        <Link
+          key={i.to}
+          to={i.to}
+          className="mq-dashboard__nav-item"
+          aria-current={active === i.label ? "page" : undefined}
+        >
           {i.icon}
           <span>{i.label}</span>
         </Link>
@@ -25,7 +30,15 @@ export function BottomNav({ active }: { active: string }) {
 }
 
 /** Lightweight secondary page used by Explore / Community / Impact / Profile / View All. */
-export function SubPage({ title, active, children }: { title: string; active: string; children: ReactNode }) {
+export function SubPage({
+  title,
+  active,
+  children,
+}: {
+  title: string;
+  active: string;
+  children: ReactNode;
+}) {
   return (
     <main className="mq-dashboard">
       <header className="mq-dashboard__topbar">
@@ -33,7 +46,9 @@ export function SubPage({ title, active, children }: { title: string; active: st
         <Logo small />
         <span />
       </header>
-      <h1 className="mq-dashboard__section-title" style={{ margin: "18px 0 14px", fontSize: 24 }}>{title}</h1>
+      <h1 className="mq-dashboard__section-title" style={{ margin: "18px 0 14px", fontSize: 24 }}>
+        {title}
+      </h1>
       {children}
       <BottomNav active={active} />
     </main>

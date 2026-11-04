@@ -30,17 +30,33 @@ export function Screen({
     <div className="mq-shell">
       <main className="mq-screen">
         {(deco === "tr" || deco === "both") && (
-          <img className="mq-deco mq-deco--tr" src={`${A}/decorations/corner-wave-top-right.png`} alt="" />
+          <img
+            className="mq-deco mq-deco--tr"
+            src={`${A}/decorations/corner-wave-top-right.png`}
+            alt=""
+          />
         )}
         {(deco === "tl" || deco === "both") && (
-          <img className="mq-deco mq-deco--tl-flip" src={`${A}/decorations/corner-wave-top-right.png`} alt="" />
+          <img
+            className="mq-deco mq-deco--tl-flip"
+            src={`${A}/decorations/corner-wave-top-right.png`}
+            alt=""
+          />
         )}
         <div className="mq-screen__body">{children}</div>
         {footer === "building" && (
-          <img className="mq-footer-art" src={`${A}/composites/foundation-building-footer.png`} alt="" />
+          <img
+            className="mq-footer-art"
+            src={`${A}/composites/foundation-building-footer.png`}
+            alt=""
+          />
         )}
         {footer === "landscape" && (
-          <img className="mq-footer-art" src={`${A}/decorations/foundation-footer-landscape-composite.png`} alt="" />
+          <img
+            className="mq-footer-art"
+            src={`${A}/decorations/foundation-footer-landscape-composite.png`}
+            alt=""
+          />
         )}
         {footer === "waves" && (
           <div className="mq-waves">

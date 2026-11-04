@@ -1,182 +1,1069 @@
 /* Impact Arena: scoped reference styling, sharing Maatram tokens and navigation. */
-:root { --ma-impact-recognition: #faeafa; --ma-impact-blue: #e8f9fd; --ma-impact-pink: #fdebf5; --ma-impact-silver: #f3f3f3; --ma-impact-bronze: #fff0e7; --ma-impact-bronze-edge: #e59e39; }
-.ma-impact { padding: 12px 10px 100px; }
-.ma-impact-header { display:flex; align-items:center; gap:8px; margin-bottom:14px; min-height:42px; }
-.ma-impact-header .ma-icon { width:30px; height:30px; min-height:30px; }
-.ma-impact-heading-icon { display:grid; place-items:center; width:29px; height:29px; flex:none; border-radius:6px; background:var(--mq-yellow); }
-.ma-impact-heading-icon svg { width:22px; height:22px; }
-.ma-impact-header>div { flex:1; min-width:0; }
-.ma-impact-header h1 { font-size:18px; white-space:nowrap; }
-.ma-impact-header p { font-size:9px; margin:2px 0 0; color:var(--mq-navy); line-height:1.3; }
-.ma-impact-privacy { flex:none; margin-left:auto; align-self:center; background:var(--mq-success-soft); color:var(--mq-ink); padding:6px 10px; font-size:10px; font-weight:600; gap:4px; white-space:nowrap; min-height:30px; border-radius:999px; box-shadow:var(--mq-shadow-xs); }
-@media (max-width:520px) { .ma-impact-privacy { flex-basis:100%; justify-self:end; width:fit-content; margin-left:auto; } }
-.ma-impact-privacy svg { width:15px; height:15px; fill:var(--mq-success); }
-.ma-impact-hero { display:block; width:100%; aspect-ratio:669/223; object-fit:cover; border-radius:13px; }
-.ma-impact-title { display:flex; align-items:flex-start; gap:9px; margin:12px 4px 9px; }
-.ma-impact-title::before { content:''; width:7px; height:17px; border-radius:4px; background:var(--mq-yellow); flex:none; }
-.ma-impact-title h2 { font-size:16px; }
-.ma-impact-title p { margin:2px 0 0; font-size:9px; line-height:1.3; color:var(--mq-navy); }
-.ma-impact-title--crown::before { display:none; }
-.ma-impact-title--crown>svg { width:30px; height:30px; color:var(--mq-gold); fill:var(--mq-yellow); flex:none; }
-.ma-impact-totals { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-radius:14px; background:var(--mq-surface-warm); box-shadow:var(--mq-shadow-xs); padding:10px 5px; }
-.ma-impact-totals>div { display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; }
-.ma-impact-totals>div+div::before { content:''; position:absolute; left:0; top:8px; bottom:0; width:1px; background:var(--mq-divider); }
-.ma-impact-totals svg { width:24px; height:24px; }
-.ma-impact-gold { color:var(--mq-gold); }
-.ma-impact-green { color:var(--mq-success-dark); }
-.ma-impact-totals strong { font-size:21px; font-weight:800; line-height:1.3; }
-.ma-impact-totals span { font-size:10px; line-height:1.2; }
-.ma-impact-period { display:flex; margin:10px auto 14px; width:74%; border-radius:24px; box-shadow:var(--mq-shadow-sm); background:var(--mq-surface); }
-.ma-impact-period .ma-action { flex:1; min-height:27px; font-size:11px; padding:5px; }
-.ma-impact-period [aria-pressed=true] { background:var(--mq-yellow); }
-.ma-impact-podium { display:grid; grid-template-columns:1fr 1.1fr 1fr; align-items:end; margin:35px 0 12px; gap:0; }
-.ma-impact-winner { position:relative; border-radius:24px 24px 8px 8px; background:var(--ma-impact-silver); padding:0 7px 20px; min-height:128px; text-align:center; box-shadow:var(--mq-shadow-xs); }
-.ma-impact-winner::after { content:''; position:absolute; bottom:0; left:0; right:0; height:13px; border-radius:0 0 50% 50%; background:var(--mq-border); border-top:4px solid var(--mq-white); }
-.ma-impact-winner--1 { background:var(--mq-surface-yellow); min-height:149px; z-index:1; }
-.ma-impact-winner--1::after { background:var(--mq-yellow); }
-.ma-impact-winner--3 { background:var(--ma-impact-bronze); }
-.ma-impact-winner--3::after { background:var(--ma-impact-bronze-edge); }
-.ma-impact-medal { position:absolute; top:-37px; left:50%; transform:translateX(-50%); width:35px; height:35px; }
-.ma-impact-medal svg { width:35px; height:35px; color:var(--mq-subtle); fill:var(--mq-border-soft); }
-.ma-impact-medal b { position:absolute; inset:0; display:grid; place-items:center; font-size:15px; }
-.ma-impact-winner--1 .ma-impact-medal svg { color:var(--mq-gold); fill:var(--mq-yellow); }
-.ma-impact-winner--1 .ma-impact-medal b { padding-top:7px; }
-.ma-impact-winner--3 .ma-impact-medal svg { color:var(--ma-impact-bronze-edge); fill:var(--ma-impact-bronze); }
-.ma-impact-winner>img { display:block; width:35px; height:35px; margin:-17px auto 5px; }
-.ma-impact-winner h3 { font-size:10px; white-space:nowrap; }
-.ma-impact-winner>p { display:flex; align-items:center; justify-content:center; gap:2px; font-size:7px; margin:3px 0 6px; line-height:1.2; }
-.ma-impact-winner>p svg { width:12px; height:12px; flex:none; color:var(--mq-gold); }
-.ma-impact-hours { display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; padding:2px 8px; border-radius:20px; background:var(--mq-yellow-pale); font-size:9px; line-height:1.3; }
-.ma-impact-winner>.ma-impact-hours { background:var(--mq-yellow-soft); font-size:11px; }
-.ma-impact-podium-story { display:flex; align-items:flex-start; gap:5px; text-align:left; margin-top:6px; font-size:8px; line-height:1.2; }
-.ma-impact-podium-story svg { width:21px; height:21px; flex:none; }
-.ma-impact-list { border-radius:16px; box-shadow:var(--mq-shadow-sm); padding:4px 8px 8px; }
-.ma-impact-ranking { list-style:none; margin:0; padding:0; }
-.ma-impact-ranking li { display:grid; grid-template-columns:26px 27px minmax(0,1fr) 43px; align-items:start; gap:6px; padding:3px 0; }
-.ma-impact-rank { display:grid; place-items:center; border-radius:50%; width:26px; height:26px; background:var(--mq-border-soft); font-weight:800; font-size:11px; margin-top:3px; }
-.ma-impact-ranking li:first-child .ma-impact-rank,.ma-impact-ranking li:nth-child(6) .ma-impact-rank,.ma-impact-ranking li:last-child .ma-impact-rank { background:var(--mq-yellow-pale); }
-.ma-impact-ranking li>img { width:27px; height:27px; margin-top:3px; }
-.ma-impact-ranking h3 { font-size:9px; line-height:1.2; }
-.ma-impact-ranking p { font-size:7px; margin:1px 0; line-height:1.2; color:var(--mq-navy); }
-.ma-impact-ranking .ma-impact-hours { margin-top:7px; padding:2px 4px; font-size:9px; }
-.ma-impact-contribution { display:flex; align-items:flex-start; gap:4px; font-size:7px; line-height:1.2; border-radius:8px; background:var(--mq-surface-warm); }
-.ma-impact-contribution svg { width:13px; height:13px; flex:none; }
-.ma-impact-view { width:100%; background:var(--mq-surface-yellow); box-shadow:var(--mq-shadow-xs); min-height:28px; font-size:11px; margin-top:7px; }
-.ma-impact-position { display:flex; align-items:center; gap:10px; border-radius:13px; padding:11px; margin:18px 0 13px; background:var(--mq-success-soft); box-shadow:var(--mq-shadow-xs); }
-.ma-impact-position>svg { width:32px; height:32px; flex:none; color:var(--mq-gold); fill:var(--mq-yellow); }
-.ma-impact-position>p { margin:0; padding-left:10px; border-left:1px solid var(--mq-divider); font-size:10px; font-weight:700; flex:1; line-height:1.3; }
-.ma-impact-position>p strong { font-size:21px; }
-.ma-impact-position>div { display:flex; align-items:center; gap:6px; border-left:1px solid var(--mq-divider); padding-left:10px; }
-.ma-impact-position>div svg { width:25px; height:25px; color:var(--mq-gold); }
-.ma-impact-position b { display:block; font-size:12px; white-space:nowrap; }
-.ma-impact-position small { display:block; font-size:7px; white-space:nowrap; }
-.ma-impact-achievement-heading { display:flex; align-items:center; justify-content:space-between; gap:4px; }
-.ma-impact-achievement-heading .ma-impact-title { margin-top:0; }
-.ma-impact-achievement-heading .ma-action { padding:4px 6px; font-size:8px; gap:4px; white-space:nowrap; box-shadow:var(--mq-shadow-xs); }
-.ma-impact-achievement-heading .ma-action svg { width:12px; }
-.ma-impact-badges { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; margin:2px 3px 0; }
-.ma-impact-badge { display:flex; flex-direction:column; justify-content:flex-start; gap:3px; padding:5px 3px; min-height:56px; border-radius:13px; box-shadow:var(--mq-shadow-xs); font-weight:600; }
-.ma-impact-badge img { width:24px; height:24px; }
-.ma-impact-badge span { font-size:8px; line-height:1.2; }
-.ma-impact-badge--recognition { background:var(--ma-impact-recognition); }
-.ma-impact-badge--gold { background:var(--mq-surface-yellow); }
-.ma-impact-badge--green { background:var(--mq-success-soft); }
-.ma-impact-badge--blue { background:var(--ma-impact-blue); }
-.ma-impact-badge--pink { background:var(--ma-impact-pink); }
-.ma-impact-dialog { padding-top:8px; }
-.ma-impact-dialog h2 { font-size:20px; margin-bottom:8px; }
-.ma-impact-dialog>p { font-size:12px; line-height:1.5; }
-.ma-impact-dialog>.ma-impact-ranking { max-height:55dvh; overflow:auto; }
-.ma-impact-dialog .ma-impact-ranking li { padding:8px 0; }
-.ma-impact-dialog .ma-impact-ranking h3 { font-size:11px; }
-.ma-impact-dialog .ma-impact-ranking p,.ma-impact-dialog .ma-impact-contribution { font-size:9px; }
-.ma-impact-badge-details>div { display:flex; gap:12px; align-items:center; margin:15px 0; }
-.ma-impact-badge-details img { width:44px; height:44px; }
-.ma-impact-badge-details h3 { margin:0; font-size:13px; }
-.ma-impact-badge-details p { margin:4px 0; }
-.ma-impact-badge-detail { text-align:center; padding:15px 0; }
-.ma-impact-badge-detail img { width:80px; height:80px; margin:0 auto 15px; }
-.ma-impact-badge-detail h2 { font-size:20px; }
-.ma-impact-badge-detail p { line-height:1.5; }
-.ma-impact-badge-detail progress,.ma-impact-badge-details progress { display:block; width:100%; accent-color:var(--mq-yellow); }
-@media (min-width:450px) { .ma-impact-header h1 { font-size:22px; } .ma-impact-header p { font-size:11px; } .ma-impact-title h2 { font-size:19px; } .ma-impact-title p { font-size:11px; } .ma-impact-winner h3 { font-size:13px; } .ma-impact-winner>p { font-size:9px; } .ma-impact-podium-story { font-size:10px; } .ma-impact-winner { min-height:164px; } .ma-impact-winner--1 { min-height:188px; } .ma-impact-ranking h3 { font-size:12px; } .ma-impact-ranking p,.ma-impact-contribution { font-size:9px; } .ma-impact-ranking li { padding:5px 0; } .ma-impact-badge span { font-size:10px; } .ma-impact-position>p { font-size:12px; } }
-@media (max-width:360px) { .ma-impact-header { gap:5px; } .ma-impact-header h1 { font-size:16px; } .ma-impact-winner h3 { font-size:9px; } .ma-impact-position { gap:6px; padding:8px; } .ma-impact-position>div { padding-left:6px; gap:3px; } .ma-impact-achievement-heading { align-items:flex-start; } .ma-impact-achievement-heading .ma-impact-title p { max-width:150px; } }
+:root {
+  --ma-impact-recognition: #faeafa;
+  --ma-impact-blue: #e8f9fd;
+  --ma-impact-pink: #fdebf5;
+  --ma-impact-silver: #f3f3f3;
+  --ma-impact-bronze: #fff0e7;
+  --ma-impact-bronze-edge: #e59e39;
+}
+.ma-impact {
+  padding: 12px 10px 100px;
+}
+.ma-impact-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  min-height: 42px;
+}
+.ma-impact-header .ma-icon {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+}
+.ma-impact-heading-icon {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  flex: none;
+  border-radius: 6px;
+  background: var(--mq-yellow);
+}
+.ma-impact-heading-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.ma-impact-header > div {
+  flex: 1;
+  min-width: 0;
+}
+.ma-impact-header h1 {
+  font-size: 18px;
+  white-space: nowrap;
+}
+.ma-impact-header p {
+  font-size: 9px;
+  margin: 2px 0 0;
+  color: var(--mq-navy);
+  line-height: 1.3;
+}
+.ma-impact-privacy {
+  flex: none;
+  margin-left: auto;
+  align-self: center;
+  background: var(--mq-success-soft);
+  color: var(--mq-ink);
+  padding: 6px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  gap: 4px;
+  white-space: nowrap;
+  min-height: 30px;
+  border-radius: 999px;
+  box-shadow: var(--mq-shadow-xs);
+}
+@media (max-width: 520px) {
+  .ma-impact-privacy {
+    flex-basis: 100%;
+    justify-self: end;
+    width: fit-content;
+    margin-left: auto;
+  }
+}
+.ma-impact-privacy svg {
+  width: 15px;
+  height: 15px;
+  fill: var(--mq-success);
+}
+.ma-impact-hero {
+  display: block;
+  width: 100%;
+  aspect-ratio: 669/223;
+  object-fit: cover;
+  border-radius: 13px;
+}
+.ma-impact-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 12px 4px 9px;
+}
+.ma-impact-title::before {
+  content: "";
+  width: 7px;
+  height: 17px;
+  border-radius: 4px;
+  background: var(--mq-yellow);
+  flex: none;
+}
+.ma-impact-title h2 {
+  font-size: 16px;
+}
+.ma-impact-title p {
+  margin: 2px 0 0;
+  font-size: 9px;
+  line-height: 1.3;
+  color: var(--mq-navy);
+}
+.ma-impact-title--crown::before {
+  display: none;
+}
+.ma-impact-title--crown > svg {
+  width: 30px;
+  height: 30px;
+  color: var(--mq-gold);
+  fill: var(--mq-yellow);
+  flex: none;
+}
+.ma-impact-totals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-radius: 14px;
+  background: var(--mq-surface-warm);
+  box-shadow: var(--mq-shadow-xs);
+  padding: 10px 5px;
+}
+.ma-impact-totals > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+.ma-impact-totals > div + div::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 0;
+  width: 1px;
+  background: var(--mq-divider);
+}
+.ma-impact-totals svg {
+  width: 24px;
+  height: 24px;
+}
+.ma-impact-gold {
+  color: var(--mq-gold);
+}
+.ma-impact-green {
+  color: var(--mq-success-dark);
+}
+.ma-impact-totals strong {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.ma-impact-totals span {
+  font-size: 10px;
+  line-height: 1.2;
+}
+.ma-impact-period {
+  display: flex;
+  margin: 10px auto 14px;
+  width: 74%;
+  border-radius: 24px;
+  box-shadow: var(--mq-shadow-sm);
+  background: var(--mq-surface);
+}
+.ma-impact-period .ma-action {
+  flex: 1;
+  min-height: 27px;
+  font-size: 11px;
+  padding: 5px;
+}
+.ma-impact-period [aria-pressed="true"] {
+  background: var(--mq-yellow);
+}
+.ma-impact-podium {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  align-items: end;
+  margin: 35px 0 12px;
+  gap: 0;
+}
+.ma-impact-winner {
+  position: relative;
+  border-radius: 24px 24px 8px 8px;
+  background: var(--ma-impact-silver);
+  padding: 0 7px 20px;
+  min-height: 128px;
+  text-align: center;
+  box-shadow: var(--mq-shadow-xs);
+}
+.ma-impact-winner::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 13px;
+  border-radius: 0 0 50% 50%;
+  background: var(--mq-border);
+  border-top: 4px solid var(--mq-white);
+}
+.ma-impact-winner--1 {
+  background: var(--mq-surface-yellow);
+  min-height: 149px;
+  z-index: 1;
+}
+.ma-impact-winner--1::after {
+  background: var(--mq-yellow);
+}
+.ma-impact-winner--3 {
+  background: var(--ma-impact-bronze);
+}
+.ma-impact-winner--3::after {
+  background: var(--ma-impact-bronze-edge);
+}
+.ma-impact-medal {
+  position: absolute;
+  top: -37px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 35px;
+  height: 35px;
+}
+.ma-impact-medal svg {
+  width: 35px;
+  height: 35px;
+  color: var(--mq-subtle);
+  fill: var(--mq-border-soft);
+}
+.ma-impact-medal b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+}
+.ma-impact-winner--1 .ma-impact-medal svg {
+  color: var(--mq-gold);
+  fill: var(--mq-yellow);
+}
+.ma-impact-winner--1 .ma-impact-medal b {
+  padding-top: 7px;
+}
+.ma-impact-winner--3 .ma-impact-medal svg {
+  color: var(--ma-impact-bronze-edge);
+  fill: var(--ma-impact-bronze);
+}
+.ma-impact-winner > img {
+  display: block;
+  width: 35px;
+  height: 35px;
+  margin: -17px auto 5px;
+}
+.ma-impact-winner h3 {
+  font-size: 10px;
+  white-space: nowrap;
+}
+.ma-impact-winner > p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 7px;
+  margin: 3px 0 6px;
+  line-height: 1.2;
+}
+.ma-impact-winner > p svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--mq-gold);
+}
+.ma-impact-hours {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--mq-yellow-pale);
+  font-size: 9px;
+  line-height: 1.3;
+}
+.ma-impact-winner > .ma-impact-hours {
+  background: var(--mq-yellow-soft);
+  font-size: 11px;
+}
+.ma-impact-podium-story {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  text-align: left;
+  margin-top: 6px;
+  font-size: 8px;
+  line-height: 1.2;
+}
+.ma-impact-podium-story svg {
+  width: 21px;
+  height: 21px;
+  flex: none;
+}
+.ma-impact-list {
+  border-radius: 16px;
+  box-shadow: var(--mq-shadow-sm);
+  padding: 4px 8px 8px;
+}
+.ma-impact-ranking {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ma-impact-ranking li {
+  display: grid;
+  grid-template-columns: 26px 27px minmax(0, 1fr) 43px;
+  align-items: start;
+  gap: 6px;
+  padding: 3px 0;
+}
+.ma-impact-rank {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  background: var(--mq-border-soft);
+  font-weight: 800;
+  font-size: 11px;
+  margin-top: 3px;
+}
+.ma-impact-ranking li:first-child .ma-impact-rank,
+.ma-impact-ranking li:nth-child(6) .ma-impact-rank,
+.ma-impact-ranking li:last-child .ma-impact-rank {
+  background: var(--mq-yellow-pale);
+}
+.ma-impact-ranking li > img {
+  width: 27px;
+  height: 27px;
+  margin-top: 3px;
+}
+.ma-impact-ranking h3 {
+  font-size: 9px;
+  line-height: 1.2;
+}
+.ma-impact-ranking p {
+  font-size: 7px;
+  margin: 1px 0;
+  line-height: 1.2;
+  color: var(--mq-navy);
+}
+.ma-impact-ranking .ma-impact-hours {
+  margin-top: 7px;
+  padding: 2px 4px;
+  font-size: 9px;
+}
+.ma-impact-contribution {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 7px;
+  line-height: 1.2;
+  border-radius: 8px;
+  background: var(--mq-surface-warm);
+}
+.ma-impact-contribution svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+.ma-impact-view {
+  width: 100%;
+  background: var(--mq-surface-yellow);
+  box-shadow: var(--mq-shadow-xs);
+  min-height: 28px;
+  font-size: 11px;
+  margin-top: 7px;
+}
+.ma-impact-position {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 13px;
+  padding: 11px;
+  margin: 18px 0 13px;
+  background: var(--mq-success-soft);
+  box-shadow: var(--mq-shadow-xs);
+}
+.ma-impact-position > svg {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  color: var(--mq-gold);
+  fill: var(--mq-yellow);
+}
+.ma-impact-position > p {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 1px solid var(--mq-divider);
+  font-size: 10px;
+  font-weight: 700;
+  flex: 1;
+  line-height: 1.3;
+}
+.ma-impact-position > p strong {
+  font-size: 21px;
+}
+.ma-impact-position > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-left: 1px solid var(--mq-divider);
+  padding-left: 10px;
+}
+.ma-impact-position > div svg {
+  width: 25px;
+  height: 25px;
+  color: var(--mq-gold);
+}
+.ma-impact-position b {
+  display: block;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.ma-impact-position small {
+  display: block;
+  font-size: 7px;
+  white-space: nowrap;
+}
+.ma-impact-achievement-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.ma-impact-achievement-heading .ma-impact-title {
+  margin-top: 0;
+}
+.ma-impact-achievement-heading .ma-action {
+  padding: 4px 6px;
+  font-size: 8px;
+  gap: 4px;
+  white-space: nowrap;
+  box-shadow: var(--mq-shadow-xs);
+}
+.ma-impact-achievement-heading .ma-action svg {
+  width: 12px;
+}
+.ma-impact-badges {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 2px 3px 0;
+}
+.ma-impact-badge {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 3px;
+  padding: 5px 3px;
+  min-height: 56px;
+  border-radius: 13px;
+  box-shadow: var(--mq-shadow-xs);
+  font-weight: 600;
+}
+.ma-impact-badge img {
+  width: 24px;
+  height: 24px;
+}
+.ma-impact-badge span {
+  font-size: 8px;
+  line-height: 1.2;
+}
+.ma-impact-badge--recognition {
+  background: var(--ma-impact-recognition);
+}
+.ma-impact-badge--gold {
+  background: var(--mq-surface-yellow);
+}
+.ma-impact-badge--green {
+  background: var(--mq-success-soft);
+}
+.ma-impact-badge--blue {
+  background: var(--ma-impact-blue);
+}
+.ma-impact-badge--pink {
+  background: var(--ma-impact-pink);
+}
+.ma-impact-dialog {
+  padding-top: 8px;
+}
+.ma-impact-dialog h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.ma-impact-dialog > p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.ma-impact-dialog > .ma-impact-ranking {
+  max-height: 55dvh;
+  overflow: auto;
+}
+.ma-impact-dialog .ma-impact-ranking li {
+  padding: 8px 0;
+}
+.ma-impact-dialog .ma-impact-ranking h3 {
+  font-size: 11px;
+}
+.ma-impact-dialog .ma-impact-ranking p,
+.ma-impact-dialog .ma-impact-contribution {
+  font-size: 9px;
+}
+.ma-impact-badge-details > div {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 15px 0;
+}
+.ma-impact-badge-details img {
+  width: 44px;
+  height: 44px;
+}
+.ma-impact-badge-details h3 {
+  margin: 0;
+  font-size: 13px;
+}
+.ma-impact-badge-details p {
+  margin: 4px 0;
+}
+.ma-impact-badge-detail {
+  text-align: center;
+  padding: 15px 0;
+}
+.ma-impact-badge-detail img {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 15px;
+}
+.ma-impact-badge-detail h2 {
+  font-size: 20px;
+}
+.ma-impact-badge-detail p {
+  line-height: 1.5;
+}
+.ma-impact-badge-detail progress,
+.ma-impact-badge-details progress {
+  display: block;
+  width: 100%;
+  accent-color: var(--mq-yellow);
+}
+@media (min-width: 450px) {
+  .ma-impact-header h1 {
+    font-size: 22px;
+  }
+  .ma-impact-header p {
+    font-size: 11px;
+  }
+  .ma-impact-title h2 {
+    font-size: 19px;
+  }
+  .ma-impact-title p {
+    font-size: 11px;
+  }
+  .ma-impact-winner h3 {
+    font-size: 13px;
+  }
+  .ma-impact-winner > p {
+    font-size: 9px;
+  }
+  .ma-impact-podium-story {
+    font-size: 10px;
+  }
+  .ma-impact-winner {
+    min-height: 164px;
+  }
+  .ma-impact-winner--1 {
+    min-height: 188px;
+  }
+  .ma-impact-ranking h3 {
+    font-size: 12px;
+  }
+  .ma-impact-ranking p,
+  .ma-impact-contribution {
+    font-size: 9px;
+  }
+  .ma-impact-ranking li {
+    padding: 5px 0;
+  }
+  .ma-impact-badge span {
+    font-size: 10px;
+  }
+  .ma-impact-position > p {
+    font-size: 12px;
+  }
+}
+@media (max-width: 360px) {
+  .ma-impact-header {
+    gap: 5px;
+  }
+  .ma-impact-header h1 {
+    font-size: 16px;
+  }
+  .ma-impact-winner h3 {
+    font-size: 9px;
+  }
+  .ma-impact-position {
+    gap: 6px;
+    padding: 8px;
+  }
+  .ma-impact-position > div {
+    padding-left: 6px;
+    gap: 3px;
+  }
+  .ma-impact-achievement-heading {
+    align-items: flex-start;
+  }
+  .ma-impact-achievement-heading .ma-impact-title p {
+    max-width: 150px;
+  }
+}
 
 /* Readable leaderboard proportions and a persistent personal-position dock. */
-.ma-impact.ma-page { padding:24px 16px 180px; }
-.ma-impact.ma-page:has(>.mq-dashboard__bottom-nav) { padding-bottom:180px; }
-.ma-impact-header { display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px; margin:0 0 20px; }
-.ma-impact-header .ma-icon { width:34px; height:34px; min-height:34px; }
-.ma-impact-heading-icon { width:36px; height:36px; border-radius:8px; }
-.ma-impact-heading-icon svg { width:26px; height:26px; }
-.ma-impact-header h1 { font-size:18px; white-space:nowrap; line-height:1.25; }
-.ma-impact-header p { font-size:11px; line-height:1.5; margin-top:4px; }
-.ma-impact-title { margin:24px 0 14px; gap:10px; }
-.ma-impact-title h2 { font-size:19px; line-height:1.3; }
-.ma-impact-title p { font-size:12px; line-height:1.5; margin-top:4px; }
-.ma-impact-title::before { height:23px; }
-.ma-impact-title--crown>svg { width:38px; height:38px; }
-.ma-impact-totals { padding:16px 4px; }
-.ma-impact-totals svg { width:28px; height:28px; margin-bottom:5px; }
-.ma-impact-totals strong { font-size:22px; }
-.ma-impact-totals span { font-size:11px; line-height:1.45; margin-top:4px; }
-.ma-impact-period { width:100%; margin:20px auto 26px; padding:3px; }
-.ma-impact-period .ma-action { min-height:38px; font-size:13px; }
-.ma-impact-podium { margin:92px 0 28px; gap:3px; grid-template-columns:1fr 1.12fr 1fr; }
-.ma-impact-winner { display:grid; grid-template-rows:44px 34px 40px 32px minmax(96px,auto); align-content:start; justify-items:center; padding:0 7px 24px; min-height:260px; border-radius:32px 32px 8px 8px; }
-.ma-impact-winner--1 { min-height:284px; grid-template-rows:44px 34px 40px 32px minmax(120px,auto); }
-.ma-impact-medal { width:110px; height:0; top:0; }
-.ma-impact-medal .ma-impact-trophy { position:absolute; bottom:-2px; left:50%; transform:translateX(-50%); width:64px; height:auto; max-width:none; filter:drop-shadow(0 4px 5px rgba(0,0,0,.18)); }
-.ma-impact-winner--1 .ma-impact-medal .ma-impact-trophy { width:78px; bottom:-3px; }
-.ma-impact-medal b { inset:auto; top:-12px; left:calc(50% + 16px); width:22px; height:22px; border:2px solid var(--mq-white); border-radius:50%; background:var(--mq-border-soft); font-size:12px; line-height:1; padding:0; display:flex; align-items:center; justify-content:center; box-shadow:var(--mq-shadow-xs); }
-.ma-impact-winner--1 .ma-impact-medal b { left:calc(50% + 22px); background:var(--mq-yellow); }
-.ma-impact-winner--3 .ma-impact-medal b { background:var(--ma-impact-bronze); }
-.ma-impact-winner>img { width:46px; height:46px; margin:-12px auto 0; }
-.ma-impact-winner h3 { white-space:normal; font-size:11px; line-height:1.3; align-self:center; }
-.ma-impact-winner h3 span { display:inline; font-size:12px; }
-.ma-impact-winner>p { font-size:10px; line-height:1.35; margin:0; min-height:0; align-self:center; text-align:center; gap:3px; }
-.ma-impact-winner>p svg { width:14px; height:14px; }
-.ma-impact-winner>.ma-impact-hours { font-size:13px; padding:4px 10px; align-self:center; }
-.ma-impact-podium-story { display:flex; align-items:flex-start; font-size:11px; line-height:1.45; margin-top:10px; gap:4px; width:100%; }
-.ma-impact-podium-story svg { display:block; width:18px; height:18px; margin:1px 0 0; }
-.ma-impact-list { box-shadow:none; padding:0; border-radius:0; }
-.ma-impact-table-heading { display:grid; grid-template-columns:40px minmax(0,1fr) 48px; gap:8px; padding:11px 9px; border-top:2px solid var(--mq-yellow); border-bottom:1px solid var(--mq-divider); background:var(--mq-surface-warm); color:var(--mq-muted); font-size:11px; font-weight:700; }
-.ma-impact-table-heading>span:last-child { text-align:center; }
-.ma-impact-ranking { border-bottom:1px solid var(--mq-divider); }
-.ma-impact-ranking li { grid-template-columns:32px 30px minmax(0,1fr) 42px; align-items:center; gap:7px; padding:14px 8px; border-bottom:1px solid var(--mq-border-soft); }
-.ma-impact-ranking li:nth-child(even) { background:var(--mq-surface-warm); }
-.ma-impact-ranking li[data-rank="1"] { background:var(--mq-surface-yellow); border-left:3px solid var(--mq-yellow); padding-left:5px; }
-.ma-impact-ranking li[data-rank="2"] { background:var(--ma-impact-silver); border-left:3px solid var(--mq-border); padding-left:5px; }
-.ma-impact-ranking li[data-rank="3"] { background:var(--ma-impact-bronze); border-left:3px solid var(--ma-impact-bronze-edge); padding-left:5px; }
-.ma-impact-rank { display:flex; flex-direction:column; justify-content:center; gap:2px; width:32px; height:42px; font-size:15px; margin:0; background:transparent; border-radius:0; }
-.ma-impact-ranking li .ma-impact-rank { background:transparent; }
-.ma-impact-rank svg { width:17px; height:17px; color:var(--mq-gold); fill:var(--mq-yellow); }
-.ma-impact-ranking li[data-rank="2"] .ma-impact-rank svg { color:var(--mq-subtle); fill:var(--mq-border); }
-.ma-impact-ranking li[data-rank="3"] .ma-impact-rank svg { color:var(--ma-impact-bronze-edge); fill:var(--ma-impact-bronze); }
-.ma-impact-ranking li>img { width:30px; height:30px; margin:0; }
-.ma-impact-person { min-width:0; }
-.ma-impact-ranking h3,.ma-impact-dialog .ma-impact-ranking h3 { font-size:13px; line-height:1.4; }
-.ma-impact-ranking p,.ma-impact-dialog .ma-impact-ranking p { font-size:11px; line-height:1.5; margin:3px 0 0; }
-.ma-impact-ranking p span { display:block; color:var(--mq-muted); }
-.ma-impact-ranking .ma-impact-hours { flex-direction:column; background:transparent; font-size:20px; font-weight:800; padding:0; margin:0; line-height:1.2; }
-.ma-impact-ranking .ma-impact-hours small { font-size:10px; font-weight:500; margin-top:2px; color:var(--mq-muted); }
-.ma-impact-contribution,.ma-impact-dialog .ma-impact-contribution { grid-column:3 / -1; font-size:11px; line-height:1.5; gap:5px; padding:0; margin-top:2px; background:transparent; border-radius:0; }
-.ma-impact-contribution svg { width:16px; height:16px; margin-top:1px; }
-.ma-impact-view { min-height:44px; margin-top:18px; font-size:13px; }
-.ma-impact .ma-impact-position { position:fixed; z-index:41; bottom:calc(79px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:min(calc(100% - 20px),498px); height:68px; margin:0; padding:10px 14px; gap:10px; border:1px solid var(--mq-success-soft); border-radius:16px; box-shadow:var(--mq-shadow-md); }
-.ma-impact-position>svg { width:32px; height:32px; }
-.ma-impact-position>p { display:flex; align-items:center; gap:8px; padding-left:10px; font-size:11px; }
-.ma-impact-position>p strong { font-size:24px; white-space:nowrap; }
-.ma-impact-position>p span { max-width:90px; line-height:1.4; }
-.ma-impact-position>div { gap:6px; padding-left:10px; }
-.ma-impact-position b { font-size:14px; }
-.ma-impact-position small { font-size:9px; margin-top:3px; }
-.ma-impact-achievement-heading { margin-top:28px; align-items:flex-start; flex-wrap:wrap; gap:8px; }
-.ma-impact-achievement-heading .ma-impact-title { margin:0; }
-.ma-impact-achievement-heading .ma-action { min-height:34px; font-size:11px; padding:6px 10px; margin-bottom:6px; }
-.ma-impact-badges { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:14px 0 0; }
-.ma-impact-badge { min-height:90px; padding:12px 8px; gap:8px; }
-.ma-impact-badge img { width:34px; height:34px; }
-.ma-impact-badge span { font-size:12px; line-height:1.4; }
-.ma-impact-dialog .ma-impact-ranking li { padding-top:14px; padding-bottom:14px; }
-@media(max-width:360px) { .ma-impact.ma-page { padding-left:12px; padding-right:12px; } .ma-impact-header h1 { font-size:18px; } .ma-impact-ranking li { grid-template-columns:26px 28px minmax(0,1fr) 49px; gap:5px; } .ma-impact-ranking h3 { font-size:13px; } .ma-impact-ranking li>img { width:28px; height:28px; } .ma-impact-winner { padding-left:5px; padding-right:5px; } .ma-impact-winner h3 { font-size:11px; } .ma-impact .ma-impact-position { padding:10px; gap:7px; } .ma-impact-position>div>svg { display:none; } }
+.ma-impact.ma-page {
+  padding: 24px 16px 180px;
+}
+.ma-impact.ma-page:has(> .mq-dashboard__bottom-nav) {
+  padding-bottom: 180px;
+}
+.ma-impact-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 0 0 20px;
+}
+.ma-impact-header .ma-icon {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+}
+.ma-impact-heading-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+.ma-impact-heading-icon svg {
+  width: 26px;
+  height: 26px;
+}
+.ma-impact-header h1 {
+  font-size: 18px;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+.ma-impact-header p {
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.ma-impact-title {
+  margin: 24px 0 14px;
+  gap: 10px;
+}
+.ma-impact-title h2 {
+  font-size: 19px;
+  line-height: 1.3;
+}
+.ma-impact-title p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.ma-impact-title::before {
+  height: 23px;
+}
+.ma-impact-title--crown > svg {
+  width: 38px;
+  height: 38px;
+}
+.ma-impact-totals {
+  padding: 16px 4px;
+}
+.ma-impact-totals svg {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 5px;
+}
+.ma-impact-totals strong {
+  font-size: 22px;
+}
+.ma-impact-totals span {
+  font-size: 11px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+.ma-impact-period {
+  width: 100%;
+  margin: 20px auto 26px;
+  padding: 3px;
+}
+.ma-impact-period .ma-action {
+  min-height: 38px;
+  font-size: 13px;
+}
+.ma-impact-podium {
+  margin: 92px 0 28px;
+  gap: 3px;
+  grid-template-columns: 1fr 1.12fr 1fr;
+}
+.ma-impact-winner {
+  display: grid;
+  grid-template-rows: 44px 34px 40px 32px minmax(96px, auto);
+  align-content: start;
+  justify-items: center;
+  padding: 0 7px 24px;
+  min-height: 260px;
+  border-radius: 32px 32px 8px 8px;
+}
+.ma-impact-winner--1 {
+  min-height: 284px;
+  grid-template-rows: 44px 34px 40px 32px minmax(120px, auto);
+}
+.ma-impact-medal {
+  width: 110px;
+  height: 0;
+  top: 0;
+}
+.ma-impact-medal .ma-impact-trophy {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: auto;
+  max-width: none;
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.18));
+}
+.ma-impact-winner--1 .ma-impact-medal .ma-impact-trophy {
+  width: 78px;
+  bottom: -3px;
+}
+.ma-impact-medal b {
+  inset: auto;
+  top: -12px;
+  left: calc(50% + 16px);
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--mq-white);
+  border-radius: 50%;
+  background: var(--mq-border-soft);
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--mq-shadow-xs);
+}
+.ma-impact-winner--1 .ma-impact-medal b {
+  left: calc(50% + 22px);
+  background: var(--mq-yellow);
+}
+.ma-impact-winner--3 .ma-impact-medal b {
+  background: var(--ma-impact-bronze);
+}
+.ma-impact-winner > img {
+  width: 46px;
+  height: 46px;
+  margin: -12px auto 0;
+}
+.ma-impact-winner h3 {
+  white-space: normal;
+  font-size: 11px;
+  line-height: 1.3;
+  align-self: center;
+}
+.ma-impact-winner h3 span {
+  display: inline;
+  font-size: 12px;
+}
+.ma-impact-winner > p {
+  font-size: 10px;
+  line-height: 1.35;
+  margin: 0;
+  min-height: 0;
+  align-self: center;
+  text-align: center;
+  gap: 3px;
+}
+.ma-impact-winner > p svg {
+  width: 14px;
+  height: 14px;
+}
+.ma-impact-winner > .ma-impact-hours {
+  font-size: 13px;
+  padding: 4px 10px;
+  align-self: center;
+}
+.ma-impact-podium-story {
+  display: flex;
+  align-items: flex-start;
+  font-size: 11px;
+  line-height: 1.45;
+  margin-top: 10px;
+  gap: 4px;
+  width: 100%;
+}
+.ma-impact-podium-story svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+}
+.ma-impact-list {
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+}
+.ma-impact-table-heading {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 48px;
+  gap: 8px;
+  padding: 11px 9px;
+  border-top: 2px solid var(--mq-yellow);
+  border-bottom: 1px solid var(--mq-divider);
+  background: var(--mq-surface-warm);
+  color: var(--mq-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.ma-impact-table-heading > span:last-child {
+  text-align: center;
+}
+.ma-impact-ranking {
+  border-bottom: 1px solid var(--mq-divider);
+}
+.ma-impact-ranking li {
+  grid-template-columns: 32px 30px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 8px;
+  border-bottom: 1px solid var(--mq-border-soft);
+}
+.ma-impact-ranking li:nth-child(even) {
+  background: var(--mq-surface-warm);
+}
+.ma-impact-ranking li[data-rank="1"] {
+  background: var(--mq-surface-yellow);
+  border-left: 3px solid var(--mq-yellow);
+  padding-left: 5px;
+}
+.ma-impact-ranking li[data-rank="2"] {
+  background: var(--ma-impact-silver);
+  border-left: 3px solid var(--mq-border);
+  padding-left: 5px;
+}
+.ma-impact-ranking li[data-rank="3"] {
+  background: var(--ma-impact-bronze);
+  border-left: 3px solid var(--ma-impact-bronze-edge);
+  padding-left: 5px;
+}
+.ma-impact-rank {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  width: 32px;
+  height: 42px;
+  font-size: 15px;
+  margin: 0;
+  background: transparent;
+  border-radius: 0;
+}
+.ma-impact-ranking li .ma-impact-rank {
+  background: transparent;
+}
+.ma-impact-rank svg {
+  width: 17px;
+  height: 17px;
+  color: var(--mq-gold);
+  fill: var(--mq-yellow);
+}
+.ma-impact-ranking li[data-rank="2"] .ma-impact-rank svg {
+  color: var(--mq-subtle);
+  fill: var(--mq-border);
+}
+.ma-impact-ranking li[data-rank="3"] .ma-impact-rank svg {
+  color: var(--ma-impact-bronze-edge);
+  fill: var(--ma-impact-bronze);
+}
+.ma-impact-ranking li > img {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+}
+.ma-impact-person {
+  min-width: 0;
+}
+.ma-impact-ranking h3,
+.ma-impact-dialog .ma-impact-ranking h3 {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.ma-impact-ranking p,
+.ma-impact-dialog .ma-impact-ranking p {
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 3px 0 0;
+}
+.ma-impact-ranking p span {
+  display: block;
+  color: var(--mq-muted);
+}
+.ma-impact-ranking .ma-impact-hours {
+  flex-direction: column;
+  background: transparent;
+  font-size: 20px;
+  font-weight: 800;
+  padding: 0;
+  margin: 0;
+  line-height: 1.2;
+}
+.ma-impact-ranking .ma-impact-hours small {
+  font-size: 10px;
+  font-weight: 500;
+  margin-top: 2px;
+  color: var(--mq-muted);
+}
+.ma-impact-contribution,
+.ma-impact-dialog .ma-impact-contribution {
+  grid-column: 3 / -1;
+  font-size: 11px;
+  line-height: 1.5;
+  gap: 5px;
+  padding: 0;
+  margin-top: 2px;
+  background: transparent;
+  border-radius: 0;
+}
+.ma-impact-contribution svg {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+}
+.ma-impact-view {
+  min-height: 44px;
+  margin-top: 18px;
+  font-size: 13px;
+}
+.ma-impact .ma-impact-position {
+  position: fixed;
+  z-index: 41;
+  bottom: calc(79px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 20px), 498px);
+  height: 68px;
+  margin: 0;
+  padding: 10px 14px;
+  gap: 10px;
+  border: 1px solid var(--mq-success-soft);
+  border-radius: 16px;
+  box-shadow: var(--mq-shadow-md);
+}
+.ma-impact-position > svg {
+  width: 32px;
+  height: 32px;
+}
+.ma-impact-position > p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 10px;
+  font-size: 11px;
+}
+.ma-impact-position > p strong {
+  font-size: 24px;
+  white-space: nowrap;
+}
+.ma-impact-position > p span {
+  max-width: 90px;
+  line-height: 1.4;
+}
+.ma-impact-position > div {
+  gap: 6px;
+  padding-left: 10px;
+}
+.ma-impact-position b {
+  font-size: 14px;
+}
+.ma-impact-position small {
+  font-size: 9px;
+  margin-top: 3px;
+}
+.ma-impact-achievement-heading {
+  margin-top: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ma-impact-achievement-heading .ma-impact-title {
+  margin: 0;
+}
+.ma-impact-achievement-heading .ma-action {
+  min-height: 34px;
+  font-size: 11px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+}
+.ma-impact-badges {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 0;
+}
+.ma-impact-badge {
+  min-height: 90px;
+  padding: 12px 8px;
+  gap: 8px;
+}
+.ma-impact-badge img {
+  width: 34px;
+  height: 34px;
+}
+.ma-impact-badge span {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.ma-impact-dialog .ma-impact-ranking li {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+@media (max-width: 360px) {
+  .ma-impact.ma-page {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .ma-impact-header h1 {
+    font-size: 18px;
+  }
+  .ma-impact-ranking li {
+    grid-template-columns: 26px 28px minmax(0, 1fr) 49px;
+    gap: 5px;
+  }
+  .ma-impact-ranking h3 {
+    font-size: 13px;
+  }
+  .ma-impact-ranking li > img {
+    width: 28px;
+    height: 28px;
+  }
+  .ma-impact-winner {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  .ma-impact-winner h3 {
+    font-size: 11px;
+  }
+  .ma-impact .ma-impact-position {
+    padding: 10px;
+    gap: 7px;
+  }
+  .ma-impact-position > div > svg {
+    display: none;
+  }
+}

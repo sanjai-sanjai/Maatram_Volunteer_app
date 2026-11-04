@@ -5,38 +5,38 @@
   color-scheme: light;
 
   /* Brand */
-  --mq-yellow: #FEC802;
-  --mq-yellow-bright: #FFD000;
-  --mq-yellow-soft: #FFE36B;
-  --mq-yellow-pale: #FFF3C6;
-  --mq-cream: #FFFAEE;
-  --mq-gold: #D99A00;
+  --mq-yellow: #fec802;
+  --mq-yellow-bright: #ffd000;
+  --mq-yellow-soft: #ffe36b;
+  --mq-yellow-pale: #fff3c6;
+  --mq-cream: #fffaee;
+  --mq-gold: #d99a00;
 
   /* Text */
-  --mq-ink: #08090D;
-  --mq-text: #12141B;
+  --mq-ink: #08090d;
+  --mq-text: #12141b;
   --mq-navy: #273653;
-  --mq-muted: #626B7B;
-  --mq-subtle: #8A909B;
+  --mq-muted: #626b7b;
+  --mq-subtle: #8a909b;
 
   /* Surfaces */
-  --mq-white: #FFFFFF;
-  --mq-surface: #FFFEFC;
-  --mq-surface-warm: #FFFBF2;
-  --mq-surface-yellow: #FFF7DF;
+  --mq-white: #ffffff;
+  --mq-surface: #fffefc;
+  --mq-surface-warm: #fffbf2;
+  --mq-surface-yellow: #fff7df;
 
   /* Lines */
-  --mq-border: #D9DCE3;
-  --mq-border-soft: #ECEEF2;
-  --mq-divider: #E6E2D8;
+  --mq-border: #d9dce3;
+  --mq-border-soft: #eceef2;
+  --mq-divider: #e6e2d8;
 
   /* Status */
-  --mq-success: #20B83A;
-  --mq-success-dark: #087B25;
-  --mq-success-soft: #E8FBE9;
-  --mq-error: #E53935;
-  --mq-info: #2B4EBC;
-  --mq-info-soft: #F0F1FF;
+  --mq-success: #20b83a;
+  --mq-success-dark: #087b25;
+  --mq-success-soft: #e8fbe9;
+  --mq-error: #e53935;
+  --mq-info: #2b4ebc;
+  --mq-info-soft: #f0f1ff;
 
   /* Typography */
   --mq-font: "Poppins", "Nunito Sans", "Segoe UI", Arial, sans-serif;

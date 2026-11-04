@@ -32,24 +32,42 @@ export function AdminState({ children }: { children: ReactNode }) {
         if (s.published) setPublished(s.published);
         if (s.sent) setSent(s.sent);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     setLoaded(true);
   }, []);
   useEffect(() => {
     if (!loaded) return;
-    try { sessionStorage.setItem(KEY, JSON.stringify({ draft, created, published, sent })); }
-    catch {
+    try {
+      sessionStorage.setItem(KEY, JSON.stringify({ draft, created, published, sent }));
+    } catch {
       // Large uploaded images may exceed storage; keep everything else.
-      try { sessionStorage.setItem(KEY, JSON.stringify({ draft: { ...draft, image: null }, created: [], published: null, sent })); } catch { /* ignore */ }
+      try {
+        sessionStorage.setItem(
+          KEY,
+          JSON.stringify({ draft: { ...draft, image: null }, created: [], published: null, sent }),
+        );
+      } catch {
+        /* ignore */
+      }
     }
   }, [draft, created, published, sent, loaded]);
 
   const publish = () => {
     const ev: AdminEvent = {
       id: `${draft.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`,
-      name: draft.name, category: draft.type, status: "Live", date: draft.date,
-      location: draft.location.replace("Tamil Nadu", "TN"), fullLocation: draft.location, time: draft.time,
-      registered: 0, needed: draft.volunteers, image: draft.image ?? defaultDraft.image!, tags: draft.tags.map((t) => t.toLowerCase()),
+      name: draft.name,
+      category: draft.type,
+      status: "Live",
+      date: draft.date,
+      location: draft.location.replace("Tamil Nadu", "TN"),
+      fullLocation: draft.location,
+      time: draft.time,
+      registered: 0,
+      needed: draft.volunteers,
+      image: draft.image ?? defaultDraft.image!,
+      tags: draft.tags.map((t) => t.toLowerCase()),
     };
     setCreated((c) => [ev, ...c]);
     setPublished(ev);
@@ -57,13 +75,27 @@ export function AdminState({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{
-      draft, update: (p) => setDraft((d) => ({ ...d, ...p })), resetDraft: () => setDraft(defaultDraft),
-      events: [...created, ...adminEvents], published, publish, sent, recordSent: (s) => setSent((o) => [...o, s]),
-    }}>{children}</Ctx.Provider>
+    <Ctx.Provider
+      value={{
+        draft,
+        update: (p) => setDraft((d) => ({ ...d, ...p })),
+        resetDraft: () => setDraft(defaultDraft),
+        events: [...created, ...adminEvents],
+        published,
+        publish,
+        sent,
+        recordSent: (s) => setSent((o) => [...o, s]),
+      }}
+    >
+      {children}
+    </Ctx.Provider>
   );
 }
-export function useAdmin() { const s = useContext(Ctx); if (!s) throw new Error("AdminState provider missing"); return s; }
+export function useAdmin() {
+  const s = useContext(Ctx);
+  if (!s) throw new Error("AdminState provider missing");
+  return s;
+}
 export function useAdminEvent(id: string | undefined) {
   const { events } = useAdmin();
   return events.find((e) => e.id === id) ?? events.find((e) => e.id === "palm-seeds")!;

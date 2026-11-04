@@ -4,16 +4,39 @@ import { A, Hl, Logo, Screen, Strokes } from "@/components/mq";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/welcome")({
-  head: () => seo("Continue as", "Choose how you want to join Maatram Volunteer Quest: student, alumni, admin or other volunteer."),
+  head: () =>
+    seo(
+      "Continue as",
+      "Choose how you want to join Maatram Volunteer Quest: student, alumni, admin or other volunteer.",
+    ),
   component: Welcome,
 });
 
 function Welcome() {
   const navigate = useNavigate();
   const roles = [
-    { key: "student", title: "Maatram Student", sub: "Login with your Maatram ID (QR Scan)", icon: <GraduationCap className="mq-role__icon" fill="#FEC802" />, to: "/login" as const, active: true },
-    { key: "alumni", title: "Alumni", sub: "Login with your Maatram ID (QR Scan)", icon: <Users className="mq-role__icon" />, to: "/login" as const },
-    { key: "admin", title: "Admin", sub: "Access to event & volunteer management", icon: <ShieldCheck className="mq-role__icon" fill="#FEC802" />, to: "/admin" as const },
+    {
+      key: "student",
+      title: "Maatram Student",
+      sub: "Login with your Maatram ID (QR Scan)",
+      icon: <GraduationCap className="mq-role__icon" fill="#FEC802" />,
+      to: "/login" as const,
+      active: true,
+    },
+    {
+      key: "alumni",
+      title: "Alumni",
+      sub: "Login with your Maatram ID (QR Scan)",
+      icon: <Users className="mq-role__icon" />,
+      to: "/login" as const,
+    },
+    {
+      key: "admin",
+      title: "Admin",
+      sub: "Access to event & volunteer management",
+      icon: <ShieldCheck className="mq-role__icon" fill="#FEC802" />,
+      to: "/admin" as const,
+    },
   ];
   return (
     <Screen deco="tr" footer="waves">
@@ -28,8 +51,14 @@ function Welcome() {
         </h1>
         <Strokes style={{ right: "2%", top: 0 }} />
       </div>
-      <p className="mq-sub">A unified platform to discover opportunities, collaborate, and create real impact.</p>
-      <img className="mq-welcome__art" src={`${A}/illustrations/welcome-volunteers.jpg`} alt="Maatram volunteers walking to school" />
+      <p className="mq-sub">
+        A unified platform to discover opportunities, collaborate, and create real impact.
+      </p>
+      <img
+        className="mq-welcome__art"
+        src={`${A}/illustrations/welcome-volunteers.jpg`}
+        alt="Maatram volunteers walking to school"
+      />
       <div className="mq-divider-title">Continue as</div>
       {roles.map((r) => (
         <button

@@ -36,7 +36,16 @@ function Verifying() {
       </div>
       <div className="mq-verify__ring">
         <svg className="mq-spinring" viewBox="0 0 100 100" aria-hidden>
-          <circle cx="50" cy="50" r="47" fill="none" stroke="#FEC802" strokeWidth="1.6" strokeDasharray="40 18 8 30" strokeLinecap="round" />
+          <circle
+            cx="50"
+            cy="50"
+            r="47"
+            fill="none"
+            stroke="#FEC802"
+            strokeWidth="1.6"
+            strokeDasharray="40 18 8 30"
+            strokeLinecap="round"
+          />
         </svg>
         <img src={`${A}/illustrations/verification-id-badge.png`} alt="Maatram ID being verified" />
       </div>
@@ -50,7 +59,9 @@ function Verifying() {
           const state = n < active ? "done" : n === active ? "active" : "idle";
           return (
             <li key={st.t}>
-              <span className={`mq-dot ${state === "done" ? "mq-dot--done" : state === "active" ? "mq-dot--active" : ""}`}>
+              <span
+                className={`mq-dot ${state === "done" ? "mq-dot--done" : state === "active" ? "mq-dot--active" : ""}`}
+              >
                 {state === "done" && <Check size={16} strokeWidth={3.5} />}
               </span>
               {state === "idle" ? (
@@ -61,7 +72,15 @@ function Verifying() {
                   <small>{st.s}</small>
                 </div>
               )}
-              {state === "active" ? <span className="mq-dots"><i /><i /><i /></span> : <span />}
+              {state === "active" ? (
+                <span className="mq-dots">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              ) : (
+                <span />
+              )}
             </li>
           );
         })}

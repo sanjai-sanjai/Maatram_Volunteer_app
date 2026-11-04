@@ -1,16 +1,35 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  Menu, Bell, GraduationCap, CalendarDays, Clock3, HandHeart,
-  MapPin, Users, ArrowRight, ClipboardCheck, Trophy, X, LogOut, Award,
+  Menu,
+  Bell,
+  GraduationCap,
+  CalendarDays,
+  Clock3,
+  HandHeart,
+  MapPin,
+  Users,
+  ArrowRight,
+  ClipboardCheck,
+  Trophy,
+  X,
+  LogOut,
+  Award,
 } from "lucide-react";
 import { BottomNav } from "@/components/AppNav";
-import { mockActive as act, mockDashboard as d, mockNotifications, mockOpportunities, mockStudent as s } from "@/data/mock";
+import {
+  mockActive as act,
+  mockDashboard as d,
+  mockNotifications,
+  mockOpportunities,
+  mockStudent as s,
+} from "@/data/mock";
 import { seo } from "@/lib/seo";
 import { useMaatramState } from "@/components/MaatramState";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => seo("Student Home", "Your Maatram volunteering dashboard: opportunities, hours and progress."),
+  head: () =>
+    seo("Student Home", "Your Maatram volunteering dashboard: opportunities, hours and progress."),
   component: Dashboard,
 });
 
@@ -27,52 +46,130 @@ function Dashboard() {
   return (
     <main className="mq-dashboard">
       <header className="mq-dashboard__topbar">
-        <button className="mq-dashboard__round-action" aria-label="Open menu" onClick={() => setPanel("menu")}><Menu size={27} /></button>
-        <img className="mq-dashboard__brand" src="/assets/brand/maatram-foundation-logo.png" alt="Maatram Foundation" width={440} height={180} />
-        <button className="mq-dashboard__round-action mq-dashboard__notification" aria-label="Notifications" onClick={() => setPanel("notif")}>
+        <button
+          className="mq-dashboard__round-action"
+          aria-label="Open menu"
+          onClick={() => setPanel("menu")}
+        >
+          <Menu size={27} />
+        </button>
+        <img
+          className="mq-dashboard__brand"
+          src="/assets/brand/maatram-foundation-logo.png"
+          alt="Maatram Foundation"
+          width={440}
+          height={180}
+        />
+        <button
+          className="mq-dashboard__round-action mq-dashboard__notification"
+          aria-label="Notifications"
+          onClick={() => setPanel("notif")}
+        >
           <Bell size={27} />
         </button>
       </header>
 
       <section className="mq-dashboard__welcome">
-        <img className="mq-dashboard__avatar" src={`${A}student-avatar.jpg`} alt="Student profile" width={124} height={124} />
+        <img
+          className="mq-dashboard__avatar"
+          src={`${A}student-avatar.jpg`}
+          alt="Student profile"
+          width={124}
+          height={124}
+        />
         <div>
           <h1 className="mq-dashboard__greeting">Good morning, {s.firstName}! 👋</h1>
-          <p className="mq-dashboard__identity">{s.category} · {s.maatramId}</p>
-          <p className="mq-dashboard__college"><GraduationCap size={17} style={{ display: "inline", verticalAlign: "middle" }} /> {s.college}</p>
+          <p className="mq-dashboard__identity">
+            {s.category} · {s.maatramId}
+          </p>
+          <p className="mq-dashboard__college">
+            <GraduationCap size={17} style={{ display: "inline", verticalAlign: "middle" }} />{" "}
+            {s.college}
+          </p>
         </div>
       </section>
 
-      <img className="mq-dashboard__hero" src={`${A}impact-hero.jpg`} alt="Make an Impact with Maatram! Volunteer · Lead · Create Change" width={755} height={271} />
+      <img
+        className="mq-dashboard__hero"
+        src={`${A}impact-hero.jpg`}
+        alt="Make an Impact with Maatram! Volunteer · Lead · Create Change"
+        width={755}
+        height={271}
+      />
 
       <section className="mq-dashboard__stats" aria-label="Volunteer statistics">
-        <Stat icon={<CalendarDays className="mq-dashboard__stat-icon" fill="#FEC802" />} value={d.opportunities} label="Opportunities" />
-        <Stat icon={<Clock3 className="mq-dashboard__stat-icon" fill="#FEC802" />} value={d.volunteerHours} label="Volunteer Hours" />
-        <Stat icon={<HandHeart className="mq-dashboard__stat-icon" fill="#FEC802" />} value={d.contributed} label="Volunteering Contributed" />
-        <Stat icon={<Award className="mq-dashboard__stat-icon" fill="#FEC802" />} value={d.impactPoints} label="Impact Points" />
+        <Stat
+          icon={<CalendarDays className="mq-dashboard__stat-icon" fill="#FEC802" />}
+          value={d.opportunities}
+          label="Opportunities"
+        />
+        <Stat
+          icon={<Clock3 className="mq-dashboard__stat-icon" fill="#FEC802" />}
+          value={d.volunteerHours}
+          label="Volunteer Hours"
+        />
+        <Stat
+          icon={<HandHeart className="mq-dashboard__stat-icon" fill="#FEC802" />}
+          value={d.contributed}
+          label="Volunteering Contributed"
+        />
+        <Stat
+          icon={<Award className="mq-dashboard__stat-icon" fill="#FEC802" />}
+          value={d.impactPoints}
+          label="Impact Points"
+        />
       </section>
 
       <section className="mq-dashboard__section">
         <div className="mq-dashboard__section-head">
           <h2 className="mq-dashboard__section-title">Upcoming Opportunities</h2>
-          <Link className="mq-dashboard__view-all" to="/opportunities">View All <span className="mq-dashboard__new">{d.newOpportunities} New</span><ArrowRight size={20} /></Link>
+          <Link className="mq-dashboard__view-all" to="/opportunities">
+            View All <span className="mq-dashboard__new">{d.newOpportunities} New</span>
+            <ArrowRight size={20} />
+          </Link>
         </div>
         <article className="mq-dashboard__opportunity">
-          <img className="mq-dashboard__opportunity-image" src={op.image} alt="Volunteers planting seedlings" width={265} height={327} />
+          <img
+            className="mq-dashboard__opportunity-image"
+            src={op.image}
+            alt="Volunteers planting seedlings"
+            width={265}
+            height={327}
+          />
           <div className="mq-dashboard__opportunity-content">
             <h3 className="mq-dashboard__opportunity-title">{op.name}</h3>
             <div className="mq-dashboard__meta">
-              <span className="mq-dashboard__meta-item"><MapPin size={17} /> {op.location}</span>
-              <span className="mq-dashboard__meta-item"><CalendarDays size={16} /> {op.date}</span>
-              <span className="mq-dashboard__meta-item"><Clock3 size={16} /> {op.time}</span>
+              <span className="mq-dashboard__meta-item">
+                <MapPin size={17} /> {op.location}
+              </span>
+              <span className="mq-dashboard__meta-item">
+                <CalendarDays size={16} /> {op.date}
+              </span>
+              <span className="mq-dashboard__meta-item">
+                <Clock3 size={16} /> {op.time}
+              </span>
             </div>
-            <div className="mq-dashboard__joined"><Users size={20} /> {op.joined} / {op.capacity} Volunteers Joined</div>
-            <div className="mq-dashboard__progress"><span style={{ width: `${pct}%` }} /></div>
+            <div className="mq-dashboard__joined">
+              <Users size={20} /> {op.joined} / {op.capacity} Volunteers Joined
+            </div>
+            <div className="mq-dashboard__progress">
+              <span style={{ width: `${pct}%` }} />
+            </div>
             <div className="mq-dashboard__slots">
               <Users size={30} />
-              <div><strong>{op.capacity - op.joined} Slots Remaining!</strong><span>Click to contribute your volunteering.</span></div>
+              <div>
+                <strong>{op.capacity - op.joined} Slots Remaining!</strong>
+                <span>Click to contribute your volunteering.</span>
+              </div>
             </div>
-            <button className="mq-dashboard__contribute" onClick={() => navigate({ to: "/opportunities/$opportunityId", params: { opportunityId: op.id } })}>Contribute <ArrowRight size={21} /></button>
+            <button
+              className="mq-dashboard__contribute"
+              onClick={() =>
+                navigate({ to: "/opportunities/$opportunityId", params: { opportunityId: op.id } })
+              }
+            >
+              Contribute <ArrowRight size={21} />
+            </button>
           </div>
         </article>
       </section>
@@ -85,15 +182,28 @@ function Dashboard() {
           <ClipboardCheck className="mq-dashboard__active-icon" />
           <div>
             <h3 className="mq-dashboard__active-title">{act.name}</h3>
-            <div className="mq-dashboard__active-row"><div className="mq-dashboard__active-meta">
-              <span><CalendarDays size={16} style={{ display: "inline", verticalAlign: "middle" }} /> {act.date}</span>
-              <span><MapPin size={16} style={{ display: "inline", verticalAlign: "middle" }} /> {act.location}</span>
+            <div className="mq-dashboard__active-row">
+              <div className="mq-dashboard__active-meta">
+                <span>
+                  <CalendarDays size={16} style={{ display: "inline", verticalAlign: "middle" }} />{" "}
+                  {act.date}
+                </span>
+                <span>
+                  <MapPin size={16} style={{ display: "inline", verticalAlign: "middle" }} />{" "}
+                  {act.location}
+                </span>
+              </div>
+              <div className="mq-dashboard__active-footer">
+                <span className="mq-dashboard__community-status">● {act.status}</span>
+                <span style={{ flex: 1 }} />
+                <button
+                  className="mq-dashboard__outline-action"
+                  onClick={() => navigate({ to: "/community" })}
+                >
+                  Open Community <ArrowRight size={16} />
+                </button>
+              </div>
             </div>
-            <div className="mq-dashboard__active-footer">
-              <span className="mq-dashboard__community-status">● {act.status}</span>
-              <span style={{ flex: 1 }} />
-              <button className="mq-dashboard__outline-action" onClick={() => navigate({ to: "/community" })}>Open Community <ArrowRight size={16} /></button>
-            </div></div>
           </div>
         </article>
       </section>
@@ -104,14 +214,32 @@ function Dashboard() {
         </div>
         <div className="mq-dashboard__progress-card">
           <div className="mq-dashboard__goal-ring">
-            <div className="mq-dashboard__goal-ring-inner"><strong>{d.progress}%</strong><span>Volunteer Goal</span></div>
+            <div className="mq-dashboard__goal-ring-inner">
+              <strong>{d.progress}%</strong>
+              <span>Volunteer Goal</span>
+            </div>
           </div>
           <div className="mq-dashboard__goal-detail">
-            <h3><span style={{ fontSize: 16 }}>🎯</span> Your Goal</h3><p>Complete {d.goalHours} Volunteer Hours</p>
-            <strong>{d.completedHours} / {d.goalHours} Hours</strong>
-            <div className="mq-dashboard__goal-bar"><span /></div>
+            <h3>
+              <span style={{ fontSize: 16 }}>🎯</span> Your Goal
+            </h3>
+            <p>Complete {d.goalHours} Volunteer Hours</p>
+            <strong>
+              {d.completedHours} / {d.goalHours} Hours
+            </strong>
+            <div className="mq-dashboard__goal-bar">
+              <span />
+            </div>
           </div>
-          <Link to="/impact" className="mq-dashboard__leaderboard"><Trophy size={30} color="#b97f00" fill="#FEC802" style={{ flex: "none" }} /><span><strong>{d.hoursToTop3} more</strong><br />hours to enter the <strong>Top 3!</strong></span><ArrowRight size={17} /></Link>
+          <Link to="/impact" className="mq-dashboard__leaderboard">
+            <Trophy size={30} color="#b97f00" fill="#FEC802" style={{ flex: "none" }} />
+            <span>
+              <strong>{d.hoursToTop3} more</strong>
+              <br />
+              hours to enter the <strong>Top 3!</strong>
+            </span>
+            <ArrowRight size={17} />
+          </Link>
         </div>
       </section>
 
@@ -122,31 +250,67 @@ function Dashboard() {
         <div className="mq-overlay" onClick={() => setPanel(null)}>
           {panel === "menu" && (
             <aside className="mq-drawer" onClick={(e) => e.stopPropagation()}>
-              <img src="/assets/brand/maatram-foundation-logo.png" alt="Maatram Foundation" style={{ width: 150 }} />
+              <img
+                src="/assets/brand/maatram-foundation-logo.png"
+                alt="Maatram Foundation"
+                style={{ width: 150 }}
+              />
               <div style={{ marginTop: 18 }}>
-                {[["My Profile", "/profile"], ["Opportunities", "/opportunities"], ["Community", "/community"], ["My Impact", "/impact"]].map(([l, to]) => (
-                  <Link key={to} to={to as "/profile"} className="mq-list-item">{l}</Link>
+                {[
+                  ["My Profile", "/profile"],
+                  ["Opportunities", "/opportunities"],
+                  ["Community", "/community"],
+                  ["My Impact", "/impact"],
+                ].map(([l, to]) => (
+                  <Link key={to} to={to as "/profile"} className="mq-list-item">
+                    {l}
+                  </Link>
                 ))}
-                <Link to="/welcome" className="mq-list-item"><LogOut size={18} /> Log out</Link>
+                <Link to="/welcome" className="mq-list-item">
+                  <LogOut size={18} /> Log out
+                </Link>
               </div>
             </aside>
           )}
           {panel === "notif" && (
             <div className="mq-sheet" onClick={(e) => e.stopPropagation()}>
               <SheetHead title="Notifications" onClose={() => setPanel(null)} />
-              {mockNotifications.map((n) => <div key={n} className="mq-list-item"><Bell size={18} color="#d99a00" /> {n}</div>)}
+              {mockNotifications.map((n) => (
+                <div key={n} className="mq-list-item">
+                  <Bell size={18} color="#d99a00" /> {n}
+                </div>
+              ))}
             </div>
           )}
           {(panel === "contribute" || panel === "joined") && (
             <div className="mq-sheet" onClick={(e) => e.stopPropagation()}>
               <SheetHead title={op.name} onClose={() => setPanel(null)} />
-              <img src={op.image} alt="" style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 18 }} />
+              <img
+                src={op.image}
+                alt=""
+                style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 18 }}
+              />
               <p style={{ color: "var(--mq-navy)" }}>{op.description}</p>
-              <p><b>{op.location}</b> · {op.date} · {op.time}</p>
+              <p>
+                <b>{op.location}</b> · {op.date} · {op.time}
+              </p>
               {panel === "joined" ? (
-                <p className="mq-dashboard__community-status" style={{ display: "block", textAlign: "center", padding: 12 }}>✓ You're registered! See you there.</p>
+                <p
+                  className="mq-dashboard__community-status"
+                  style={{ display: "block", textAlign: "center", padding: 12 }}
+                >
+                  ✓ You're registered! See you there.
+                </p>
               ) : (
-                <button className="mq-btn" onClick={() => { maatramState.register(op.id); setPanel("joined"); }}>Confirm Contribution</button>
+                <button
+                  className="mq-btn"
+                  onClick={() => {
+                    maatramState.register(op.id);
+                    setPanel("joined");
+                  }}
+                >
+                  Confirm Contribution
+                </button>
               )}
             </div>
           )}
@@ -158,13 +322,28 @@ function Dashboard() {
 
 function SheetHead({ title, onClose }: { title: string; onClose: () => void }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 12,
+      }}
+    >
       <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>{title}</h2>
-      <button className="mq-back" aria-label="Close" onClick={onClose}><X size={20} /></button>
+      <button className="mq-back" aria-label="Close" onClick={onClose}>
+        <X size={20} />
+      </button>
     </div>
   );
 }
 
 function Stat({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
-  return <div className="mq-dashboard__stat">{icon}<strong className="mq-dashboard__stat-value">{value}</strong><span className="mq-dashboard__stat-label">{label}</span></div>;
+  return (
+    <div className="mq-dashboard__stat">
+      {icon}
+      <strong className="mq-dashboard__stat-value">{value}</strong>
+      <span className="mq-dashboard__stat-label">{label}</span>
+    </div>
+  );
 }
