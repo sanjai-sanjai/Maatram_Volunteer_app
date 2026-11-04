@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  type ReactNode,
+} from "react";
 import { adminEvents, defaultDraft, type AdminEvent, type EventDraft } from "@/data/admin-mock";
 
 type Sent = { eventId: string; tier: number; count: number };
@@ -37,6 +45,7 @@ export function AdminState({ children }: { children: ReactNode }) {
     }
     setLoaded(true);
   }, []);
+
   useEffect(() => {
     if (!loaded) return;
     try {
@@ -54,7 +63,19 @@ export function AdminState({ children }: { children: ReactNode }) {
     }
   }, [draft, created, published, sent, loaded]);
 
-  const publish = () => {
+  const update = useCallback((p: Partial<EventDraft>) => {
+    setDraft((d) => ({ ...d, ...p }));
+  }, []);
+
+  const resetDraft = useCallback(() => {
+    setDraft(defaultDraft);
+  }, []);
+
+  const recordSent = useCallback((s: Sent) => {
+    setSent((o) => [...o, s]);
+  }, []);
+
+  const publish = useCallback(() => {
     const ev: AdminEvent = {
       id: `${draft.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`,
       name: draft.name,
@@ -72,30 +93,33 @@ export function AdminState({ children }: { children: ReactNode }) {
     setCreated((c) => [ev, ...c]);
     setPublished(ev);
     return ev;
-  };
+  }, [draft]);
 
-  return (
-    <Ctx.Provider
-      value={{
-        draft,
-        update: (p) => setDraft((d) => ({ ...d, ...p })),
-        resetDraft: () => setDraft(defaultDraft),
-        events: [...created, ...adminEvents],
-        published,
-        publish,
-        sent,
-        recordSent: (s) => setSent((o) => [...o, s]),
-      }}
-    >
-      {children}
-    </Ctx.Provider>
+  const events = useMemo(() => [...created, ...adminEvents], [created]);
+
+  const value = useMemo(
+    () => ({
+      draft,
+      update,
+      resetDraft,
+      events,
+      published,
+      publish,
+      sent,
+      recordSent,
+    }),
+    [draft, update, resetDraft, events, published, publish, sent, recordSent],
   );
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
+
 export function useAdmin() {
   const s = useContext(Ctx);
   if (!s) throw new Error("AdminState provider missing");
   return s;
 }
+
 export function useAdminEvent(id: string | undefined) {
   const { events } = useAdmin();
   return events.find((e) => e.id === id) ?? events.find((e) => e.id === "palm-seeds")!;

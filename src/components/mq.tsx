@@ -34,6 +34,8 @@ export function Screen({
             className="mq-deco mq-deco--tr"
             src={`${A}/decorations/corner-wave-top-right.png`}
             alt=""
+            loading="lazy"
+            decoding="async"
           />
         )}
         {(deco === "tl" || deco === "both") && (
@@ -41,6 +43,8 @@ export function Screen({
             className="mq-deco mq-deco--tl-flip"
             src={`${A}/decorations/corner-wave-top-right.png`}
             alt=""
+            loading="lazy"
+            decoding="async"
           />
         )}
         <div className="mq-screen__body">{children}</div>
@@ -49,6 +53,8 @@ export function Screen({
             className="mq-footer-art"
             src={`${A}/composites/foundation-building-footer.png`}
             alt=""
+            loading="lazy"
+            decoding="async"
           />
         )}
         {footer === "landscape" && (
@@ -56,12 +62,24 @@ export function Screen({
             className="mq-footer-art"
             src={`${A}/decorations/foundation-footer-landscape-composite.png`}
             alt=""
+            loading="lazy"
+            decoding="async"
           />
         )}
         {footer === "waves" && (
           <div className="mq-waves">
-            <img src={`${A}/decorations/bottom-wave-left.png`} alt="" />
-            <img src={`${A}/decorations/bottom-wave-right.png`} alt="" />
+            <img
+              src={`${A}/decorations/bottom-wave-left.png`}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              src={`${A}/decorations/bottom-wave-right.png`}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
           </div>
         )}
       </main>

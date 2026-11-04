@@ -1,0 +1,1 @@
+var e=`/assets/maatram-logo-full-CgVcLr3-.png`;export{e as t};

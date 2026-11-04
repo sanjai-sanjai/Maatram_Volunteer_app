@@ -1,0 +1,1 @@
+var e=`/assets/admin-profile-avatar-BKtxWTLm.png`;export{e as t};

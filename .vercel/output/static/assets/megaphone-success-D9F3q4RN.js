@@ -1,0 +1,1 @@
+var e=`/assets/megaphone-success-DQgWse9c.png`;export{e as t};

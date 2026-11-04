@@ -1,0 +1,1 @@
+import{i as e}from"./opportunity-screens-CgQv3097.js";var t=e;export{t as component};

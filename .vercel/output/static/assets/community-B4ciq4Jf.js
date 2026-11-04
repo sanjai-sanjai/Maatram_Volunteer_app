@@ -1,0 +1,1 @@
+import{t as e}from"./community-screens-DMXMUcQ-.js";var t=e;export{t as component};
