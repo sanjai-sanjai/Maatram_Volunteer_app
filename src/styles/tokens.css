@@ -1,0 +1,89 @@
+/* Maatram Volunteer Quest — design tokens
+   Values are measured/estimated from the supplied 941 × 1672 UI references.
+   Font family is a close web-safe approximation; exact source font was not embedded. */
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --mq-yellow: #FEC802;
+  --mq-yellow-bright: #FFD000;
+  --mq-yellow-soft: #FFE36B;
+  --mq-yellow-pale: #FFF3C6;
+  --mq-cream: #FFFAEE;
+  --mq-gold: #D99A00;
+
+  /* Text */
+  --mq-ink: #08090D;
+  --mq-text: #12141B;
+  --mq-navy: #273653;
+  --mq-muted: #626B7B;
+  --mq-subtle: #8A909B;
+
+  /* Surfaces */
+  --mq-white: #FFFFFF;
+  --mq-surface: #FFFEFC;
+  --mq-surface-warm: #FFFBF2;
+  --mq-surface-yellow: #FFF7DF;
+
+  /* Lines */
+  --mq-border: #D9DCE3;
+  --mq-border-soft: #ECEEF2;
+  --mq-divider: #E6E2D8;
+
+  /* Status */
+  --mq-success: #20B83A;
+  --mq-success-dark: #087B25;
+  --mq-success-soft: #E8FBE9;
+  --mq-error: #E53935;
+  --mq-info: #2B4EBC;
+  --mq-info-soft: #F0F1FF;
+
+  /* Typography */
+  --mq-font: "Poppins", "Nunito Sans", "Segoe UI", Arial, sans-serif;
+  --mq-font-display: "Poppins", "Nunito Sans", "Segoe UI", Arial, sans-serif;
+
+  /* Type scale — mobile-first */
+  --mq-text-xs: 0.75rem;
+  --mq-text-sm: 0.875rem;
+  --mq-text-base: 1rem;
+  --mq-text-lg: 1.125rem;
+  --mq-text-xl: 1.25rem;
+  --mq-heading-sm: 1.375rem;
+  --mq-heading-md: 1.75rem;
+  --mq-heading-lg: 2rem;
+  --mq-heading-xl: clamp(2rem, 5vw, 2.75rem);
+
+  /* Spacing scale (4px base) */
+  --mq-space-1: 0.25rem;
+  --mq-space-2: 0.5rem;
+  --mq-space-3: 0.75rem;
+  --mq-space-4: 1rem;
+  --mq-space-5: 1.25rem;
+  --mq-space-6: 1.5rem;
+  --mq-space-8: 2rem;
+  --mq-space-10: 2.5rem;
+  --mq-space-12: 3rem;
+  --mq-space-16: 4rem;
+
+  /* Radius */
+  --mq-radius-xs: 0.5rem;
+  --mq-radius-sm: 0.75rem;
+  --mq-radius-md: 1rem;
+  --mq-radius-lg: 1.5rem;
+  --mq-radius-xl: 1.875rem;
+  --mq-radius-2xl: 2.25rem;
+  --mq-radius-pill: 999px;
+
+  /* Elevation */
+  --mq-shadow-xs: 0 2px 5px rgba(14, 18, 28, 0.06);
+  --mq-shadow-sm: 0 4px 10px rgba(14, 18, 28, 0.08);
+  --mq-shadow-md: 0 8px 22px rgba(14, 18, 28, 0.09);
+  --mq-shadow-button: 0 7px 14px rgba(14, 18, 28, 0.12);
+
+  /* Layout */
+  --mq-page-max: 520px;
+  --mq-page-gutter: clamp(16px, 4.5vw, 28px);
+  --mq-control-height: 52px;
+  --mq-button-height: 58px;
+  --mq-transition: 180ms ease;
+}
