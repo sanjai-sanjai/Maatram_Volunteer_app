@@ -1,1 +1,0 @@
-import{r as e}from"./useRouter-CWn7bc2R.js";import{u as t}from"./index-DJWiE7kL.js";import{n}from"./opportunity-screens-CgQv3097.js";var r=e();function i(){let{opportunityId:e}=t.useParams();return(0,r.jsx)(n,{id:e})}export{i as component};

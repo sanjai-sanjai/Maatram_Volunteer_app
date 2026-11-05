@@ -1,1 +1,0 @@
-import{r as e}from"./useRouter-CWn7bc2R.js";import{p as t}from"./index-DJWiE7kL.js";import{t as n}from"./AdminState-BosYfGrJ.js";var r=e();function i(){return(0,r.jsx)(n,{children:(0,r.jsx)(t,{})})}export{i as component};

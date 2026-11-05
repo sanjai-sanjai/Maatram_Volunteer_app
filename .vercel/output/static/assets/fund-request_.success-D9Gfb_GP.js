@@ -1,1 +1,0 @@
-import{n as e}from"./fund-screens-wSD-PgNU.js";var t=e;export{t as component};

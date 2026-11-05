@@ -1,1 +1,0 @@
-import{r as e}from"./useRouter-CWn7bc2R.js";import{d as t}from"./index-DJWiE7kL.js";import{n}from"./community-screens-DMXMUcQ-.js";var r=e();function i(){let{communityId:e}=t.useParams();return(0,r.jsx)(n,{id:e})}export{i as component};
