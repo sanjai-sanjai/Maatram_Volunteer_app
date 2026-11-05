@@ -80,7 +80,16 @@ function Verified() {
         </div>
       </section>
       <div style={{ margin: "22px 8% 6px" }}>
-        <PrimaryButton onClick={() => navigate({ to: "/dashboard" })}>
+        <PrimaryButton
+          onClick={() => {
+            try {
+              sessionStorage.removeItem("maatram-dashboard-entered");
+            } catch {
+              /* ignore */
+            }
+            navigate({ to: "/dashboard" });
+          }}
+        >
           Continue to Dashboard
         </PrimaryButton>
       </div>

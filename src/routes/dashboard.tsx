@@ -17,6 +17,7 @@ import {
   Award,
 } from "lucide-react";
 import { BottomNav } from "@/components/AppNav";
+import { DashboardEntrance } from "@/components/DashboardEntrance";
 import {
   mockActive as act,
   mockDashboard as d,
@@ -39,9 +40,33 @@ function Dashboard() {
   const navigate = useNavigate();
   const maatramState = useMaatramState();
   const [panel, setPanel] = useState<null | "menu" | "notif" | "contribute" | "joined">(null);
+  const [showEntrance, setShowEntrance] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("intro") === "1" || urlParams.get("entrance") === "1") return true;
+      return sessionStorage.getItem("maatram-dashboard-entered") !== "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const handleEnterDashboard = () => {
+    try {
+      sessionStorage.setItem("maatram-dashboard-entered", "true");
+    } catch {
+      /* ignore */
+    }
+    setShowEntrance(false);
+  };
+
   const op = mockOpportunities[0];
   if (!op) return null;
   const pct = Math.round((op.joined / op.capacity) * 100);
+
+  if (showEntrance) {
+    return <DashboardEntrance onEnter={handleEnterDashboard} />;
+  }
 
   return (
     <main className="mq-dashboard">
@@ -266,7 +291,39 @@ function Dashboard() {
                     {l}
                   </Link>
                 ))}
-                <Link to="/welcome" className="mq-list-item">
+                <button
+                  type="button"
+                  className="mq-list-item"
+                  style={{
+                    background: "none",
+                    border: 0,
+                    width: "100%",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    font: "inherit",
+                    padding: "10px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                  onClick={() => {
+                    setPanel(null);
+                    setShowEntrance(true);
+                  }}
+                >
+                  <Award size={18} /> Welcome Quote
+                </button>
+                <Link
+                  to="/welcome"
+                  className="mq-list-item"
+                  onClick={() => {
+                    try {
+                      sessionStorage.removeItem("maatram-dashboard-entered");
+                    } catch {
+                      /* ignore */
+                    }
+                  }}
+                >
                   <LogOut size={18} /> Log out
                 </Link>
               </div>

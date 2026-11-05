@@ -965,3 +965,164 @@
   box-sizing: border-box;
   z-index: 40;
 }
+
+/* ==========================================================================
+   Dashboard Entrance Screen (Inspirational Quote & Enter Dashboard)
+   ========================================================================== */
+.mq-entrance-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #fdfaf3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mq-entrance-card {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  max-height: 100svh;
+  aspect-ratio: 576 / 1024;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.mq-entrance-mute-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: grid;
+  place-items: center;
+  color: #4a382c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.mq-entrance-mute-btn:hover {
+  background: #ffffff;
+  transform: scale(1.05);
+}
+
+.mq-entrance-body {
+  position: absolute;
+  top: 59.2%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.mq-entrance-quote {
+  text-align: center;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: clamp(22px, 4.4vh, 42px);
+  user-select: none;
+}
+
+.mq-entrance-line {
+  margin: 0;
+  font-family: "Courier New", Courier, "Courier Prime", monospace, serif;
+  font-size: clamp(17px, 4.4vw, 21px);
+  font-weight: 700;
+  line-height: 1.52;
+  color: #2b1b17;
+  letter-spacing: 0.015em;
+  text-align: center;
+}
+
+.mq-entrance-cursor {
+  display: inline-block;
+  font-weight: 400;
+  color: #2b1b17;
+  margin-left: 2px;
+  animation: mq-cursor-blink 0.85s infinite;
+}
+
+@keyframes mq-cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.mq-entrance-btn-wrap {
+  width: min(100%, 360px);
+  display: flex;
+  justify-content: center;
+}
+
+.mq-entrance-btn {
+  width: 100%;
+  min-height: 54px;
+  border: 0;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #d88909 0%, #ba6f04 50%, #9c5901 100%);
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: clamp(17px, 4.2vw, 20px);
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 26px rgba(216, 137, 9, 0.45), 0 3px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.mq-entrance-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.45),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.mq-entrance-btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 12px 30px rgba(216, 137, 9, 0.55), 0 4px 10px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.mq-entrance-btn:active {
+  transform: scale(0.98);
+  filter: brightness(0.95);
+  box-shadow: 0 6px 16px rgba(216, 137, 9, 0.4);
+}
+
