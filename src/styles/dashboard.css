@@ -1183,51 +1183,52 @@
 }
 
 .mq-entrance-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   width: 100%;
   min-height: 54px;
   border: 0;
-  border-radius: 9999px;
-  background: linear-gradient(180deg, #d88909 0%, #ba6f04 50%, #9c5901 100%);
-  color: #ffffff;
+  border-radius: 999px;
+  background: linear-gradient(100deg, #ffe45e 0%, #ffd21a 45%, #fec400 100%);
+  color: var(--mq-ink, #0e121c);
   font-family: inherit;
-  font-weight: 700;
-  font-size: clamp(17px, 4.2vw, 20px);
+  font-weight: 800;
+  font-size: clamp(17px, 4.4vw, 20px);
   letter-spacing: 0.01em;
   box-shadow:
-    0 10px 26px rgba(216, 137, 9, 0.45),
-    0 3px 8px rgba(0, 0, 0, 0.1);
+    0 8px 22px rgba(254, 196, 0, 0.42),
+    0 4px 10px rgba(14, 18, 28, 0.12);
   cursor: pointer;
+  position: relative;
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
     filter 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
 }
 
 .mq-entrance-btn::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 9999px;
+  border-radius: 999px;
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.45),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+    inset 0 1px 2px rgba(255, 255, 255, 0.65),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.08);
   pointer-events: none;
 }
 
 .mq-entrance-btn:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.04);
   box-shadow:
-    0 12px 30px rgba(216, 137, 9, 0.55),
-    0 4px 10px rgba(0, 0, 0, 0.12);
+    0 11px 28px rgba(254, 196, 0, 0.52),
+    0 5px 12px rgba(14, 18, 28, 0.15);
   transform: translateY(-1px);
 }
 
 .mq-entrance-btn:active {
-  transform: scale(0.98);
-  filter: brightness(0.95);
-  box-shadow: 0 6px 16px rgba(216, 137, 9, 0.4);
+  transform: translateY(1px);
+  filter: brightness(0.97);
+  box-shadow: 0 4px 12px rgba(254, 196, 0, 0.35);
 }

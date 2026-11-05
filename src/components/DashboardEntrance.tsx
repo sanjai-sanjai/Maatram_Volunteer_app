@@ -310,7 +310,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
 
             {/* Yellow Enter Dashboard Button */}
             <div className="mq-entrance-btn-wrap">
-              <button type="button" className="mq-entrance-btn" onClick={handleEnterClick}>
+              <button type="button" className="mq-btn mq-entrance-btn" onClick={handleEnterClick}>
                 Enter Dashboard
               </button>
             </div>
