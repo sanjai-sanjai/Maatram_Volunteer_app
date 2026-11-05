@@ -27,7 +27,7 @@ import { useAdmin } from "@/components/admin/AdminState";
 import { adminStats, fillPercent, pendingActions } from "@/data/admin-mock";
 import { seo } from "@/lib/seo";
 import avatar from "@/assets/admin/admin-profile-avatar.png";
-import logoBadge from "@/assets/admin/maatram-logo-full.png";
+import logoBadge from "@/assets/admin/maatram-logo-badge.png";
 import analyticsArt from "@/assets/admin/analytics-3d-icon.png";
 
 export const Route = createFileRoute("/admin/")({
@@ -71,7 +71,13 @@ function AdminDashboard() {
         >
           <Menu />
         </button>
-        <img className="ad-dash-head__logo" src={logoBadge} alt="Maatram Foundation" />
+        <img
+          className="ad-dash-head__logo"
+          src={logoBadge}
+          alt="Maatram Foundation"
+          width={44}
+          height={44}
+        />
         <div className="ad-dash-head__text">
           <strong>Maatram Foundation</strong>
           <span>Admin Dashboard</span>

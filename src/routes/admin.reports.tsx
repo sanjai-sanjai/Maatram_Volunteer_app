@@ -23,7 +23,7 @@ import {
 } from "@/data/admin-mock";
 import { seo } from "@/lib/seo";
 import avatar from "@/assets/admin/admin-profile-avatar.png";
-import logoBadge from "@/assets/admin/maatram-logo-full.png";
+import logoBadge from "@/assets/admin/maatram-logo-badge.png";
 import icoVolunteers from "@/assets/admin/reports/rep-icon-volunteers.svg";
 import icoCalendar from "@/assets/admin/reports/rep-icon-calendar.svg";
 import icoReport from "@/assets/admin/reports/rep-icon-report.svg";
@@ -182,7 +182,13 @@ function ReportsDashboard() {
     <AdminFrame nav="Reports">
       <header className="ad-dash-head">
         <AdminBack to="/admin" />
-        <img className="ad-dash-head__logo" src={logoBadge} alt="Maatram Foundation" />
+        <img
+          className="ad-dash-head__logo"
+          src={logoBadge}
+          alt="Maatram Foundation"
+          width={44}
+          height={44}
+        />
         <div className="ad-dash-head__text">
           <strong>Maatram Foundation</strong>
           <span>Reports & Analytics</span>

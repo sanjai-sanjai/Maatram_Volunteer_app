@@ -195,9 +195,15 @@
   gap: 10px;
 }
 .ad-dash-head__logo {
-  height: 52px;
-  width: auto;
-  object-fit: contain;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 48% 28%;
+  flex-shrink: 0;
+  border: 1px solid var(--ad-border);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .ad-dash-head__text {
   flex: 1;
