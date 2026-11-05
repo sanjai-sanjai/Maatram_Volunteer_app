@@ -44,7 +44,13 @@ function Dashboard() {
     if (typeof window === "undefined") return false;
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get("intro") === "1" || urlParams.get("entrance") === "1") return true;
+      if (
+        urlParams.get("intro") === "1" ||
+        urlParams.get("entrance") === "1" ||
+        urlParams.get("quote") === "1"
+      ) {
+        return true;
+      }
       return sessionStorage.getItem("maatram-dashboard-entered") !== "true";
     } catch {
       return false;
@@ -65,7 +71,12 @@ function Dashboard() {
   const pct = Math.round((op.joined / op.capacity) * 100);
 
   if (showEntrance) {
-    return <DashboardEntrance onEnter={handleEnterDashboard} />;
+    const initialStage =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("quote") === "1"
+        ? "quote"
+        : "video";
+    return <DashboardEntrance onEnter={handleEnterDashboard} initialStage={initialStage} />;
   }
 
   return (
@@ -308,10 +319,15 @@ function Dashboard() {
                   }}
                   onClick={() => {
                     setPanel(null);
+                    try {
+                      sessionStorage.removeItem("maatram-dashboard-entered");
+                    } catch {
+                      /* ignore */
+                    }
                     setShowEntrance(true);
                   }}
                 >
-                  <Award size={18} /> Welcome Quote
+                  <Award size={18} /> Welcome Animation
                 </button>
                 <Link
                   to="/welcome"
