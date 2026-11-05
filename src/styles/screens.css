@@ -182,6 +182,48 @@
   opacity: 0.6;
 }
 
+/* Splash Video Animation Screen */
+.mq-splash-video-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #fdfaf3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mq-splash-video-card {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  max-height: 100svh;
+  aspect-ratio: 9 / 16;
+  background-color: #fdfaf3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
+}
+
+.mq-splash-video-card.is-exiting {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.mq-splash-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 /* Splash */
 .mq-splash__title {
   position: relative;

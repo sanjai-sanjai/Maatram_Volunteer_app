@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import { useEffect, useCallback } from "react";
-import { ClipboardCheck, Users, Trophy } from "lucide-react";
-import { A, Logo, Screen, Strokes } from "@/components/mq";
+import { useEffect, useCallback, useState, useRef } from "react";
+import splashVideo from "@/assets/splash/splash-animation.mp4";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
@@ -13,78 +12,55 @@ export const Route = createFileRoute("/")({
 function Splash() {
   const navigate = useNavigate();
   const router = useRouter();
+  const [isExiting, setIsExiting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const handleProceed = useCallback(() => {
-    navigate({ to: "/welcome" });
+    setIsExiting(true);
+    setTimeout(() => {
+      navigate({ to: "/welcome" });
+    }, 280);
   }, [navigate]);
 
   useEffect(() => {
     // Preload next route immediately during splash animation
     router.preloadRoute({ to: "/welcome" }).catch(() => {});
-    const t = setTimeout(handleProceed, 3200);
-    return () => clearTimeout(t);
+
+    // Fallback timer ensures transition even under extreme device power-saver modes
+    const fallbackTimer = setTimeout(handleProceed, 10200);
+
+    const video = videoRef.current;
+    if (video) {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    }
+
+    return () => clearTimeout(fallbackTimer);
   }, [router, handleProceed]);
 
   return (
     <div
+      className="mq-splash-video-overlay"
       onClick={handleProceed}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") handleProceed();
       }}
-      style={{ cursor: "pointer" }}
-      title="Click anywhere to continue"
+      aria-label="Maatram Foundation Splash Animation"
     >
-      <Screen deco="tr" footer="landscape">
-        <div style={{ marginTop: 34 }}>
-          <Logo />
-        </div>
-        <div className="mq-splash__title">
-          <h1>Maatram</h1>
-          <h1 className="mq-splash__pill">
-            <span>Volunteer Quest</span>
-          </h1>
-          <Strokes style={{ right: "4%", top: 12 }} />
-        </div>
-        <p className="mq-tagline">Volunteer. Empower. Transform.</p>
-        <img className="mq-swoosh" src={`${A}/decorations/yellow-underline-swoosh.png`} alt="" />
-        <img
-          className="mq-splash__hero"
-          src={`${A}/composites/volunteer-hero-scene.png`}
-          alt="Maatram volunteer with students"
+      <div className={`mq-splash-video-card ${isExiting ? "is-exiting" : ""}`}>
+        <video
+          ref={videoRef}
+          className="mq-splash-video"
+          src={splashVideo}
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          onEnded={handleProceed}
         />
-        <div className="mq-features">
-          <div className="mq-feature">
-            <ClipboardCheck />
-            Find
-            <br />
-            Opportunities
-          </div>
-          <div className="mq-feature">
-            <Users />
-            Collaborate
-            <br />
-            &amp; Volunteer
-          </div>
-          <div className="mq-feature">
-            <Trophy />
-            Earn
-            <br />
-            Recognition
-          </div>
-        </div>
-        <div className="mq-splash__from">
-          <p>
-            From Volunteer Identification to
-            <br />
-            Volunteer Recognition
-          </p>
-        </div>
-        <p className="mq-eco">One Connected Ecosystem</p>
-        <div className="mq-loader" role="status" aria-label="Loading" />
-        <p className="mq-loading-text">Loading your volunteering space...</p>
-      </Screen>
+      </div>
     </div>
   );
 }
