@@ -1129,6 +1129,3 @@ To run this project locally, you need Node.js and npm:
 npm install
 npm run dev
 ```
-npm i
-npm run dev
-```

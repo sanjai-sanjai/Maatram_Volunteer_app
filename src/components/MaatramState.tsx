@@ -73,4 +73,3 @@ export function useMaatramState() {
   if (!state) throw new Error("Maatram state provider is missing");
   return state;
 }
-

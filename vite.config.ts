@@ -9,5 +9,3 @@ export default defineConfig({
     preset: process.env["VERCEL"] ? "vercel" : process.env["NITRO_PRESET"] || "node-server",
   },
 });
-
-
