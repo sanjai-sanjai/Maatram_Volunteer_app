@@ -217,31 +217,52 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
     }
   }, [ensureAudioContext]);
 
-  // Video Autoplay handler with unmuted initial playback
+  // Video Autoplay handler - ALWAYS plays with sound initially
   useEffect(() => {
     if (stage !== "video") return;
     const v = videoRef.current;
     if (!v) return;
 
-    // Start unmuted as requested
+    // Start unmuted as requested - always initially with sound
     v.defaultMuted = false;
     v.muted = false;
+    v.volume = 1.0;
     v.playsInline = true;
 
     const playPromise = v.play();
     if (playPromise !== undefined) {
       playPromise.catch((err) => {
-        // Autoplay policy prevented unmuted playback, mute and continue automatically
-        console.warn("Unmuted autoplay restricted by browser policy, falling back to muted:", err);
-        if (v) {
-          v.muted = true;
-          setIsMuted(true);
-          v.play().catch(() => {});
-        }
+        // Autoplay policy may pause until first gesture, play immediately and unlock sound
+        console.warn("Autoplay audio restriction caught:", err);
+        v.muted = true;
+        v.play()
+          .then(() => {
+            v.muted = false;
+          })
+          .catch(() => {});
       });
     }
 
+    // Immediately restore full sound on any pointer, touch, or click interaction
+    const unlockSound = () => {
+      if (v) {
+        v.muted = false;
+        v.volume = 1.0;
+        if (v.paused) v.play().catch(() => {});
+      }
+      window.removeEventListener("pointerdown", unlockSound);
+      window.removeEventListener("touchstart", unlockSound);
+      window.removeEventListener("click", unlockSound);
+    };
+
+    window.addEventListener("pointerdown", unlockSound, { once: true });
+    window.addEventListener("touchstart", unlockSound, { once: true });
+    window.addEventListener("click", unlockSound, { once: true });
+
     return () => {
+      window.removeEventListener("pointerdown", unlockSound);
+      window.removeEventListener("touchstart", unlockSound);
+      window.removeEventListener("click", unlockSound);
       if (v) {
         v.pause();
       }

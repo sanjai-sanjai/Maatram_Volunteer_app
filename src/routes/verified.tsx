@@ -86,6 +86,17 @@ function Verified() {
           onClick={() => {
             try {
               sessionStorage.removeItem("maatram-dashboard-entered");
+              sessionStorage.removeItem("maatram-blast-shown");
+              sessionStorage.setItem("maatram-blast-pending", "true");
+              // Unlock browser audio context directly on user click
+              const AudioCtx =
+                window.AudioContext ||
+                (window as unknown as { webkitAudioContext: typeof AudioContext })
+                  .webkitAudioContext;
+              if (AudioCtx) {
+                const ctx = new AudioCtx();
+                ctx.resume().catch(() => {});
+              }
             } catch {
               /* ignore */
             }

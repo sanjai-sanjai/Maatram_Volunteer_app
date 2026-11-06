@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { BottomNav } from "@/components/AppNav";
 import { DashboardEntrance } from "@/components/DashboardEntrance";
+import { DashboardBlastPopup } from "@/components/DashboardBlastPopup";
 import {
   mockActive as act,
   mockDashboard as d,
@@ -57,6 +58,8 @@ function Dashboard() {
     }
   });
 
+  const [showBlast, setShowBlast] = useState(false);
+
   useEffect(() => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
@@ -74,9 +77,38 @@ function Dashboard() {
     }
   }, []);
 
+  // Trigger blast popup on first entry from login
+  useEffect(() => {
+    try {
+      if (
+        !showEntrance &&
+        sessionStorage.getItem("maatram-blast-pending") === "true" &&
+        sessionStorage.getItem("maatram-blast-shown") !== "true"
+      ) {
+        setShowBlast(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [showEntrance]);
+
+  const handleCloseBlast = () => {
+    try {
+      sessionStorage.setItem("maatram-blast-shown", "true");
+      sessionStorage.removeItem("maatram-blast-pending");
+    } catch {
+      /* ignore */
+    }
+    setShowBlast(false);
+  };
+
   const handleEnterDashboard = () => {
     try {
       sessionStorage.setItem("maatram-dashboard-entered", "true");
+      if (sessionStorage.getItem("maatram-blast-shown") !== "true") {
+        sessionStorage.setItem("maatram-blast-pending", "true");
+        setShowBlast(true);
+      }
     } catch {
       /* ignore */
     }
@@ -409,6 +441,8 @@ function Dashboard() {
           )}
         </div>
       )}
+
+      {showBlast && <DashboardBlastPopup role={role || "student"} onClose={handleCloseBlast} />}
     </main>
   );
 }
