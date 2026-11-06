@@ -87,6 +87,9 @@ function Dashboard() {
   if (!op) return null;
   const pct = Math.round((op.joined / op.capacity) * 100);
 
+  const role = typeof window !== "undefined" ? sessionStorage.getItem("maatram-role") : "student";
+  const category = role === "alumni" ? "Alumni" : s.category;
+
   if (showEntrance) {
     const initialStage =
       typeof window !== "undefined" &&
@@ -133,7 +136,7 @@ function Dashboard() {
         <div>
           <h1 className="mq-dashboard__greeting">Good morning, {s.firstName}! 👋</h1>
           <p className="mq-dashboard__identity">
-            {s.category} · {s.maatramId}
+            {category} · {s.maatramId}
           </p>
           <p className="mq-dashboard__college">
             <GraduationCap size={17} style={{ display: "inline", verticalAlign: "middle" }} />{" "}

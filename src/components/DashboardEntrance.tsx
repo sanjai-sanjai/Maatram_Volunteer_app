@@ -20,6 +20,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
   });
 
   const [isExiting, setIsExiting] = useState(false);
+  // Initially unmuted for full audio experience
   const [isMuted, setIsMuted] = useState(false);
 
   // Quote typewriter states
@@ -28,17 +29,23 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
   const [activeLine, setActiveLine] = useState<1 | 2 | "done">(1);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const clickBuffersRef = useRef<{
+    char: AudioBuffer;
+    space: AudioBuffer;
+    punct: AudioBuffer;
+  } | null>(null);
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
 
-  // Mechanical typewriter key-click sound synthesis via Web Audio API
-  const playClickSound = useCallback(() => {
-    if (isMuted || typeof window === "undefined") return;
+  // Lazily initialize and unlock AudioContext with pre-computed acoustic transient buffers
+  const ensureAudioContext = useCallback(() => {
+    if (typeof window === "undefined") return null;
     try {
       const AudioCtx =
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AudioCtx) return;
+      if (!AudioCtx) return null;
 
       if (!audioCtxRef.current) {
         audioCtxRef.current = new AudioCtx();
@@ -47,66 +54,185 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
       if (ctx.state === "suspended") {
         ctx.resume().catch(() => {});
       }
-      if (ctx.state !== "running") return;
 
-      const now = ctx.currentTime;
+      // Pre-compute high-resolution acoustic transient buffers if not already cached
+      if (!clickBuffersRef.current && ctx.state !== "closed") {
+        const sr = ctx.sampleRate;
 
-      // 1. Mechanical contact click (1200 - 1600 Hz)
-      const click = ctx.createOscillator();
-      const clickGain = ctx.createGain();
-      click.type = "sine";
-      const freq = 1350 + (Math.random() * 300 - 150);
-      click.frequency.setValueAtTime(freq, now);
-      click.frequency.exponentialRampToValueAtTime(300, now + 0.022);
+        // 1. Standard character strike noise buffer (16ms)
+        const charLen = Math.floor(sr * 0.016);
+        const charBuf = ctx.createBuffer(1, charLen, sr);
+        const cd = charBuf.getChannelData(0);
+        for (let i = 0; i < charLen; i++) {
+          const env = Math.exp(-i / (sr * 0.0035));
+          cd[i] = (Math.random() * 2 - 1) * env;
+        }
 
-      clickGain.gain.setValueAtTime(0.065, now);
-      clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.022);
+        // 2. Spacebar softer thud noise buffer (22ms)
+        const spaceLen = Math.floor(sr * 0.022);
+        const spaceBuf = ctx.createBuffer(1, spaceLen, sr);
+        const sd = spaceBuf.getChannelData(0);
+        for (let i = 0; i < spaceLen; i++) {
+          const env = Math.exp(-i / (sr * 0.0055));
+          sd[i] = (Math.random() * 2 - 1) * env;
+        }
 
-      click.connect(clickGain);
-      clickGain.connect(ctx.destination);
-      click.start(now);
-      click.stop(now + 0.022);
+        // 3. Punctuation crisp accent noise buffer (20ms)
+        const punctLen = Math.floor(sr * 0.02);
+        const punctBuf = ctx.createBuffer(1, punctLen, sr);
+        const pd = punctBuf.getChannelData(0);
+        for (let i = 0; i < punctLen; i++) {
+          const env = Math.exp(-i / (sr * 0.004));
+          pd[i] = (Math.random() * 2 - 1) * env;
+        }
 
-      // 2. Subtle low body thud (130 - 170 Hz)
-      const thud = ctx.createOscillator();
-      const thudGain = ctx.createGain();
-      thud.type = "triangle";
-      thud.frequency.setValueAtTime(150 + (Math.random() * 25 - 12), now);
-      thud.frequency.exponentialRampToValueAtTime(45, now + 0.032);
+        clickBuffersRef.current = {
+          char: charBuf,
+          space: spaceBuf,
+          punct: punctBuf,
+        };
+      }
 
-      thudGain.gain.setValueAtTime(0.075, now);
-      thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.032);
-
-      thud.connect(thudGain);
-      thudGain.connect(ctx.destination);
-      thud.start(now);
-      thud.stop(now + 0.032);
+      return ctx;
     } catch {
-      // Audio playback restrictions safely handled
-    }
-  }, [isMuted]);
-
-  // Unmute / unlock AudioContext on user interaction
-  const handleUserInteract = useCallback(() => {
-    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-      audioCtxRef.current.resume().catch(() => {});
+      return null;
     }
   }, []);
 
-  // Video Autoplay handler with audio policy fallback
+  // Unlock AudioContext eagerly on mount and on user interactions
+  useEffect(() => {
+    ensureAudioContext();
+  }, [ensureAudioContext]);
+
+  const handleUserInteract = useCallback(() => {
+    ensureAudioContext();
+  }, [ensureAudioContext]);
+
+  // High-fidelity, rich and loud mechanical typewriter sound synthesis via Web Audio API
+  const playClickSound = useCallback(
+    (char?: string) => {
+      try {
+        const ctx = ensureAudioContext();
+        if (!ctx || ctx.state !== "running") return;
+
+        const now = ctx.currentTime;
+        const isSpace = char === " ";
+        const isPeriod = char === ".";
+
+        // Master output gain bus for punchy, crisp, loud typing sound
+        const masterGain = ctx.createGain();
+        const masterVol = isPeriod ? 0.48 : isSpace ? 0.38 : 0.44;
+        masterGain.gain.setValueAtTime(masterVol, now);
+        masterGain.connect(ctx.destination);
+
+        // 1. Acoustic Transient Noise Clack (Tactile hammer striking platen)
+        const buffers = clickBuffersRef.current;
+        if (buffers) {
+          const buffer = isSpace ? buffers.space : isPeriod ? buffers.punct : buffers.char;
+          const noiseSource = ctx.createBufferSource();
+          noiseSource.buffer = buffer;
+
+          const noiseFilter = ctx.createBiquadFilter();
+          noiseFilter.type = "bandpass";
+          const centerFreq = isSpace
+            ? 2200
+            : isPeriod
+              ? 3800
+              : 3300 + (Math.random() * 400 - 200);
+          noiseFilter.frequency.setValueAtTime(centerFreq, now);
+          noiseFilter.Q.setValueAtTime(isSpace ? 1.8 : 2.5, now);
+
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.65, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + (isSpace ? 0.022 : 0.016));
+
+          noiseSource.connect(noiseFilter);
+          noiseFilter.connect(noiseGain);
+          noiseGain.connect(masterGain);
+          noiseSource.start(now);
+        }
+
+        // 2. Metallic Typebar Ring / Tactile Switch Snap (High resonant ping)
+        const metalOsc = ctx.createOscillator();
+        const metalGain = ctx.createGain();
+        metalOsc.type = "sine";
+        const metalFreq = isSpace ? 1200 : 2300 + (Math.random() * 300 - 150);
+        metalOsc.frequency.setValueAtTime(metalFreq, now);
+        metalOsc.frequency.exponentialRampToValueAtTime(isSpace ? 450 : 750, now + 0.026);
+
+        metalGain.gain.setValueAtTime(isSpace ? 0.22 : 0.36, now);
+        metalGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.026);
+
+        metalOsc.connect(metalGain);
+        metalGain.connect(masterGain);
+        metalOsc.start(now);
+        metalOsc.stop(now + 0.026);
+
+        // 3. Acoustic Platen Chassis Thump (Deep wooden/body desk resonance)
+        const thudOsc = ctx.createOscillator();
+        const thudGain = ctx.createGain();
+        thudOsc.type = isSpace ? "sine" : "triangle";
+        const baseThud = isSpace ? 120 : isPeriod ? 175 : 155;
+        const thudFreq = baseThud + (Math.random() * 24 - 12);
+        thudOsc.frequency.setValueAtTime(thudFreq, now);
+        thudOsc.frequency.exponentialRampToValueAtTime(36, now + 0.042);
+
+        thudGain.gain.setValueAtTime(isSpace ? 0.44 : 0.38, now);
+        thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.042);
+
+        thudOsc.connect(thudGain);
+        thudGain.connect(masterGain);
+        thudOsc.start(now);
+        thudOsc.stop(now + 0.042);
+      } catch {
+        // Audio playback restrictions safely handled
+      }
+    },
+    [ensureAudioContext],
+  );
+
+  // Carriage return metallic slide click between line 1 and line 2
+  const playCarriageReturn = useCallback(() => {
+    try {
+      const ctx = ensureAudioContext();
+      if (!ctx || ctx.state !== "running") return;
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(920, now);
+      osc.frequency.exponentialRampToValueAtTime(1840, now + 0.035);
+      osc.frequency.exponentialRampToValueAtTime(520, now + 0.075);
+
+      gain.gain.setValueAtTime(0.24, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.075);
+    } catch {
+      // Audio playback restrictions safely handled
+    }
+  }, [ensureAudioContext]);
+
+  // Video Autoplay handler with unmuted initial playback
   useEffect(() => {
     if (stage !== "video") return;
     const v = videoRef.current;
     if (!v) return;
 
-    v.defaultMuted = isMuted;
-    v.muted = isMuted;
+    // Start unmuted as requested
+    v.defaultMuted = false;
+    v.muted = false;
     v.playsInline = true;
 
     const playPromise = v.play();
     if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Autoplay policy prevented playback, ensure muted and retry
+      playPromise.catch((err) => {
+        // Autoplay policy prevented unmuted playback, mute and continue automatically
+        console.warn("Unmuted autoplay restricted by browser policy, falling back to muted:", err);
         if (v) {
           v.muted = true;
           setIsMuted(true);
@@ -120,7 +246,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
         v.pause();
       }
     };
-  }, [stage, isMuted]);
+  }, [stage]);
 
   // Handle video progress updates directly via DOM ref to avoid re-renders
   const handleTimeUpdate = () => {
@@ -151,7 +277,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
     [handleUserInteract],
   );
 
-  // Toggle mute state for video and typewriter sound
+  // Toggle mute state for video
   const handleToggleMute = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setIsMuted((prev) => {
@@ -179,25 +305,28 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
 
     let timer: ReturnType<typeof setTimeout>;
 
-    // Initial pause before typing starts
+    // Initial brief pause before typing starts
     timer = setTimeout(() => {
       let idx1 = 0;
       const typeLine1 = () => {
         if (idx1 < LINE1.length) {
+          const char = LINE1[idx1];
           idx1++;
           setDisplayedLine1(LINE1.slice(0, idx1));
-          playClickSound();
+          playClickSound(char);
           timer = setTimeout(typeLine1, 56);
         } else {
           setActiveLine(2);
+          playCarriageReturn();
           // Pause between line 1 and line 2 (carriage return)
           timer = setTimeout(() => {
             let idx2 = 0;
             const typeLine2 = () => {
               if (idx2 < LINE2.length) {
+                const char = LINE2[idx2];
                 idx2++;
                 setDisplayedLine2(LINE2.slice(0, idx2));
-                playClickSound();
+                playClickSound(char);
                 timer = setTimeout(typeLine2, 56);
               } else {
                 setActiveLine("done");
@@ -211,7 +340,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
     }, 260);
 
     return () => clearTimeout(timer);
-  }, [stage, playClickSound]);
+  }, [stage, playClickSound, playCarriageReturn]);
 
   // Handle final Enter Dashboard click
   const handleEnterClick = (e: React.MouseEvent) => {
@@ -231,7 +360,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
     >
       <div className={`mq-entrance-card ${isExiting ? "is-exiting" : ""}`}>
         {/* =========================================================================
-            STAGE 1: Video Intro Animation Layer
+            STAGE 1: Video Intro Animation Layer (Initially Unmuted)
             ========================================================================= */}
         {stage === "video" && (
           <div
@@ -285,6 +414,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
 
         {/* =========================================================================
             STAGE 2: Inspirational Quote & Enter Dashboard Layer
+            (Sound icon removed as requested; louder unmuted typewriter sound active)
             ========================================================================= */}
         <div
           className={`mq-entrance-layer mq-entrance-quote-layer ${
@@ -292,19 +422,6 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
           }`}
           style={{ backgroundImage: `url(${entranceBg})` }}
         >
-          {/* Audio Mute / Unmute Toggle */}
-          <div className="mq-entrance-top-controls">
-            <button
-              type="button"
-              className="mq-entrance-mute-btn"
-              aria-label={isMuted ? "Unmute typing sound" : "Mute typing sound"}
-              onClick={handleToggleMute}
-              title={isMuted ? "Unmute sound" : "Mute sound"}
-            >
-              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-            </button>
-          </div>
-
           {/* Content container aligned over bottom section of background */}
           <div className="mq-entrance-body" onClick={handleSkipTyping}>
             {/* Animated Quote */}

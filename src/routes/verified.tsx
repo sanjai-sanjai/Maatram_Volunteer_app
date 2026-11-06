@@ -20,6 +20,8 @@ export const Route = createFileRoute("/verified")({
 
 function Verified() {
   const navigate = useNavigate();
+  const role = typeof window !== "undefined" ? sessionStorage.getItem("maatram-role") : "student";
+  const category = role === "alumni" ? "Alumni" : s.category;
   return (
     <Screen deco="tl" footer="building">
       <div style={{ marginTop: 26 }}>
@@ -48,7 +50,7 @@ function Verified() {
           </div>
           <div className="mq-pinfo">
             <GraduationCap />
-            <span>{s.category}</span>
+            <span>{category}</span>
           </div>
           <div className="mq-pinfo">
             <Landmark />

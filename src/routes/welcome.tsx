@@ -64,7 +64,14 @@ function Welcome() {
         <button
           key={r.key}
           className={r.active ? "mq-role mq-role--active" : "mq-role"}
-          onClick={() => navigate({ to: r.to })}
+          onClick={() => {
+            try {
+              sessionStorage.setItem("maatram-role", r.key);
+            } catch {
+              /* ignore */
+            }
+            navigate({ to: r.to });
+          }}
         >
           {r.icon}
           <div>
