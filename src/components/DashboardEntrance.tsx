@@ -102,6 +102,11 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
   // Unlock AudioContext eagerly on mount and on user interactions
   useEffect(() => {
     ensureAudioContext();
+    // Preload background image so it is immediately cached and rendered without latency
+    if (typeof window !== "undefined") {
+      const img = new Image();
+      img.src = entranceBg;
+    }
   }, [ensureAudioContext]);
 
   const handleUserInteract = useCallback(() => {
@@ -326,7 +331,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
 
     let timer: ReturnType<typeof setTimeout>;
 
-    // Initial brief pause before typing starts
+    // Start typing immediately after video finishes without delay
     timer = setTimeout(() => {
       let idx1 = 0;
       const typeLine1 = () => {
@@ -354,11 +359,11 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
               }
             };
             typeLine2();
-          }, 340);
+          }, 320);
         }
       };
       typeLine1();
-    }, 260);
+    }, 40);
 
     return () => clearTimeout(timer);
   }, [stage, playClickSound, playCarriageReturn]);
@@ -457,12 +462,14 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
               </p>
             </div>
 
-            {/* Yellow Enter Dashboard Button */}
-            <div className="mq-entrance-btn-wrap">
-              <button type="button" className="mq-btn mq-entrance-btn" onClick={handleEnterClick}>
-                Enter Dashboard
-              </button>
-            </div>
+            {/* Yellow Enter Dashboard Button - appears only after typing is completed */}
+            {activeLine === "done" && (
+              <div className="mq-entrance-btn-wrap mq-entrance-btn-appear">
+                <button type="button" className="mq-btn mq-entrance-btn" onClick={handleEnterClick}>
+                  Enter Dashboard
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

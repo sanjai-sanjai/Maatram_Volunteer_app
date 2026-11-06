@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from "react";
-import { X, Sparkles, Award, Zap, HeartHandshake } from "lucide-react";
+import { X, Sparkles, CheckCircle2, Zap, Clock3 } from "lucide-react";
 import goldenBadge from "@/assets/profile/golden-checkmark-badge.png";
 
 const CONFETTI_COLORS = [
@@ -98,7 +98,7 @@ export function DashboardBlastPopup({ role = "student", onClose }: DashboardBlas
           <X size={18} />
         </button>
 
-        {/* Central Badge with Confetti Blast Explosion */}
+        {/* Central Badge with Confetti Blast Explosion - Large Prominent Tick Badge */}
         <div className="mq-blast-badge-wrap">
           <div className="mq-blast-confetti-origin" aria-hidden="true">
             {CONFETTI_PIECES.map((p) => (
@@ -120,7 +120,7 @@ export function DashboardBlastPopup({ role = "student", onClose }: DashboardBlas
               />
             ))}
           </div>
-          <img className="mq-blast-badge-img" src={goldenBadge} alt="Celebration Badge" />
+          <img className="mq-blast-badge-img" src={goldenBadge} alt="Verified Celebration Badge" />
         </div>
 
         {/* Celebratory Title & Role-Specific Message */}
@@ -140,22 +140,22 @@ export function DashboardBlastPopup({ role = "student", onClose }: DashboardBlas
           </p>
         </div>
 
-        {/* Quick Highlights Summary Grid */}
+        {/* Quick Highlights Summary Grid: Verified Tick | Opportunity Available | Hours Contributed */}
         <div className="mq-blast-stats">
           <div className="mq-blast-stat">
-            <Award className="mq-blast-stat-icon" size={22} />
+            <CheckCircle2 className="mq-blast-stat-icon mq-blast-tick-icon" size={28} />
             <strong>Verified</strong>
             <small>{isAlumni ? "Alumni Lead" : "Active Volunteer"}</small>
           </div>
           <div className="mq-blast-stat">
-            <Zap className="mq-blast-stat-icon" size={22} />
+            <Zap className="mq-blast-stat-icon" size={24} />
             <strong>12</strong>
-            <small>Opportunities</small>
+            <small>Opportunity Available</small>
           </div>
           <div className="mq-blast-stat">
-            <HeartHandshake className="mq-blast-stat-icon" size={22} />
-            <strong>127</strong>
-            <small>Impact Points</small>
+            <Clock3 className="mq-blast-stat-icon" size={24} />
+            <strong>48 hrs</strong>
+            <small>Hours Contributed</small>
           </div>
         </div>
 
@@ -167,4 +167,3 @@ export function DashboardBlastPopup({ role = "student", onClose }: DashboardBlas
     </div>
   );
 }
-

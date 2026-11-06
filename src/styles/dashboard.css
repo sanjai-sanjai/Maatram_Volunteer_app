@@ -987,7 +987,10 @@
   height: 100%;
   max-height: 100svh;
   aspect-ratio: 9 / 16;
-  background-color: #0d0b09;
+  background-color: #fdfaf3;
+  background-image: url(/assets/dashboard/dashboard-entrance-bg.jpg);
+  background-size: cover;
+  background-position: center top;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1007,17 +1010,16 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mq-entrance-layer.is-hidden {
-  opacity: 0;
+  display: none;
   pointer-events: none;
   visibility: hidden;
 }
 
 .mq-entrance-layer.is-active {
-  opacity: 1;
+  display: flex;
   pointer-events: auto;
   visibility: visible;
 }
@@ -1233,6 +1235,21 @@
   box-shadow: 0 4px 12px rgba(254, 196, 0, 0.35);
 }
 
+.mq-entrance-btn-appear {
+  animation: mq-entrance-btn-pop 0.38s cubic-bezier(0.18, 1.25, 0.36, 1.12) forwards;
+}
+
+@keyframes mq-entrance-btn-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* =========================================================================
    First-Time Entry Blast Pop-up Animation
    ========================================================================= */
@@ -1291,9 +1308,9 @@
 
 .mq-blast-badge-wrap {
   position: relative;
-  width: 130px;
-  height: 110px;
-  margin: 0 auto 12px;
+  width: 160px;
+  height: 140px;
+  margin: 0 auto 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1317,12 +1334,20 @@
 }
 
 .mq-blast-badge-img {
-  width: 100px;
+  width: 140px !important;
+  max-width: 140px;
   height: auto;
   position: relative;
   z-index: 2;
-  filter: drop-shadow(0 10px 20px rgba(254, 200, 2, 0.45));
+  filter: drop-shadow(0 14px 28px rgba(254, 200, 2, 0.55));
   animation: mq-blast-badge-bounce 0.65s cubic-bezier(0.2, 1.6, 0.4, 1) 0.12s backwards;
+}
+
+.mq-blast-tick-icon {
+  width: 28px !important;
+  height: 28px !important;
+  color: #16a34a !important;
+  stroke-width: 2.6;
 }
 
 .mq-blast-sparkle-pill {
