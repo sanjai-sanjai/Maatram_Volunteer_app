@@ -6,6 +6,17 @@ import introVideo from "@/assets/dashboard/intro-animation.mp4";
 const LINE1 = "Be the hands that help.";
 const LINE2 = "Be the change that lasts.";
 
+function releaseMediaElement(video: HTMLVideoElement | null) {
+  if (!video) return;
+  try {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+  } catch {
+    /* safely handle browser edge cases */
+  }
+}
+
 export interface DashboardEntranceProps {
   onEnter: () => void;
   initialStage?: "video" | "quote";
@@ -22,7 +33,6 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
 
   const [isExiting, setIsExiting] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [videoProgress, setVideoProgress] = useState(0);
 
   // Quote typewriter states
   const [displayedLine1, setDisplayedLine1] = useState("");
@@ -31,6 +41,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const progressRef = useRef<HTMLDivElement | null>(null);
 
   // Mechanical typewriter key-click sound synthesis via Web Audio API
   const playClickSound = useCallback(() => {
@@ -112,18 +123,23 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
         }
       });
     }
+
+    return () => {
+      releaseMediaElement(v);
+    };
   }, [stage]);
 
-  // Handle video progress updates
+  // Handle video progress updates directly via DOM ref to avoid re-renders
   const handleTimeUpdate = () => {
     const v = videoRef.current;
-    if (!v || !v.duration) return;
+    if (!v || !v.duration || !progressRef.current) return;
     const pct = Math.min(100, Math.max(0, (v.currentTime / v.duration) * 100));
-    setVideoProgress(pct);
+    progressRef.current.style.width = `${pct}%`;
   };
 
-  // Video ended -> transition smoothly to quote stage
+  // Video ended -> cleanly release hardware decoder and transition to quote stage
   const handleVideoEnd = useCallback(() => {
+    releaseMediaElement(videoRef.current);
     setStage("quote");
   }, []);
 
@@ -132,9 +148,7 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
     (e?: React.MouseEvent) => {
       e?.stopPropagation();
       handleUserInteract();
-      if (videoRef.current) {
-        videoRef.current.pause();
-      }
+      releaseMediaElement(videoRef.current);
       setStage("quote");
     },
     [handleUserInteract],
@@ -222,55 +236,56 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
         {/* =========================================================================
             STAGE 1: Video Intro Animation Layer
             ========================================================================= */}
-        <div
-          className={`mq-entrance-layer mq-entrance-video-layer ${
-            stage === "video" ? "is-active" : "is-hidden"
-          }`}
-          onClick={handleSkipVideo}
-        >
-          <video
-            ref={videoRef}
-            className="mq-entrance-video"
-            src={introVideo}
-            playsInline
-            autoPlay
-            muted={isMuted}
-            preload="auto"
-            onEnded={handleVideoEnd}
-            onTimeUpdate={handleTimeUpdate}
-            onError={handleVideoEnd}
-          />
-
-          {/* Top Video Controls: Sound Toggle and Skip Button */}
-          <div className="mq-entrance-top-controls">
-            <button
-              type="button"
-              className="mq-entrance-mute-btn"
-              aria-label={isMuted ? "Unmute video sound" : "Mute video sound"}
-              onClick={handleToggleMute}
-              title={isMuted ? "Unmute sound" : "Mute sound"}
-            >
-              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-            </button>
-            <button
-              type="button"
-              className="mq-entrance-skip-btn"
-              aria-label="Skip to quote"
-              onClick={handleSkipVideo}
-            >
-              <span>Skip</span>
-              <ChevronRight size={15} />
-            </button>
-          </div>
-
-          {/* Golden Video Progress Bar */}
-          <div className="mq-entrance-video-progress" aria-hidden="true">
-            <div
-              className="mq-entrance-video-progress-fill"
-              style={{ width: `${videoProgress}%` }}
+        {stage === "video" && (
+          <div
+            className="mq-entrance-layer mq-entrance-video-layer is-active"
+            onClick={handleSkipVideo}
+          >
+            <video
+              ref={videoRef}
+              className="mq-entrance-video"
+              src={introVideo}
+              playsInline
+              autoPlay
+              muted={isMuted}
+              preload="auto"
+              onEnded={handleVideoEnd}
+              onTimeUpdate={handleTimeUpdate}
+              onError={handleVideoEnd}
             />
+
+            {/* Top Video Controls: Sound Toggle and Skip Button */}
+            <div className="mq-entrance-top-controls">
+              <button
+                type="button"
+                className="mq-entrance-mute-btn"
+                aria-label={isMuted ? "Unmute video sound" : "Mute video sound"}
+                onClick={handleToggleMute}
+                title={isMuted ? "Unmute sound" : "Mute sound"}
+              >
+                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              </button>
+              <button
+                type="button"
+                className="mq-entrance-skip-btn"
+                aria-label="Skip to quote"
+                onClick={handleSkipVideo}
+              >
+                <span>Skip</span>
+                <ChevronRight size={15} />
+              </button>
+            </div>
+
+            {/* Golden Video Progress Bar */}
+            <div className="mq-entrance-video-progress" aria-hidden="true">
+              <div
+                ref={progressRef}
+                className="mq-entrance-video-progress-fill"
+                style={{ width: "0%" }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* =========================================================================
             STAGE 2: Inspirational Quote & Enter Dashboard Layer
