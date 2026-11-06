@@ -1,21 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Volume2, VolumeX, ChevronRight } from "lucide-react";
 import entranceBg from "@/assets/dashboard/dashboard-entrance-bg.jpg";
-import introVideo from "@/assets/dashboard/intro-animation.mp4";
 
 const LINE1 = "Be the hands that help.";
 const LINE2 = "Be the change that lasts.";
-
-function releaseMediaElement(video: HTMLVideoElement | null) {
-  if (!video) return;
-  try {
-    video.pause();
-    video.removeAttribute("src");
-    video.load();
-  } catch {
-    /* safely handle browser edge cases */
-  }
-}
 
 export interface DashboardEntranceProps {
   onEnter: () => void;
@@ -111,23 +99,28 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
     const v = videoRef.current;
     if (!v) return;
 
-    v.currentTime = 0;
+    v.defaultMuted = isMuted;
+    v.muted = isMuted;
+    v.playsInline = true;
+
     const playPromise = v.play();
     if (playPromise !== undefined) {
       playPromise.catch(() => {
-        // Autoplay policy prevented unmuted playback, mute and continue automatically
-        if (videoRef.current) {
-          videoRef.current.muted = true;
+        // Autoplay policy prevented playback, ensure muted and retry
+        if (v) {
+          v.muted = true;
           setIsMuted(true);
-          videoRef.current.play().catch(() => {});
+          v.play().catch(() => {});
         }
       });
     }
 
     return () => {
-      releaseMediaElement(v);
+      if (v) {
+        v.pause();
+      }
     };
-  }, [stage]);
+  }, [stage, isMuted]);
 
   // Handle video progress updates directly via DOM ref to avoid re-renders
   const handleTimeUpdate = () => {
@@ -137,9 +130,11 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
     progressRef.current.style.width = `${pct}%`;
   };
 
-  // Video ended -> cleanly release hardware decoder and transition to quote stage
+  // Video ended -> cleanly pause and transition to quote stage
   const handleVideoEnd = useCallback(() => {
-    releaseMediaElement(videoRef.current);
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
     setStage("quote");
   }, []);
 
@@ -148,7 +143,9 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
     (e?: React.MouseEvent) => {
       e?.stopPropagation();
       handleUserInteract();
-      releaseMediaElement(videoRef.current);
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
       setStage("quote");
     },
     [handleUserInteract],
@@ -244,14 +241,13 @@ export function DashboardEntrance({ onEnter, initialStage = "video" }: Dashboard
             <video
               ref={videoRef}
               className="mq-entrance-video"
-              src={introVideo}
+              src="/assets/dashboard/intro-animation.mp4"
               playsInline
               autoPlay
               muted={isMuted}
               preload="auto"
               onEnded={handleVideoEnd}
               onTimeUpdate={handleTimeUpdate}
-              onError={handleVideoEnd}
             />
 
             {/* Top Video Controls: Sound Toggle and Skip Button */}

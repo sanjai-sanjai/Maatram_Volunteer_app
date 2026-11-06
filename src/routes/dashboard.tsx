@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Menu,
   Bell,
@@ -56,6 +56,23 @@ function Dashboard() {
       return false;
     }
   });
+
+  useEffect(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (
+        urlParams.get("intro") === "1" ||
+        urlParams.get("entrance") === "1" ||
+        urlParams.get("quote") === "1"
+      ) {
+        setShowEntrance(true);
+      } else if (sessionStorage.getItem("maatram-dashboard-entered") !== "true") {
+        setShowEntrance(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const handleEnterDashboard = () => {
     try {
