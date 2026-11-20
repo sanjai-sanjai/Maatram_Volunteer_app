@@ -940,33 +940,9 @@ function ActionCentreView({
         />
       )}
 
-      {/* 1. Hero Card */}
+      {/* 1. Hero Card - Luxury Gold-Bordered Pill Banner */}
       <section className="ma-action-hero" aria-label="Volunteer Hours Summary">
-        <svg
-          className="ma-hero-waves"
-          viewBox="0 0 400 120"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M0,95 Q100,55 200,90 T400,85 L400,120 L0,120 Z"
-            fill="rgba(254, 200, 2, 0.12)"
-          />
-          <path
-            d="M0,105 Q120,70 240,110 T400,98 L400,120 L0,120 Z"
-            fill="rgba(254, 200, 2, 0.22)"
-          />
-        </svg>
-
-        <TimerDial />
         <HoursCounter />
-        <div className="ma-hero-trophy-wrap">
-          <img
-            src="/assets/impact/hours-trophy-laurel.png"
-            alt="Achievement Trophy"
-            className="ma-hero-trophy-img"
-          />
-        </div>
       </section>
 
       {/* 2. Action Centre Header Row */}
@@ -1196,17 +1172,6 @@ function ActionCentreView({
   );
 }
 
-function TimerDial() {
-  return (
-    <div className="ma-hero-dial">
-      <img
-        src="/assets/impact/hours-timer-dial.png"
-        alt="Volunteer Hours Gauge"
-        className="ma-hero-dial-img"
-      />
-    </div>
-  );
-}
 
 function HoursCounter() {
   const [displayHours, setDisplayHours] = useState(0);
