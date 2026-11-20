@@ -51,7 +51,7 @@ export function ChatScreen({ id }: { id: string }) {
   const state = useMaatramState();
   const [activeTab, setActiveTab] = useState<"chats" | "action">("chats");
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [showActionCentreGuide, setShowActionCentreGuide] = useState(false);
+  const [showActionCentreGuide, setShowActionCentreGuide] = useState(true);
   const [showFabGuide, setShowFabGuide] = useState(false);
   const [reportedIssues, setReportedIssues] = useState<
     Array<{ id: string; category: string; description: string; priority: string; time: string }>
@@ -62,11 +62,10 @@ export function ChatScreen({ id }: { id: string }) {
       const params = new URLSearchParams(window.location.search);
       if (params.get("tab") === "action") {
         setActiveTab("action");
+        setShowActionCentreGuide(false);
+        setTimeout(() => setShowFabGuide(true), 350);
       } else {
-        // Show first-time action centre tour guide if not seen
-        if (!sessionStorage.getItem("maatram_action_centre_guide_seen")) {
-          setTimeout(() => setShowActionCentreGuide(true), 400);
-        }
+        setShowActionCentreGuide(true);
       }
     }
   }, []);
@@ -82,9 +81,11 @@ export function ChatScreen({ id }: { id: string }) {
       }
       window.history.replaceState({}, "", url.toString());
 
-      // If switching to action centre for first time, show FAB guide
-      if (tab === "action" && !sessionStorage.getItem("maatram_fab_guide_seen")) {
+      if (tab === "action") {
+        setShowActionCentreGuide(false);
         setTimeout(() => setShowFabGuide(true), 350);
+      } else {
+        setShowFabGuide(false);
       }
     }
   }
@@ -242,7 +243,7 @@ export function ChatScreen({ id }: { id: string }) {
             role="tab"
             id="ma-tab-action-centre"
             aria-selected={activeTab === "action"}
-            className={`ma-chat-tab ${activeTab === "action" ? "is-active" : ""}`}
+            className={`ma-chat-tab ${activeTab === "action" ? "is-active" : ""} ${showActionCentreGuide ? "is-tour-spotlight" : ""}`}
             onClick={() => switchTab("action")}
           >
             <LayoutGrid size={16} strokeWidth={2.2} />
@@ -308,6 +309,7 @@ export function ChatScreen({ id }: { id: string }) {
             onReport={() => setReportModalOpen(true)}
             onFeedback={() => setFeedbackModalOpen(true)}
             reportedIssues={reportedIssues}
+            isFabGuideActive={showFabGuide}
           />
         ) : (
           <>
@@ -727,25 +729,21 @@ export function ChatScreen({ id }: { id: string }) {
       <ActionCentreTourModal
         open={showActionCentreGuide}
         onExplore={() => {
-          sessionStorage.setItem("maatram_action_centre_guide_seen", "true");
           setShowActionCentreGuide(false);
           switchTab("action");
         }}
         onClose={() => {
-          sessionStorage.setItem("maatram_action_centre_guide_seen", "true");
           setShowActionCentreGuide(false);
         }}
       />
       <FabTourModal
         open={showFabGuide && activeTab === "action"}
         onTryNow={() => {
-          sessionStorage.setItem("maatram_fab_guide_seen", "true");
           setShowFabGuide(false);
           const fab = document.getElementById("ma-action-fab-button");
           if (fab) fab.click();
         }}
         onClose={() => {
-          sessionStorage.setItem("maatram_fab_guide_seen", "true");
           setShowFabGuide(false);
         }}
       />
@@ -920,12 +918,14 @@ function ActionCentreView({
   onReport,
   onFeedback,
   reportedIssues = [],
+  isFabGuideActive = false,
 }: {
   onMarkAttendance: () => void;
   onUploadProof: () => void;
   onReport: () => void;
   onFeedback: () => void;
   reportedIssues?: Array<{ id: string; category: string; description: string; priority: string; time: string }>;
+  isFabGuideActive?: boolean;
 }) {
   const [fabOpen, setFabOpen] = useState(false);
 
@@ -1184,7 +1184,7 @@ function ActionCentreView({
           <button
             type="button"
             id="ma-action-fab-button"
-            className={`ma-action-fab ${fabOpen ? "is-open" : ""}`}
+            className={`ma-action-fab ${fabOpen ? "is-open" : ""} ${isFabGuideActive ? "is-tour-spotlight" : ""}`}
             onClick={() => setFabOpen(!fabOpen)}
             aria-label="Toggle action shortcuts"
           >
@@ -1279,6 +1279,47 @@ function HoursCounter() {
 }
 
 // -----------------------------------------------------------------------
+// Target Element Bounding Box Tracker for Pixel-Perfect Spotlight Tour
+// -----------------------------------------------------------------------
+function useTargetRect(targetId: string, open: boolean) {
+  const [rect, setRect] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      setRect(null);
+      return;
+    }
+    function update() {
+      const el = document.getElementById(targetId);
+      if (el) {
+        const r = el.getBoundingClientRect();
+        setRect({
+          left: r.left,
+          top: r.top,
+          width: r.width,
+          height: r.height,
+        });
+      }
+    }
+    update();
+    const raf = requestAnimationFrame(update);
+    const timer = setTimeout(update, 120);
+
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [targetId, open]);
+
+  return rect;
+}
+
+// -----------------------------------------------------------------------
 // Tour Coachmark: Action Centre Purpose Guide
 // -----------------------------------------------------------------------
 function ActionCentreTourModal({
@@ -1290,23 +1331,95 @@ function ActionCentreTourModal({
   onExplore: () => void;
   onClose: () => void;
 }) {
-  if (!open) return null;
+  const rect = useTargetRect("ma-tab-action-centre", open);
+
+  if (!open || !rect) return null;
+
+  const arrowLeft = rect.left + rect.width / 2 - 11;
+  const cardTop = rect.top + rect.height + 15;
+
   return (
     <div className="ma-tour-overlay" role="dialog" aria-modal="true" onClick={onClose}>
-      <div className="ma-tour-card-wrap" onClick={(e) => e.stopPropagation()}>
-        {/* Spotlighted Tab Target at Top */}
-        <div className="ma-tour-spotlight-tab">
-          <div className="ma-chat-tab is-active ma-tour-tab-highlight">
-            <LayoutGrid size={16} strokeWidth={2.2} />
-            <span>Action Centre</span>
-            <span className="ma-action-badge">3</span>
-          </div>
-        </div>
+      {/* SVG Cutout Mask: Dims whole screen EXCEPT the real Action Centre tab */}
+      <svg
+        style={{
+          position: "fixed",
+          inset: 0,
+          width: "100vw",
+          height: "100vh",
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      >
+        <defs>
+          <mask id="ma-tour-mask-tab">
+            <rect width="100%" height="100%" fill="white" />
+            <rect
+              x={rect.left - 2}
+              y={rect.top - 2}
+              width={rect.width + 4}
+              height={rect.height + 4}
+              rx={14}
+              fill="black"
+            />
+          </mask>
+        </defs>
+        <rect
+          width="100%"
+          height="100%"
+          fill="rgba(10, 14, 22, 0.78)"
+          mask="url(#ma-tour-mask-tab)"
+        />
+      </svg>
 
-        {/* Pointer Arrow pointing to Action Centre */}
-        <div className="ma-tour-arrow-up" />
+      {/* Spotlight Ring directly over Real Tab (No Clone, Exact 1:1 Natural Size) */}
+      <div
+        className="ma-tour-real-spotlight-ring"
+        style={{
+          position: "fixed",
+          left: rect.left - 2,
+          top: rect.top - 2,
+          width: rect.width + 4,
+          height: rect.height + 4,
+          borderRadius: 14,
+          border: "2px solid #FEC802",
+          boxShadow: "0 0 0 3px rgba(254, 200, 2, 0.35), 0 0 18px rgba(254, 200, 2, 0.85)",
+          pointerEvents: "auto",
+          cursor: "pointer",
+          zIndex: 2,
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onExplore();
+        }}
+        title="Click to explore Action Centre"
+      />
 
-        {/* Card Content */}
+      {/* Up Arrow aligned directly to the center of the real tab */}
+      <div
+        className="ma-tour-arrow-up"
+        style={{
+          position: "fixed",
+          left: arrowLeft,
+          top: rect.top + rect.height + 4,
+          zIndex: 4,
+        }}
+      />
+
+      {/* Card Content placed directly under the real tab */}
+      <div
+        className="ma-tour-card-wrap"
+        style={{
+          position: "fixed",
+          left: 16,
+          right: 16,
+          top: cardTop,
+          maxWidth: 410,
+          margin: "0 auto",
+          zIndex: 3,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="ma-tour-card">
           <div className="ma-tour-tag">
             <Sparkles size={13} />
@@ -1376,11 +1489,99 @@ function FabTourModal({
   onTryNow: () => void;
   onClose: () => void;
 }) {
-  if (!open) return null;
+  const rect = useTargetRect("ma-action-fab-button", open);
+
+  if (!open || !rect) return null;
+
+  const arrowLeft = rect.left + rect.width / 2 - 11;
+  const arrowTop = rect.top - 12;
+  const cardBottom = window.innerHeight - rect.top + 14;
+
   return (
-    <div className="ma-tour-overlay ma-tour-overlay--fab" role="dialog" aria-modal="true" onClick={onClose}>
-      <div className="ma-tour-card-wrap--fab" onClick={(e) => e.stopPropagation()}>
-        {/* Card pointing down to the Plus button */}
+    <div
+      className="ma-tour-overlay ma-tour-overlay--fab"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      {/* SVG Cutout Mask: Dims whole screen EXCEPT the real Plus (+) button */}
+      <svg
+        style={{
+          position: "fixed",
+          inset: 0,
+          width: "100vw",
+          height: "100vh",
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      >
+        <defs>
+          <mask id="ma-tour-mask-fab">
+            <rect width="100%" height="100%" fill="white" />
+            <circle
+              cx={rect.left + rect.width / 2}
+              cy={rect.top + rect.height / 2}
+              r={rect.width / 2 + 2}
+              fill="black"
+            />
+          </mask>
+        </defs>
+        <rect
+          width="100%"
+          height="100%"
+          fill="rgba(10, 14, 22, 0.78)"
+          mask="url(#ma-tour-mask-fab)"
+        />
+      </svg>
+
+      {/* Spotlight Ring directly over Real FAB (No Clone, Exact 1:1 Natural Size) */}
+      <div
+        className="ma-tour-real-spotlight-ring--fab"
+        style={{
+          position: "fixed",
+          left: rect.left - 2,
+          top: rect.top - 2,
+          width: rect.width + 4,
+          height: rect.height + 4,
+          borderRadius: "50%",
+          border: "2.5px solid #FEC802",
+          boxShadow: "0 0 0 3px rgba(254, 200, 2, 0.35), 0 0 22px rgba(254, 200, 2, 0.95)",
+          pointerEvents: "auto",
+          cursor: "pointer",
+          zIndex: 2,
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onTryNow();
+        }}
+        title="Click to open quick actions"
+      />
+
+      {/* Down Arrow pointing directly to top of real FAB */}
+      <div
+        className="ma-tour-arrow-down"
+        style={{
+          position: "fixed",
+          left: arrowLeft,
+          top: arrowTop,
+          zIndex: 4,
+        }}
+      />
+
+      {/* Card pointing down to real Plus (+) button */}
+      <div
+        className="ma-tour-card-wrap--fab"
+        style={{
+          position: "fixed",
+          left: 16,
+          right: 14,
+          bottom: cardBottom,
+          maxWidth: 360,
+          marginLeft: "auto",
+          zIndex: 3,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="ma-tour-card ma-tour-card--fab">
           <div className="ma-tour-tag ma-tour-tag--amber">
             <Plus size={13} strokeWidth={3} />
@@ -1414,16 +1615,6 @@ function FabTourModal({
             >
               Got It, Thanks!
             </button>
-          </div>
-        </div>
-
-        {/* Down Arrow pointing to the FAB */}
-        <div className="ma-tour-arrow-down" />
-
-        {/* Spotlighted FAB button clone */}
-        <div className="ma-tour-spotlight-fab">
-          <div className="ma-action-fab is-open ma-tour-fab-highlight">
-            <Plus size={28} strokeWidth={2.5} />
           </div>
         </div>
       </div>
