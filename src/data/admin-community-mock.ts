@@ -39,6 +39,7 @@ export interface ProofSubmission {
   college: string;
   avatar: string;
   photoUrl: string;
+  photoUrls?: string[];
   submittedAt: string;
   proofType: string;
   status: "pending" | "approved" | "rejected";
