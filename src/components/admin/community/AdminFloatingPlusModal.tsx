@@ -126,6 +126,21 @@ export const AdminFloatingPlusModal: React.FC = () => {
 
   return (
     <>
+      {/* Blurred / click-outside backdrop when FAB dropdown is open */}
+      {isOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 42,
+            background: "rgba(0, 0, 0, 0.25)",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+          }}
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
       {/* Floating Action Button */}
       <div className="adc-fab-wrap">
         {/* Popup Menu */}

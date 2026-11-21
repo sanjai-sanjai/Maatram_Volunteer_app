@@ -1129,7 +1129,7 @@
 
 /* 12. Floating Action Button */
 .adc-fab-wrap {
-  position: fixed;
+  position: absolute;
   bottom: 24px;
   right: 20px;
   z-index: 45;
