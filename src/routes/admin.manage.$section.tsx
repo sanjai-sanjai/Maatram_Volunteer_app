@@ -32,6 +32,7 @@ export const Route = createFileRoute("/admin/manage/$section")({
   beforeLoad: ({ params }) => {
     if (params.section === "reports") throw redirect({ to: "/admin/reports" });
     if (params.section === "volunteers") throw redirect({ to: "/admin/volunteers" });
+    if (params.section === "communities") throw redirect({ to: "/admin/communities" });
   },
   loader: ({ params }) => {
     if (!(params.section in sections)) throw notFound();

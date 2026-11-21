@@ -83,8 +83,7 @@ const navItems = [
   },
   {
     label: "Communities",
-    to: "/admin/manage/$section" as const,
-    params: { section: "communities" },
+    to: "/admin/communities" as const,
     icon: <UsersRound />,
   },
   { label: "Volunteers", to: "/admin/volunteers" as const, icon: <Users /> },

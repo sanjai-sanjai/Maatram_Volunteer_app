@@ -1116,6 +1116,9 @@
   overflow: hidden;
   position: relative;
   background: var(--ma-chat-bg, #FAFAF9);
+  max-width: 480px;
+  margin: 0 auto;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 }
 .ma-chat-pinned-top {
   flex-shrink: 0;

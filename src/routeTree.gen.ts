@@ -30,6 +30,8 @@ import { Route as OpportunitiesOpportunityIdRouteImport } from './routes/opportu
 import { Route as RegisterBasicRouteImport } from './routes/register.basic'
 import { Route as RegisterSubmittedRouteImport } from './routes/register.submitted'
 import { Route as RegisterVolunteerRouteImport } from './routes/register.volunteer'
+import { Route as AdminCommunitiesIndexRouteImport } from './routes/admin.communities.index'
+import { Route as AdminCommunityCommunityIdRouteImport } from './routes/admin.community.$communityId'
 import { Route as AdminManageSectionRouteImport } from './routes/admin.manage.$section'
 import { Route as AdminOpportunitiesPublishedRouteImport } from './routes/admin.opportunities.published'
 import { Route as AdminPulseIndexRouteImport } from './routes/admin.pulse.index'
@@ -150,6 +152,17 @@ const RegisterVolunteerRoute = RegisterVolunteerRouteImport.update({
   path: '/register/volunteer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCommunitiesIndexRoute = AdminCommunitiesIndexRouteImport.update({
+  id: '/communities/',
+  path: '/communities/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCommunityCommunityIdRoute =
+  AdminCommunityCommunityIdRouteImport.update({
+    id: '/community/$communityId',
+    path: '/community/$communityId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminManageSectionRoute = AdminManageSectionRouteImport.update({
   id: '/manage/$section',
   path: '/manage/$section',
@@ -244,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/register/submitted': typeof RegisterSubmittedRoute
   '/register/volunteer': typeof RegisterVolunteerRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/community/$communityId': typeof AdminCommunityCommunityIdRoute
   '/admin/manage/$section': typeof AdminManageSectionRoute
   '/admin/opportunities/published': typeof AdminOpportunitiesPublishedRoute
   '/admin/pulse/success': typeof AdminPulseSuccessRoute
@@ -251,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/admin/volunteers/$id': typeof AdminVolunteersIdRoute
   '/community/$communityId/chat': typeof CommunityCommunityIdChatRoute
   '/opportunities/$opportunityId/guide': typeof OpportunitiesOpportunityIdGuideRoute
+  '/admin/communities/': typeof AdminCommunitiesIndexRoute
   '/admin/pulse/': typeof AdminPulseIndexRoute
   '/admin/volunteers/': typeof AdminVolunteersIndexRoute
   '/admin/opportunities/new/guide': typeof AdminOpportunitiesNewGuideRoute
@@ -279,6 +294,7 @@ export interface FileRoutesByTo {
   '/register/submitted': typeof RegisterSubmittedRoute
   '/register/volunteer': typeof RegisterVolunteerRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/community/$communityId': typeof AdminCommunityCommunityIdRoute
   '/admin/manage/$section': typeof AdminManageSectionRoute
   '/admin/opportunities/published': typeof AdminOpportunitiesPublishedRoute
   '/admin/pulse/success': typeof AdminPulseSuccessRoute
@@ -286,6 +302,7 @@ export interface FileRoutesByTo {
   '/admin/volunteers/$id': typeof AdminVolunteersIdRoute
   '/community/$communityId/chat': typeof CommunityCommunityIdChatRoute
   '/opportunities/$opportunityId/guide': typeof OpportunitiesOpportunityIdGuideRoute
+  '/admin/communities': typeof AdminCommunitiesIndexRoute
   '/admin/pulse': typeof AdminPulseIndexRoute
   '/admin/volunteers': typeof AdminVolunteersIndexRoute
   '/admin/opportunities/new/guide': typeof AdminOpportunitiesNewGuideRoute
@@ -316,6 +333,7 @@ export interface FileRoutesById {
   '/register/submitted': typeof RegisterSubmittedRoute
   '/register/volunteer': typeof RegisterVolunteerRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/community/$communityId': typeof AdminCommunityCommunityIdRoute
   '/admin/manage/$section': typeof AdminManageSectionRoute
   '/admin/opportunities/published': typeof AdminOpportunitiesPublishedRoute
   '/admin/pulse/success': typeof AdminPulseSuccessRoute
@@ -323,6 +341,7 @@ export interface FileRoutesById {
   '/admin/volunteers/$id': typeof AdminVolunteersIdRoute
   '/community_/$communityId_/chat': typeof CommunityCommunityIdChatRoute
   '/opportunities_/$opportunityId_/guide': typeof OpportunitiesOpportunityIdGuideRoute
+  '/admin/communities/': typeof AdminCommunitiesIndexRoute
   '/admin/pulse/': typeof AdminPulseIndexRoute
   '/admin/volunteers/': typeof AdminVolunteersIndexRoute
   '/admin/opportunities/new/guide': typeof AdminOpportunitiesNewGuideRoute
@@ -354,6 +373,7 @@ export interface FileRouteTypes {
     | '/register/submitted'
     | '/register/volunteer'
     | '/admin/'
+    | '/admin/community/$communityId'
     | '/admin/manage/$section'
     | '/admin/opportunities/published'
     | '/admin/pulse/success'
@@ -361,6 +381,7 @@ export interface FileRouteTypes {
     | '/admin/volunteers/$id'
     | '/community/$communityId/chat'
     | '/opportunities/$opportunityId/guide'
+    | '/admin/communities/'
     | '/admin/pulse/'
     | '/admin/volunteers/'
     | '/admin/opportunities/new/guide'
@@ -389,6 +410,7 @@ export interface FileRouteTypes {
     | '/register/submitted'
     | '/register/volunteer'
     | '/admin'
+    | '/admin/community/$communityId'
     | '/admin/manage/$section'
     | '/admin/opportunities/published'
     | '/admin/pulse/success'
@@ -396,6 +418,7 @@ export interface FileRouteTypes {
     | '/admin/volunteers/$id'
     | '/community/$communityId/chat'
     | '/opportunities/$opportunityId/guide'
+    | '/admin/communities'
     | '/admin/pulse'
     | '/admin/volunteers'
     | '/admin/opportunities/new/guide'
@@ -425,6 +448,7 @@ export interface FileRouteTypes {
     | '/register/submitted'
     | '/register/volunteer'
     | '/admin/'
+    | '/admin/community/$communityId'
     | '/admin/manage/$section'
     | '/admin/opportunities/published'
     | '/admin/pulse/success'
@@ -432,6 +456,7 @@ export interface FileRouteTypes {
     | '/admin/volunteers/$id'
     | '/community_/$communityId_/chat'
     | '/opportunities_/$opportunityId_/guide'
+    | '/admin/communities/'
     | '/admin/pulse/'
     | '/admin/volunteers/'
     | '/admin/opportunities/new/guide'
@@ -613,6 +638,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterVolunteerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/communities/': {
+      id: '/admin/communities/'
+      path: '/communities'
+      fullPath: '/admin/communities/'
+      preLoaderRoute: typeof AdminCommunitiesIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/community/$communityId': {
+      id: '/admin/community/$communityId'
+      path: '/community/$communityId'
+      fullPath: '/admin/community/$communityId'
+      preLoaderRoute: typeof AdminCommunityCommunityIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/manage/$section': {
       id: '/admin/manage/$section'
       path: '/manage/$section'
@@ -710,11 +749,13 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminReportsRoute: typeof AdminReportsRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminCommunityCommunityIdRoute: typeof AdminCommunityCommunityIdRoute
   AdminManageSectionRoute: typeof AdminManageSectionRoute
   AdminOpportunitiesPublishedRoute: typeof AdminOpportunitiesPublishedRoute
   AdminPulseSuccessRoute: typeof AdminPulseSuccessRoute
   AdminPulseTargetingRoute: typeof AdminPulseTargetingRoute
   AdminVolunteersIdRoute: typeof AdminVolunteersIdRoute
+  AdminCommunitiesIndexRoute: typeof AdminCommunitiesIndexRoute
   AdminPulseIndexRoute: typeof AdminPulseIndexRoute
   AdminVolunteersIndexRoute: typeof AdminVolunteersIndexRoute
   AdminOpportunitiesNewGuideRoute: typeof AdminOpportunitiesNewGuideRoute
@@ -726,11 +767,13 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminReportsRoute: AdminReportsRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminCommunityCommunityIdRoute: AdminCommunityCommunityIdRoute,
   AdminManageSectionRoute: AdminManageSectionRoute,
   AdminOpportunitiesPublishedRoute: AdminOpportunitiesPublishedRoute,
   AdminPulseSuccessRoute: AdminPulseSuccessRoute,
   AdminPulseTargetingRoute: AdminPulseTargetingRoute,
   AdminVolunteersIdRoute: AdminVolunteersIdRoute,
+  AdminCommunitiesIndexRoute: AdminCommunitiesIndexRoute,
   AdminPulseIndexRoute: AdminPulseIndexRoute,
   AdminVolunteersIndexRoute: AdminVolunteersIndexRoute,
   AdminOpportunitiesNewGuideRoute: AdminOpportunitiesNewGuideRoute,
