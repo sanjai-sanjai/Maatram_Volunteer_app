@@ -1144,6 +1144,8 @@
 .ma-chat-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   gap: 7px;
   min-height: 62px;
   margin: 0 0 10px;
@@ -1156,9 +1158,17 @@
   background: var(--mq-yellow);
   padding: 3px;
 }
-.ma-chat-header > div {
+.ma-chat-header > div:not(.ma-chat-header-actions) {
   flex: 1;
   min-width: 0;
+}
+.ma-chat-header > .ma-chat-header-actions {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
 }
 .ma-chat-header h1 {
   font-size: 15px;
@@ -3178,7 +3188,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 24px);
-  max-width: 500px;
+  max-width: 456px;
   display: flex;
   gap: 8px;
   align-items: center;

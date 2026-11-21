@@ -418,174 +418,176 @@ export function AdminCommunityChat() {
 
       {/* Attachment Pop-up Sheet (When clicking Paperclip) */}
       {showPinMenu && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 64,
-            left: 12,
-            right: 12,
-            background: "#FFFFFF",
-            borderRadius: 18,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
-            padding: 12,
-            zIndex: 40,
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 8,
-            border: "1px solid #E5E7EB",
-            animation: "adc-slide-up 0.18s ease-out",
-          }}
-        >
-          {/* 1. Schedule Meeting */}
-          <button
-            type="button"
-            onClick={() => {
-              setShowPinMenu(false);
-              setMeetingModal(true);
-            }}
+        <>
+          <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 6,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
+              position: "fixed",
+              inset: 0,
+              zIndex: 35,
+            }}
+            onClick={() => setShowPinMenu(false)}
+          />
+          <div
+            style={{
+              position: "fixed",
+              bottom: 68,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "calc(100% - 24px)",
+              maxWidth: 456,
+              background: "#FFFFFF",
+              borderRadius: 18,
+              boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
+              padding: "14px 12px",
+              zIndex: 40,
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 8,
+              border: "1px solid #E5E7EB",
+              animation: "adc-slide-up 0.18s ease-out",
             }}
           >
-            <div
+            {/* 1. Schedule Meeting */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowPinMenu(false);
+                setMeetingModal(true);
+              }}
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: "#DBEAFE",
-                color: "#1D4ED8",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
+                gap: 6,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
               }}
             >
-              <Video size={20} />
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Meeting</span>
-          </button>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "#DBEAFE",
+                  color: "#1D4ED8",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Video size={20} />
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Meeting</span>
+            </button>
 
-          {/* 2. Create Poll */}
-          <button
-            type="button"
-            onClick={() => {
-              setShowPinMenu(false);
-              setPollModal(true);
-            }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 6,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            <div
+            {/* 2. Create Poll */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowPinMenu(false);
+                setPollModal(true);
+              }}
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: "#FEF3C7",
-                color: "#B45309",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
+                gap: 6,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
               }}
             >
-              <BarChart3 size={20} />
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Poll</span>
-          </button>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "#FEF3C7",
+                  color: "#B45309",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <BarChart3 size={20} />
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Poll</span>
+            </button>
 
-          {/* 3. Location */}
-          <button
-            type="button"
-            onClick={() => {
-              setShowPinMenu(false);
-              setLocationModal(true);
-            }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 6,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            <div
+            {/* 3. Location */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowPinMenu(false);
+                setLocationModal(true);
+              }}
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: "#DCFCE7",
-                color: "#15803D",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
+                gap: 6,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
               }}
             >
-              <MapPin size={20} />
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Location</span>
-          </button>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "#DCFCE7",
+                  color: "#15803D",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <MapPin size={20} />
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Location</span>
+            </button>
 
-          {/* 4. Media */}
-          <button
-            type="button"
-            onClick={() => {
-              setShowPinMenu(false);
-              setMediaModal(true);
-            }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 6,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            <div
+            {/* 4. Media */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowPinMenu(false);
+                setMediaModal(true);
+              }}
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: "#F3E8FF",
-                color: "#7E22CE",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
+                gap: 6,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
               }}
             >
-              <Image size={20} />
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Media</span>
-          </button>
-        </div>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "#F3E8FF",
+                  color: "#7E22CE",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Image size={20} />
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Media</span>
+            </button>
+          </div>
+        </>
       )}
 
       {/* WhatsApp Styled Bottom Composer (Matches Student Dashboard) */}
-      <form
-        className="ma-composer"
-        onSubmit={handleSend}
-        style={{
-          position: "sticky",
-          bottom: 0,
-          background: "#FFFFFF",
-          zIndex: 30,
-          padding: "8px 12px 14px",
-        }}
-      >
+      <form className="ma-composer" onSubmit={handleSend}>
         <button
           type="button"
           className="ma-composer-circle-btn"
@@ -598,27 +600,41 @@ export function AdminCommunityChat() {
         <div className="ma-composer-capsule">
           <input
             placeholder="Type a message…"
+            aria-label="Type a message"
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
+          <div className="ma-composer-divider" />
           <button
             type="button"
             className="ma-composer-camera-btn"
             aria-label="Media camera"
             onClick={() => setMediaModal(true)}
           >
-            <Camera size={19} />
+            <Camera size={20} />
           </button>
         </div>
 
-        <button
-          type="submit"
-          className="ma-composer-voice-btn"
-          aria-label={text.trim() ? "Send message" : "Voice note"}
-          style={{ background: "#FEC802", color: "#111827" }}
-        >
-          {text.trim() ? <Send size={18} /> : <Mic size={19} />}
-        </button>
+        {text.trim() ? (
+          <button
+            type="submit"
+            className="ma-composer-action-btn"
+            aria-label="Send message"
+          >
+            <Send size={20} />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="ma-composer-action-btn"
+            aria-label="Record voice note"
+            onClick={() => {
+              sendMessage("🎤 Voice note · 0:12");
+            }}
+          >
+            <Mic size={22} />
+          </button>
+        )}
       </form>
 
       {/* Modals for Pin Options */}

@@ -188,11 +188,12 @@ export const AdminCommunityDashboard: React.FC = () => {
 
           {/* Center Identity block: Logo + Name + Tagline */}
           <div
+            className="ma-chat-header-info"
             style={{
               display: "flex",
               alignItems: "center",
               gap: 8,
-              flex: 1,
+              flex: "1 1 auto",
               minWidth: 0,
             }}
           >
@@ -263,12 +264,15 @@ export const AdminCommunityDashboard: React.FC = () => {
 
           {/* Top-Right Action Controls (Walkie-Talkie & 3-Dot Menu) */}
           <div
+            className="ma-chat-header-actions"
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
+              flex: "0 0 auto",
               flexShrink: 0,
               marginLeft: "auto",
+              justifyContent: "flex-end",
             }}
           >
             {/* Walkie-Talkie Button */}
@@ -299,15 +303,15 @@ export const AdminCommunityDashboard: React.FC = () => {
             </button>
 
             {/* Three-Dot Controls Button */}
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <button
                 type="button"
                 className="ma-icon"
                 onClick={() => setShowThreeDotMenu(!showThreeDotMenu)}
                 aria-label="Community Controls"
                 style={{
-                  width: 34,
-                  height: 34,
+                  width: 36,
+                  height: 40,
                   background: showThreeDotMenu ? "#F3F4F6" : "transparent",
                   border: "none",
                   borderRadius: 8,
@@ -316,6 +320,7 @@ export const AdminCommunityDashboard: React.FC = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   color: "#111827",
+                  padding: 0,
                   transition: "background 0.15s ease",
                 }}
               >
