@@ -527,10 +527,10 @@ function LiveGeotagCameraModal({
         audio: false,
       });
       streamRef.current = s;
+      setStreamActive(true);
       if (videoRef.current) {
         videoRef.current.srcObject = s;
         await videoRef.current.play().catch(() => {});
-        setStreamActive(true);
       }
     } catch {
       // 2. Fallback to basic video: true (for laptops/desktops without facingMode constraints)
@@ -540,10 +540,10 @@ function LiveGeotagCameraModal({
           audio: false,
         });
         streamRef.current = fallbackStream;
+        setStreamActive(true);
         if (videoRef.current) {
           videoRef.current.srcObject = fallbackStream;
           await videoRef.current.play().catch(() => {});
-          setStreamActive(true);
         }
       } catch (err: any) {
         console.warn("Camera access denied or unavailable:", err);
@@ -755,15 +755,19 @@ function LiveGeotagCameraModal({
 
         {/* Viewfinder Area */}
         <div className="ma-camera-viewfinder">
-          {streamActive ? (
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={`ma-camera-video-feed ${facingMode === "user" ? "is-mirrored" : ""}`}
-            />
-          ) : (
+          {/* Real device camera video feed - always kept in DOM so ref is never null */}
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={`ma-camera-video-feed ${facingMode === "user" ? "is-mirrored" : ""}`}
+            style={{
+              display: streamActive ? "block" : "none",
+            }}
+          />
+
+          {!streamActive && (
             <div className="ma-camera-simulated-feed">
               <img
                 src="/assets/admin/palm-seeds-event-image.png"
@@ -771,19 +775,21 @@ function LiveGeotagCameraModal({
                 className="ma-camera-simulated-img"
               />
               <div className="ma-camera-grid-lines" />
-              {cameraError && (
-                <div className="ma-camera-fallback-notice">
-                  <Camera size={26} color="#FEC802" />
-                  <p>Live camera preview not active: {cameraError}</p>
-                  <button
-                    type="button"
-                    className="ma-camera-retry-btn"
-                    onClick={() => startCamera(facingMode)}
-                  >
-                    <RotateCcw size={14} /> Retry Camera
-                  </button>
-                </div>
-              )}
+              <div className="ma-camera-fallback-notice">
+                <Camera size={26} color="#FEC802" />
+                <p>
+                  {cameraError
+                    ? `Camera notice: ${cameraError}`
+                    : "Connecting live device camera…"}
+                </p>
+                <button
+                  type="button"
+                  className="ma-camera-retry-btn"
+                  onClick={() => startCamera(facingMode)}
+                >
+                  <RotateCcw size={14} /> Connect Camera
+                </button>
+              </div>
             </div>
           )}
 

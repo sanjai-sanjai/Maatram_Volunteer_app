@@ -107,7 +107,7 @@ export interface CommunityChatMessage {
   avatar: string;
   time: string;
   text?: string;
-  type: "text" | "poll" | "meeting" | "location" | "media" | "announcement";
+  type: "text" | "poll" | "meeting" | "location" | "media" | "announcement" | "voice";
   pinned?: boolean;
   poll?: {
     question: string;
@@ -134,6 +134,10 @@ export interface CommunityChatMessage {
     caption: string;
     fileName: string;
     fileSize: string;
+  };
+  voice?: {
+    audioUrl?: string;
+    duration?: string;
   };
 }
 
@@ -334,7 +338,12 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4507",
       college: "PSG Tech, Coimbatore",
       avatar: "/assets/dashboard/student-avatar.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/additional/planting-clean.jpg",
+      photoUrls: [
+        "/assets/additional/planting-clean.jpg",
+        "/assets/admin/palm-seeds-event-image.png",
+        "/assets/additional/palm-team.jpg",
+      ],
       submittedAt: "Today, 10:14 AM",
       proofType: "GPS Geotagged Photo",
       status: "approved",
@@ -356,7 +365,11 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4112",
       college: "CIT, Chennai",
       avatar: "/assets/admin/volunteer-portrait-01.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/additional/planting-hero-clean.jpg",
+      photoUrls: [
+        "/assets/additional/planting-hero-clean.jpg",
+        "/assets/admin/palm-seeds-plantation.jpg",
+      ],
       submittedAt: "Today, 10:20 AM",
       proofType: "GPS Geotagged Photo",
       status: "approved",
@@ -378,7 +391,12 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT3981",
       college: "Thiagarajar Engg, Madurai",
       avatar: "/assets/admin/volunteer-portrait-02.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/admin/palm-seeds-plantation-pulse.jpg",
+      photoUrls: [
+        "/assets/admin/palm-seeds-plantation-pulse.jpg",
+        "/assets/additional/planting.jpg",
+        "/assets/admin/palm-seeds-event-image.png",
+      ],
       submittedAt: "Today, 10:25 AM",
       proofType: "GPS Geotagged Photo",
       status: "pending",
@@ -400,7 +418,11 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4620",
       college: "GCT, Coimbatore",
       avatar: "/assets/admin/volunteer-portrait-03.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/additional/cleanup.jpg",
+      photoUrls: [
+        "/assets/additional/cleanup.jpg",
+        "/assets/additional/planting-clean.jpg",
+      ],
       submittedAt: "Today, 10:32 AM",
       proofType: "GPS Geotagged Photo",
       status: "pending",
@@ -422,7 +444,12 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4733",
       college: "Anna Univ CEG, Chennai",
       avatar: "/assets/admin/volunteer-portrait-04.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/additional/palm-team.jpg",
+      photoUrls: [
+        "/assets/additional/palm-team.jpg",
+        "/assets/admin/palm-seeds-plantation.jpg",
+        "/assets/additional/planting-hero-clean.jpg",
+      ],
       submittedAt: "Today, 10:35 AM",
       proofType: "GPS Geotagged Photo",
       status: "pending",
@@ -444,7 +471,11 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4419",
       college: "Kongu Engg, Erode",
       avatar: "/assets/dashboard/student-avatar.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/admin/palm-seeds-plantation.jpg",
+      photoUrls: [
+        "/assets/admin/palm-seeds-plantation.jpg",
+        "/assets/additional/planting.jpg",
+      ],
       submittedAt: "Today, 10:40 AM",
       proofType: "GPS Geotagged Photo",
       status: "pending",
@@ -466,7 +497,11 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4582",
       college: "Loyola College, Chennai",
       avatar: "/assets/admin/volunteer-portrait-01.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/additional/planting-clean.jpg",
+      photoUrls: [
+        "/assets/additional/planting-clean.jpg",
+        "/assets/additional/palm-team.jpg",
+      ],
       submittedAt: "Today, 10:45 AM",
       proofType: "GPS Geotagged Photo",
       status: "pending",
@@ -488,7 +523,10 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4302",
       college: "Sona Tech, Salem",
       avatar: "/assets/admin/volunteer-portrait-02.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/admin/beach-cleanup.jpg",
+      photoUrls: [
+        "/assets/admin/beach-cleanup.jpg",
+      ],
       submittedAt: "Yesterday, 4:10 PM",
       proofType: "GPS Geotagged Photo",
       status: "rejected",
@@ -512,7 +550,11 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4821",
       college: "Stella Maris, Chennai",
       avatar: "/assets/admin/volunteer-portrait-03.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/admin/rural-school-engagement.jpg",
+      photoUrls: [
+        "/assets/admin/rural-school-engagement.jpg",
+        "/assets/admin/beach-cleanup.jpg",
+      ],
       submittedAt: "Yesterday, 3:45 PM",
       proofType: "GPS Geotagged Photo",
       status: "rejected",
@@ -536,7 +578,11 @@ export const mockProofSubmissions: Record<string, ProofSubmission[]> = {
       maatramId: "MT4215",
       college: "Kumaraguru Tech, CBE",
       avatar: "/assets/admin/volunteer-portrait-04.jpg",
-      photoUrl: "/assets/dashboard/palm-seeds-opportunity.jpg",
+      photoUrl: "/assets/admin/palm-seeds-event-image.png",
+      photoUrls: [
+        "/assets/admin/palm-seeds-event-image.png",
+        "/assets/additional/planting-hero-clean.jpg",
+      ],
       submittedAt: "Today, 9:55 AM",
       proofType: "GPS Geotagged Photo",
       status: "approved",

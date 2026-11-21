@@ -19,13 +19,20 @@ import {
   X,
   BarChart3,
   ExternalLink,
+  ChevronRight,
 } from "lucide-react";
 import { useAdminCommunity } from "./AdminCommunityState";
+import {
+  LiveDeviceCameraModal,
+  useRealtimeVoiceRecorder,
+  PlayableVoiceMessage,
+} from "@/components/chat-media-capture";
 
 export function AdminCommunityChat() {
   const {
     messages,
     sendMessage,
+    sendVoiceMessage,
     scheduleMeeting,
     createPoll,
     votePoll,
@@ -38,6 +45,8 @@ export function AdminCommunityChat() {
 
   const [text, setText] = useState("");
   const [showPinMenu, setShowPinMenu] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const voiceRecorder = useRealtimeVoiceRecorder();
 
   // Modals for the 4 pin options
   const [meetingModal, setMeetingModal] = useState(false);
@@ -381,6 +390,14 @@ export function AdminCommunityChat() {
                     </div>
                   )}
 
+                  {/* Voice Message Card */}
+                  {m.type === "voice" && (
+                    <PlayableVoiceMessage
+                      audioUrl={m.voice?.audioUrl}
+                      duration={m.voice?.duration || "0:12"}
+                    />
+                  )}
+
                   {/* Time + Blue Checkmarks */}
                   <small style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 3 }}>
                     <span>{m.time}</span>
@@ -423,6 +440,8 @@ export function AdminCommunityChat() {
             style={{
               position: "fixed",
               inset: 0,
+              background: "rgba(0,0,0,0.35)",
+              backdropFilter: "blur(2px)",
               zIndex: 35,
             }}
             onClick={() => setShowPinMenu(false)}
@@ -430,158 +449,98 @@ export function AdminCommunityChat() {
           <div
             style={{
               position: "fixed",
-              bottom: 68,
+              bottom: 0,
               left: "50%",
               transform: "translateX(-50%)",
-              width: "calc(100% - 24px)",
-              maxWidth: 456,
+              width: "100%",
+              maxWidth: 480,
               background: "#FFFFFF",
-              borderRadius: 18,
-              boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
-              padding: "14px 12px",
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              boxShadow: "0 -10px 40px rgba(0,0,0,0.18)",
+              padding: "18px 16px 28px",
               zIndex: 40,
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 8,
-              border: "1px solid #E5E7EB",
               animation: "adc-slide-up 0.18s ease-out",
             }}
           >
-            {/* 1. Schedule Meeting */}
-            <button
-              type="button"
-              onClick={() => {
-                setShowPinMenu(false);
-                setMeetingModal(true);
-              }}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 6,
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background: "#DBEAFE",
-                  color: "#1D4ED8",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Video size={20} />
+            <div className="ma-sheet-handle" style={{ margin: "0 auto 12px" }} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div>
+                <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: "#111827" }}>Admin Attachments</h2>
+                <p style={{ fontSize: 12, color: "#6B7280", margin: "2px 0 0" }}>Broadcast resources, polls & schedules to community</p>
               </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Meeting</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setShowPinMenu(false)}
+                style={{ background: "#F3F4F6", border: "none", borderRadius: "50%", width: 28, height: 28, display: "grid", placeItems: "center", cursor: "pointer" }}
+              >
+                <X size={16} />
+              </button>
+            </div>
 
-            {/* 2. Create Poll */}
-            <button
-              type="button"
-              onClick={() => {
-                setShowPinMenu(false);
-                setPollModal(true);
-              }}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 6,
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background: "#FEF3C7",
-                  color: "#B45309",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+            <div className="ma-share-grid">
+              {/* 1. Create Poll */}
+              <button
+                type="button"
+                className="ma-share-tile ma-share-tile--poll"
+                onClick={() => {
+                  setShowPinMenu(false);
+                  setPollModal(true);
                 }}
               >
-                <BarChart3 size={20} />
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Poll</span>
-            </button>
+                <BarChart3 />
+                <b>Create Poll</b>
+                <span>Take opinions and decide together</span>
+                <ChevronRight />
+              </button>
 
-            {/* 3. Location */}
-            <button
-              type="button"
-              onClick={() => {
-                setShowPinMenu(false);
-                setLocationModal(true);
-              }}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 6,
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background: "#DCFCE7",
-                  color: "#15803D",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+              {/* 2. Schedule Meeting */}
+              <button
+                type="button"
+                className="ma-share-tile"
+                style={{ background: "#EFF6FF", borderColor: "#BFDBFE" }}
+                onClick={() => {
+                  setShowPinMenu(false);
+                  setMeetingModal(true);
                 }}
               >
-                <MapPin size={20} />
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Location</span>
-            </button>
+                <Video style={{ color: "#2563EB" }} />
+                <b>Schedule Meeting</b>
+                <span>Set up virtual meet or review call</span>
+                <ChevronRight />
+              </button>
 
-            {/* 4. Media */}
-            <button
-              type="button"
-              onClick={() => {
-                setShowPinMenu(false);
-                setMediaModal(true);
-              }}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 6,
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background: "#F3E8FF",
-                  color: "#7E22CE",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+              {/* 3. Location Share */}
+              <button
+                type="button"
+                className="ma-share-tile"
+                style={{ background: "#ECFDF5", borderColor: "#A7F3D0" }}
+                onClick={() => {
+                  setShowPinMenu(false);
+                  setLocationModal(true);
                 }}
               >
-                <Image size={20} />
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Media</span>
-            </button>
+                <MapPin style={{ color: "#059669" }} />
+                <b>Location Share</b>
+                <span>Broadcast event or landmark coordinates</span>
+                <ChevronRight />
+              </button>
+
+              {/* 4. Media */}
+              <button
+                type="button"
+                className="ma-share-tile ma-share-tile--media"
+                onClick={() => {
+                  setShowPinMenu(false);
+                  setMediaModal(true);
+                }}
+              >
+                <Image />
+                <b>Media</b>
+                <span>Share photos, documents & announcements</span>
+                <ChevronRight />
+              </button>
+            </div>
           </div>
         </>
       )}
@@ -597,43 +556,118 @@ export function AdminCommunityChat() {
           <Paperclip size={20} />
         </button>
 
-        <div className="ma-composer-capsule">
-          <input
-            placeholder="Type a message…"
-            aria-label="Type a message"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <div className="ma-composer-divider" />
-          <button
-            type="button"
-            className="ma-composer-camera-btn"
-            aria-label="Media camera"
-            onClick={() => setMediaModal(true)}
-          >
-            <Camera size={20} />
-          </button>
-        </div>
-
-        {text.trim() ? (
-          <button
-            type="submit"
-            className="ma-composer-action-btn"
-            aria-label="Send message"
-          >
-            <Send size={20} />
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="ma-composer-action-btn"
-            aria-label="Record voice note"
-            onClick={() => {
-              sendMessage("🎤 Voice note · 0:12");
+        {voiceRecorder.isRecording ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              background: "#FEE2E2",
+              border: "1.5px solid #F87171",
+              borderRadius: 24,
+              padding: "6px 14px",
+              gap: 10,
             }}
           >
-            <Mic size={22} />
-          </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: "#DC2626",
+                  boxShadow: "0 0 8px #DC2626",
+                }}
+              />
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#991B1B" }}>
+                Recording… {Math.floor(voiceRecorder.seconds / 60)}:{(voiceRecorder.seconds % 60).toString().padStart(2, "0")}
+              </span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => voiceRecorder.cancelRecording()}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #FCA5A5",
+                  borderRadius: "50%",
+                  width: 32,
+                  height: 32,
+                  display: "grid",
+                  placeItems: "center",
+                  color: "#DC2626",
+                  cursor: "pointer",
+                }}
+                aria-label="Cancel recording"
+              >
+                <X size={16} />
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  const res = await voiceRecorder.stopRecording();
+                  sendVoiceMessage(res.audioUrl, res.durationStr);
+                }}
+                style={{
+                  background: "#16A34A",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: 34,
+                  height: 34,
+                  display: "grid",
+                  placeItems: "center",
+                  color: "#FFFFFF",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(22, 163, 74, 0.4)",
+                }}
+                aria-label="Send voice recording"
+              >
+                <Send size={16} />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="ma-composer-capsule">
+              <input
+                placeholder="Type a message…"
+                aria-label="Type a message"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+              <div className="ma-composer-divider" />
+              <button
+                type="button"
+                className="ma-composer-camera-btn"
+                aria-label="Media camera"
+                onClick={() => setCameraOpen(true)}
+              >
+                <Camera size={20} />
+              </button>
+            </div>
+
+            {text.trim() ? (
+              <button
+                type="submit"
+                className="ma-composer-action-btn"
+                aria-label="Send message"
+              >
+                <Send size={20} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="ma-composer-action-btn"
+                aria-label="Record voice note"
+                onClick={() => voiceRecorder.startRecording()}
+              >
+                <Mic size={22} />
+              </button>
+            )}
+          </>
         )}
       </form>
 
@@ -910,6 +944,24 @@ export function AdminCommunityChat() {
           </div>
         </div>
       )}
+
+      {/* Live Device Camera Modal */}
+      <LiveDeviceCameraModal
+        open={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        title="Admin Live Camera"
+        withGeotag
+        eventDetails={{
+          communityName: selectedCommunity.name,
+          eventName: selectedCommunity.eventName,
+          address: selectedCommunity.eventLocation,
+          lat: 13.0067,
+          lng: 80.0033,
+        }}
+        onCapture={(dataUrl, cap) => {
+          shareMedia(dataUrl, cap || "Admin on-site camera capture", "camera-capture.jpg", "1.4 MB");
+        }}
+      />
     </div>
   );
 }

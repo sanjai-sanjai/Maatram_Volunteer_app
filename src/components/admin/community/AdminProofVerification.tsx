@@ -11,6 +11,9 @@ import {
   X,
   Check,
   Info,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
 
 export const AdminProofVerification: React.FC = () => {
@@ -24,6 +27,7 @@ export const AdminProofVerification: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected">("pending");
   const [selectedProof, setSelectedProof] = useState<ProofSubmission | null>(null);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [rejectingProof, setRejectingProof] = useState<ProofSubmission | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [quickReason, setQuickReason] = useState("Photo is blurry / Low clarity");
@@ -219,67 +223,180 @@ export const AdminProofVerification: React.FC = () => {
               </div>
 
               {/* Photo Thumbnail + Geotag Stamp */}
-              <div
-                style={{
-                  position: "relative",
-                  borderRadius: 14,
-                  overflow: "hidden",
-                  cursor: "pointer",
-                  height: 180,
-                  background: "#000",
-                }}
-                onClick={() => setSelectedProof(item)}
-              >
-                <img
-                  src={item.photoUrl}
-                  alt="Proof submission"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.92 }}
-                />
-                {/* GPS Stamp Overlay */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 8,
-                    left: 8,
-                    right: 8,
-                    background: "rgba(10, 12, 16, 0.78)",
-                    backdropFilter: "blur(4px)",
-                    borderRadius: 10,
-                    padding: "6px 10px",
-                    color: "#FFFFFF",
-                    fontSize: 11,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <MapPin size={13} color="#FEC802" />
-                    <span>{item.gps?.locationName || item.locationName || "Lake Bund Embankment"}</span>
-                  </div>
-                  <span style={{ color: "#FDE047", fontWeight: 700 }}>
-                    {item.gps ? `${item.gps.latitude}, ${item.gps.longitude}` : (item.coordinates ? `${(item.coordinates as any).latitude}, ${(item.coordinates as any).longitude}` : "13.0065° N, 80.0030° E")}
-                  </span>
-                </div>
+              {(() => {
+                const cardPhotos = item.photoUrls && item.photoUrls.length ? item.photoUrls : [item.photoUrl];
+                return (
+                  <div
+                    style={{
+                      position: "relative",
+                      borderRadius: 14,
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      height: 200,
+                      background: "#000",
+                    }}
+                    onClick={() => {
+                      setSelectedProof(item);
+                      setActivePhotoIndex(0);
+                    }}
+                  >
+                    <img
+                      src={cardPhotos[0]}
+                      alt="Proof submission"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.94 }}
+                    />
 
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 8,
-                    right: 8,
-                    background: "rgba(0,0,0,0.6)",
-                    color: "#FFF",
-                    padding: "4px 8px",
-                    borderRadius: 8,
-                    fontSize: 11,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
-                >
-                  <Eye size={12} /> Click to Inspect
-                </div>
-              </div>
+                    {/* Multiple Photos Badge */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        background: "rgba(0,0,0,0.72)",
+                        color: "#FEC802",
+                        padding: "4px 8px",
+                        borderRadius: 8,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 5,
+                        backdropFilter: "blur(4px)",
+                      }}
+                    >
+                      <span>📷 {cardPhotos.length} Photo{cardPhotos.length !== 1 ? "s" : ""}</span>
+                      <Eye size={12} color="#FFF" />
+                    </div>
+
+                    {/* Official Maatram Geotag Watermark Overlay (Matching Student Geotag Flow) */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: "rgba(10, 12, 16, 0.92)",
+                        borderTop: "2px solid #FEC802",
+                        padding: "8px 10px",
+                        color: "#FFFFFF",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        backdropFilter: "blur(4px)",
+                      }}
+                    >
+                      {/* Mini Map View */}
+                      <div
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: 6,
+                          background: "#E2E8F0",
+                          position: "relative",
+                          overflow: "hidden",
+                          flexShrink: 0,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            width: 28,
+                            height: 28,
+                            borderRadius: "50%",
+                            background: "#86EFAC",
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            width: "100%",
+                            height: 2,
+                            background: "#94A3B8",
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            height: "100%",
+                            width: 2,
+                            background: "#94A3B8",
+                          }}
+                        />
+                        <div
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background: "#EF4444",
+                            border: "1.5px solid #FFF",
+                            zIndex: 2,
+                          }}
+                        />
+                        <span
+                          style={{
+                            position: "absolute",
+                            bottom: 1,
+                            fontSize: 7,
+                            fontWeight: 800,
+                            color: "#1E293B",
+                            letterSpacing: 0.2,
+                          }}
+                        >
+                          MAP VIEW
+                        </span>
+                      </div>
+
+                      {/* Details */}
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 10.5 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                          <span style={{ color: "#FEC802", fontWeight: 800, fontSize: 10.5 }}>
+                            ★ MAATRAM FOUNDATION
+                          </span>
+                          <span
+                            style={{
+                              background: "#1E3A8A",
+                              color: "#BFDBFE",
+                              fontSize: 8,
+                              fontWeight: 700,
+                              padding: "1px 4px",
+                              borderRadius: 4,
+                            }}
+                          >
+                            OFFICIAL GEOTAG
+                          </span>
+                        </div>
+                        <div style={{ fontWeight: 700, color: "#FFFFFF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {selectedCommunity.name} · {selectedCommunity.eventName}
+                        </div>
+                        <div style={{ color: "#9CA3AF", fontSize: 9.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {item.gps?.locationName || item.locationName || selectedCommunity.eventLocation}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+                          <span style={{ color: "#FDE68A", fontWeight: 700, fontSize: 9.5 }}>
+                            📍 {item.gps ? `${item.gps.latitude}, ${item.gps.longitude}` : "13.0067° N, 80.0033° E"}
+                          </span>
+                          <span
+                            style={{
+                              background: "rgba(34, 197, 94, 0.25)",
+                              color: "#4ADE80",
+                              fontSize: 8.5,
+                              fontWeight: 700,
+                              padding: "0 4px",
+                              borderRadius: 4,
+                            }}
+                          >
+                            ±{item.gps?.accuracy || "4.2m"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Activity description */}
               <p style={{ fontSize: 12, color: "#4B5563", margin: "10px 0 8px", lineHeight: 1.4 }}>
@@ -392,46 +509,327 @@ export const AdminProofVerification: React.FC = () => {
               </div>
             </div>
 
-            {/* Full-size Image */}
-            <div
-              style={{
-                position: "relative",
-                borderRadius: 16,
-                overflow: "hidden",
-                background: "#000",
-                marginBottom: 14,
-              }}
-            >
-              <img
-                src={selectedProof.photoUrl}
-                alt="Full size proof"
-                style={{ width: "100%", height: 260, objectFit: "cover" }}
-              />
+            {/* Swipable Multiple Photos Carousel with Exact Geotag Watermark */}
+            {(() => {
+              const modalPhotos =
+                selectedProof.photoUrls && selectedProof.photoUrls.length
+                  ? selectedProof.photoUrls
+                  : [selectedProof.photoUrl];
+              const currentIndex = Math.min(activePhotoIndex, modalPhotos.length - 1);
+              const activePhoto = modalPhotos[currentIndex] || modalPhotos[0];
 
-              {/* Watermark Details on Image */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: "linear-gradient(transparent, rgba(0, 0, 0, 0.85))",
-                  padding: "16px 12px 10px",
-                  color: "#FFF",
-                  fontSize: 11,
-                }}
-              >
-                <div style={{ fontWeight: 700, color: "#FEC802", marginBottom: 2 }}>
-                  MAATRAM GEOTAG VERIFIED • ACCURACY {selectedProof.gps?.accuracy || "3.5m"}
+              return (
+                <div style={{ marginBottom: 14 }}>
+                  {/* Photo Counter Header */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>
+                      Submitted Proof Photos ({modalPhotos.length})
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        background: "#FEF3C7",
+                        color: "#92400E",
+                        padding: "2px 8px",
+                        borderRadius: 6,
+                      }}
+                    >
+                      Photo {currentIndex + 1} of {modalPhotos.length}
+                    </span>
+                  </div>
+
+                  {/* Main Carousel Viewport */}
+                  <div
+                    style={{
+                      position: "relative",
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      background: "#000",
+                      height: 270,
+                    }}
+                  >
+                    <img
+                      src={activePhoto}
+                      alt={`Proof view ${currentIndex + 1}`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
+
+                    {/* Carousel Nav Arrows (Left / Right) */}
+                    {modalPhotos.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActivePhotoIndex((prev) =>
+                              prev > 0 ? prev - 1 : modalPhotos.length - 1
+                            );
+                          }}
+                          style={{
+                            position: "absolute",
+                            top: "38%",
+                            left: 8,
+                            transform: "translateY(-50%)",
+                            background: "rgba(0, 0, 0, 0.55)",
+                            color: "#FFFFFF",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: 34,
+                            height: 34,
+                            display: "grid",
+                            placeItems: "center",
+                            cursor: "pointer",
+                            zIndex: 10,
+                            backdropFilter: "blur(4px)",
+                          }}
+                          aria-label="Previous photo"
+                        >
+                          <ChevronLeft size={20} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActivePhotoIndex((prev) =>
+                              prev < modalPhotos.length - 1 ? prev + 1 : 0
+                            );
+                          }}
+                          style={{
+                            position: "absolute",
+                            top: "38%",
+                            right: 8,
+                            transform: "translateY(-50%)",
+                            background: "rgba(0, 0, 0, 0.55)",
+                            color: "#FFFFFF",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: 34,
+                            height: 34,
+                            display: "grid",
+                            placeItems: "center",
+                            cursor: "pointer",
+                            zIndex: 10,
+                            backdropFilter: "blur(4px)",
+                          }}
+                          aria-label="Next photo"
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+                      </>
+                    )}
+
+                    {/* Exact Official Maatram Geotag Watermark Overlay (Matching Reference Image) */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: "rgba(10, 12, 16, 0.94)",
+                        borderTop: "2.5px solid #FEC802",
+                        padding: "10px 12px",
+                        color: "#FFFFFF",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        backdropFilter: "blur(4px)",
+                        zIndex: 5,
+                      }}
+                    >
+                      {/* Left Mini Map Tile */}
+                      <div
+                        style={{
+                          width: 54,
+                          height: 54,
+                          borderRadius: 8,
+                          background: "#E2E8F0",
+                          position: "relative",
+                          overflow: "hidden",
+                          flexShrink: 0,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          border: "1px solid #CBD5E1",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            width: 34,
+                            height: 34,
+                            borderRadius: "50%",
+                            background: "#86EFAC",
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            width: "100%",
+                            height: 2.5,
+                            background: "#94A3B8",
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            height: "100%",
+                            width: 2.5,
+                            background: "#94A3B8",
+                          }}
+                        />
+                        <div
+                          style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            background: "#EF4444",
+                            border: "2px solid #FFF",
+                            boxShadow: "0 0 6px rgba(239, 68, 68, 0.8)",
+                            zIndex: 2,
+                          }}
+                        />
+                        <span
+                          style={{
+                            position: "absolute",
+                            bottom: 2,
+                            fontSize: 7.5,
+                            fontWeight: 900,
+                            color: "#0F172A",
+                            letterSpacing: 0.3,
+                          }}
+                        >
+                          MAP VIEW
+                        </span>
+                      </div>
+
+                      {/* Right Details */}
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 11 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                          <span style={{ color: "#FEC802", fontWeight: 800, fontSize: 11 }}>
+                            ★ MAATRAM FOUNDATION
+                          </span>
+                          <span
+                            style={{
+                              background: "#1E3A8A",
+                              color: "#BFDBFE",
+                              fontSize: 8.5,
+                              fontWeight: 700,
+                              padding: "1px 5px",
+                              borderRadius: 4,
+                            }}
+                          >
+                            OFFICIAL EVENT GEOTAG
+                          </span>
+                        </div>
+
+                        <div
+                          style={{
+                            fontWeight: 800,
+                            color: "#FFFFFF",
+                            fontSize: 11.5,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {selectedCommunity.name} · {selectedCommunity.eventName}
+                        </div>
+
+                        <div
+                          style={{
+                            color: "#9CA3AF",
+                            fontSize: 10,
+                            lineHeight: 1.25,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            margin: "1px 0",
+                          }}
+                        >
+                          {selectedProof.gps?.locationName || selectedProof.locationName || selectedCommunity.eventLocation}
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
+                          <span style={{ color: "#FDE68A", fontWeight: 700, fontSize: 10 }}>
+                            📍 {selectedProof.gps ? `${selectedProof.gps.latitude}, ${selectedProof.gps.longitude}` : "13.0067° N, 80.0033° E"}
+                          </span>
+                          <span style={{ color: "#93C5FD", fontSize: 9.5 }}>
+                            🕒 {selectedProof.gps?.timestamp || selectedProof.submittedAt}
+                          </span>
+                          <span
+                            style={{
+                              background: "rgba(34, 197, 94, 0.25)",
+                              color: "#4ADE80",
+                              fontSize: 8.5,
+                              fontWeight: 700,
+                              padding: "1px 5px",
+                              borderRadius: 4,
+                            }}
+                          >
+                            ±{selectedProof.gps?.accuracy || "3.8m"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Thumbnail Row Selector */}
+                  {modalPhotos.length > 1 && (
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        overflowX: "auto",
+                        marginTop: 10,
+                        paddingBottom: 4,
+                      }}
+                    >
+                      {modalPhotos.map((p, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActivePhotoIndex(idx)}
+                          style={{
+                            width: 60,
+                            height: 48,
+                            borderRadius: 8,
+                            overflow: "hidden",
+                            border: idx === currentIndex ? "2.5px solid #FEC802" : "1px solid #D1D5DB",
+                            padding: 0,
+                            cursor: "pointer",
+                            flexShrink: 0,
+                            opacity: idx === currentIndex ? 1 : 0.65,
+                            transition: "all 0.15s ease",
+                            background: "#000",
+                          }}
+                        >
+                          <img
+                            src={p}
+                            alt={`Thumb ${idx + 1}`}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div>📍 {selectedProof.gps?.locationName || selectedProof.locationName}</div>
-                <div>
-                  🌐 Lat: {selectedProof.gps?.latitude || "13.0066° N"}, Lng:{" "}
-                  {selectedProof.gps?.longitude || "80.0031° E"}
-                </div>
-                <div style={{ opacity: 0.85 }}>🕒 Captured: {selectedProof.gps?.timestamp || selectedProof.submittedAt}</div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Mini Map Visual Representation */}
             <div

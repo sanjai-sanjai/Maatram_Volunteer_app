@@ -1,7 +1,14 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 import { attendanceMock, type FundRequestDraft } from "@/data/mock";
 
-type Message = { id: number; text: string; kind?: "poll" | "proof" | "file" | undefined };
+export type Message = {
+  id: number;
+  text: string;
+  kind?: "poll" | "proof" | "file" | "voice" | "image" | undefined;
+  photoUrl?: string;
+  audioUrl?: string;
+  audioDuration?: string;
+};
 type State = {
   joined: string[];
   register: (id: string) => void;
@@ -9,7 +16,11 @@ type State = {
   markedCount: number;
   markAttendance: () => void;
   messages: Message[];
-  send: (text: string, kind?: Message["kind"]) => void;
+  send: (
+    text: string,
+    kind?: Message["kind"],
+    extra?: { photoUrl?: string; audioUrl?: string; audioDuration?: string }
+  ) => void;
   fundRequest: FundRequestDraft | null;
   submitFund: (draft: FundRequestDraft) => void;
 };
@@ -30,9 +41,19 @@ export function MaatramState({ children }: { children: ReactNode }) {
     setAttended(true);
   }, []);
 
-  const send = useCallback((text: string, kind?: Message["kind"]) => {
-    setMessages((old) => [...old, { id: Date.now(), text, kind }]);
-  }, []);
+  const send = useCallback(
+    (
+      text: string,
+      kind?: Message["kind"],
+      extra?: { photoUrl?: string; audioUrl?: string; audioDuration?: string }
+    ) => {
+      setMessages((old) => [
+        ...old,
+        { id: Date.now(), text, kind, ...extra },
+      ]);
+    },
+    []
+  );
 
   const submitFund = useCallback((draft: FundRequestDraft) => {
     setFundRequest(draft);

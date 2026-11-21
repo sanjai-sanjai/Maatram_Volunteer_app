@@ -26,6 +26,7 @@ interface AdminCommunityContextType {
   // Chat
   messages: CommunityChatMessage[];
   sendMessage: (text: string) => void;
+  sendVoiceMessage: (audioUrl?: string, duration?: string) => void;
   scheduleMeeting: (meeting: { title: string; description: string; date: string; startTime: string; endTime: string }) => void;
   createPoll: (poll: { question: string; options: string[]; multiple: boolean }) => void;
   votePoll: (messageId: string, optionId: string) => void;
@@ -272,6 +273,26 @@ export function AdminCommunityProvider({
       [communityId]: [...(prev[communityId] ?? []), newMsg],
     }));
     showToast("Media posted to chat!");
+  };
+
+  const sendVoiceMessage = (audioUrl?: string, duration?: string) => {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const newMsg: CommunityChatMessage = {
+      id: `voice-${Date.now()}`,
+      sender: "Sujith Kumar",
+      role: "Admin",
+      avatar: "/assets/admin/admin-profile-avatar.png",
+      time: timeStr,
+      type: "voice",
+      text: `🎤 Voice message (${duration || "0:06"})`,
+      voice: { audioUrl, duration: duration || "0:06" },
+    };
+    setChatStore((prev) => ({
+      ...prev,
+      [communityId]: [...(prev[communityId] ?? []), newMsg],
+    }));
+    showToast("Voice message sent!");
   };
 
   // Attendance CSV Export (Strict RFC 4180 Compliant format for Excel & Google Sheets)
@@ -545,6 +566,7 @@ export function AdminCommunityProvider({
         setActiveMgmtView,
         messages,
         sendMessage,
+        sendVoiceMessage,
         scheduleMeeting,
         createPoll,
         votePoll,

@@ -32,6 +32,7 @@ import {
   Plus,
 } from "lucide-react";
 import { GeotagProofModal, FeedbackModal, ReportIssueModal } from "@/components/geotag-proof-flow";
+import { LiveDeviceCameraModal, useRealtimeVoiceRecorder, PlayableVoiceMessage } from "@/components/chat-media-capture";
 import { attendanceMock, isWithinAttendanceRadius } from "@/data/mock";
 import { getCommunity } from "@/components/community-screens";
 import { downloadGuide, getOpportunity } from "@/components/opportunity-screens";
@@ -56,6 +57,8 @@ export function ChatScreen({ id }: { id: string }) {
   const [reportedIssues, setReportedIssues] = useState<
     Array<{ id: string; category: string; description: string; priority: string; time: string }>
   >([]);
+  const [cameraModalOpen, setCameraModalOpen] = useState(false);
+  const voiceRecorder = useRealtimeVoiceRecorder();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -365,7 +368,18 @@ export function ChatScreen({ id }: { id: string }) {
               </Incoming>
               {state.messages.map((m) => (
                 <Outgoing time="Now" key={m.id}>
-                  {m.kind === "poll" ? (
+                  {m.kind === "voice" ? (
+                    <PlayableVoiceMessage audioUrl={m.audioUrl} duration={m.audioDuration || "0:06"} />
+                  ) : m.kind === "image" || m.photoUrl ? (
+                    <div style={{ maxWidth: 240, overflow: "hidden", borderRadius: 12 }}>
+                      <img
+                        src={m.photoUrl}
+                        alt="Photo"
+                        style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block", borderRadius: 12 }}
+                      />
+                      {m.text && <p style={{ margin: "6px 0 0", fontSize: 13 }}>{m.text}</p>}
+                    </div>
+                  ) : m.kind === "poll" ? (
                     <div className="ma-poll">
                       <b>{m.text.split("\n")[0]}</b>
                       {m.text
@@ -447,45 +461,126 @@ export function ChatScreen({ id }: { id: string }) {
           <Paperclip size={20} />
         </button>
 
-        <div className="ma-composer-capsule">
-          <input
-            placeholder="Type a message..."
-            aria-label="Type a message"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <div className="ma-composer-divider" />
-          <button
-            type="button"
-            className="ma-composer-camera-btn"
-            aria-label="Camera"
-            onClick={() => shareFile("image/*")}
-          >
-            <Camera size={20} />
-          </button>
-        </div>
-
-        {text.trim() ? (
-          <button
-            type="submit"
-            className="ma-composer-action-btn"
-            aria-label="Send message"
-          >
-            <Send size={20} />
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="ma-composer-action-btn"
-            aria-label={recording ? "Stop recording" : "Record voice note"}
-            onClick={() => {
-              if (recording) state.send("🎤 Voice note · 0:08");
-              setRecording(!recording);
-              setNotice(recording ? "Voice note sent." : "Recording voice note…");
+        {voiceRecorder.isRecording ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              background: "#FEE2E2",
+              border: "1.5px solid #F87171",
+              borderRadius: 24,
+              padding: "6px 14px",
+              gap: 10,
             }}
           >
-            <Mic size={22} />
-          </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: "#DC2626",
+                  boxShadow: "0 0 8px #DC2626",
+                }}
+              />
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#991B1B" }}>
+                Recording… {Math.floor(voiceRecorder.seconds / 60)}:{(voiceRecorder.seconds % 60).toString().padStart(2, "0")}
+              </span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  voiceRecorder.cancelRecording();
+                  setNotice("Voice recording cancelled");
+                }}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #FCA5A5",
+                  borderRadius: "50%",
+                  width: 32,
+                  height: 32,
+                  display: "grid",
+                  placeItems: "center",
+                  color: "#DC2626",
+                  cursor: "pointer",
+                }}
+                aria-label="Cancel recording"
+              >
+                <X size={16} />
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  const res = await voiceRecorder.stopRecording();
+                  state.send(
+                    `🎤 Voice note (${res.durationStr})`,
+                    "voice",
+                    { audioUrl: res.audioUrl, audioDuration: res.durationStr }
+                  );
+                  setNotice(`Voice note sent (${res.durationStr})`);
+                }}
+                style={{
+                  background: "#16A34A",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: 34,
+                  height: 34,
+                  display: "grid",
+                  placeItems: "center",
+                  color: "#FFFFFF",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(22, 163, 74, 0.4)",
+                }}
+                aria-label="Send voice recording"
+              >
+                <Send size={16} />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="ma-composer-capsule">
+              <input
+                placeholder="Type a message..."
+                aria-label="Type a message"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+              <div className="ma-composer-divider" />
+              <button
+                type="button"
+                className="ma-composer-camera-btn"
+                aria-label="Camera"
+                onClick={() => setCameraModalOpen(true)}
+              >
+                <Camera size={20} />
+              </button>
+            </div>
+
+            {text.trim() ? (
+              <button
+                type="submit"
+                className="ma-composer-action-btn"
+                aria-label="Send message"
+              >
+                <Send size={20} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="ma-composer-action-btn"
+                aria-label="Record voice note"
+                onClick={() => voiceRecorder.startRecording()}
+              >
+                <Mic size={22} />
+              </button>
+            )}
+          </>
         )}
       </form>
     )}
@@ -502,16 +597,20 @@ export function ChatScreen({ id }: { id: string }) {
         <h2 className="ma-sheet-title">Attachments</h2>
         <p className="ma-sheet-sub">Share, collect and collaborate with your community</p>
         <div className="ma-share-grid">
+          {/* 1. Media */}
           <ShareTile
-            tone="poll"
-            title="Create Poll"
-            text="Take opinions and decide together"
-            icon={<BarChart3 />}
+            tone="media"
+            title="Media"
+            text="Share photos, videos and other files"
+            icon={<Image />}
             onClick={() => {
+              setFiles([]);
               setSheet(false);
-              setPanel("poll");
+              setPanel("media");
             }}
           />
+
+          {/* 2. Submit Proof (Navigates to Upload Event Proof) */}
           <ShareTile
             tone="proof"
             title="Submit Proof"
@@ -521,11 +620,13 @@ export function ChatScreen({ id }: { id: string }) {
             onClick={() => {
               setFiles([]);
               setSheet(false);
-              setPanel("proof");
+              setProofModalOpen(true);
             }}
           />
+
+          {/* 3. Fund Request */}
           <Action asChild className="ma-share-tile ma-share-tile--fund">
-            <Link to="/fund-request">
+            <Link to="/fund-request" onClick={() => setSheet(false)}>
               <Wallet />
               <b>Fund Request</b>
               <span>
@@ -537,15 +638,17 @@ export function ChatScreen({ id }: { id: string }) {
               <ChevronRight />
             </Link>
           </Action>
+
+          {/* 4. Location Share */}
           <ShareTile
-            tone="media"
-            title="Media"
-            text="Share photos, videos and other files"
-            icon={<Image />}
+            tone="poll"
+            title="Location Share"
+            text="Broadcast event or landmark coordinates"
+            icon={<MapPin />}
             onClick={() => {
-              setFiles([]);
+              state.send("📍 Event Location: Chembarambakkam Lake Bund · 13.0067° N, 80.0033° E");
               setSheet(false);
-              setPanel("media");
+              setNotice("Event location shared to community chat");
             }}
           />
         </div>
@@ -700,6 +803,23 @@ export function ChatScreen({ id }: { id: string }) {
         onClose={() => setProofModalOpen(false)}
         onSubmitSuccess={(count) => {
           setNotice(`✅ ${count} geotagged photo proof(s) submitted successfully. Under review!`);
+        }}
+      />
+      <LiveDeviceCameraModal
+        open={cameraModalOpen}
+        onClose={() => setCameraModalOpen(false)}
+        title="Community Live Camera"
+        withGeotag
+        eventDetails={{
+          communityName: c?.name || "Sangamam Community",
+          eventName: "Palm Seeds Plantation Drive",
+          address: "Chembarambakkam Lake Bund, Chennai, Tamil Nadu",
+          lat: 13.0067,
+          lng: 80.0033,
+        }}
+        onCapture={(dataUrl, cap) => {
+          state.send(cap || "📷 Live camera capture", "image", { photoUrl: dataUrl });
+          setNotice("Photo captured and sent to community chat");
         }}
       />
       <FeedbackModal
