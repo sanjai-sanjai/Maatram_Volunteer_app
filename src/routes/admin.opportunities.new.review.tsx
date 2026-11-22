@@ -238,12 +238,25 @@ function Review() {
                   <input
                     className="ad-input"
                     type="number"
-                    min={5}
-                    max={50}
-                    value={draft.volunteers}
-                    onChange={(e) =>
-                      update({ volunteers: Math.max(5, Math.min(50, Number(e.target.value) || 5)) })
-                    }
+                    min={1}
+                    value={draft.volunteers === 0 ? "" : draft.volunteers}
+                    placeholder="e.g. 50"
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        update({ volunteers: 0 });
+                      } else {
+                        const n = parseInt(raw, 10);
+                        if (!isNaN(n)) {
+                          update({ volunteers: Math.max(0, n) });
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      if (!draft.volunteers || draft.volunteers < 1) {
+                        update({ volunteers: 5 });
+                      }
+                    }}
                   />
                 </label>
               </div>

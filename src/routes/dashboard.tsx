@@ -228,37 +228,37 @@ function Dashboard() {
             <h3 className="mq-dashboard__opportunity-title">{op.name}</h3>
             <div className="mq-dashboard__meta">
               <span className="mq-dashboard__meta-item">
-                <MapPin size={17} /> {op.location}
+                <MapPin size={15} /> {op.location}
               </span>
               <span className="mq-dashboard__meta-item">
-                <CalendarDays size={16} /> {op.date}
+                <CalendarDays size={15} /> {op.date}
               </span>
               <span className="mq-dashboard__meta-item">
-                <Clock3 size={16} /> {op.time}
+                <Clock3 size={15} /> {op.time}
               </span>
             </div>
             <div className="mq-dashboard__joined">
-              <Users size={20} /> {op.joined} / {op.capacity} Volunteers Joined
+              <Users size={18} /> {op.joined} / {op.capacity} Volunteers Joined
             </div>
             <div className="mq-dashboard__progress">
               <span style={{ width: `${pct}%` }} />
             </div>
             <div className="mq-dashboard__slots">
-              <Users size={30} />
+              <Users size={24} />
               <div>
                 <strong>{op.capacity - op.joined} Slots Remaining!</strong>
                 <span>Click to contribute your volunteering.</span>
               </div>
             </div>
-            <button
-              className="mq-dashboard__contribute"
-              onClick={() =>
-                navigate({ to: "/opportunities/$opportunityId", params: { opportunityId: op.id } })
-              }
-            >
-              Contribute <ArrowRight size={21} />
-            </button>
           </div>
+          <button
+            className="mq-dashboard__contribute"
+            onClick={() =>
+              navigate({ to: "/opportunities/$opportunityId", params: { opportunityId: op.id } })
+            }
+          >
+            Contribute <ArrowRight size={20} />
+          </button>
         </article>
       </section>
 

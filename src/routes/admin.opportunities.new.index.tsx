@@ -93,8 +93,14 @@ function EventDetails() {
     }
     navigate({ to: "/admin/opportunities/new/guide" });
   };
-  const ticks = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
-  const pos = ((draft.volunteers - 5) / 45) * 100;
+  const sliderMin = 5;
+  const sliderMax = Math.max(200, Math.ceil((draft.volunteers || 50) / 50) * 50);
+  const currentVol = Math.max(sliderMin, Math.min(sliderMax, draft.volunteers || sliderMin));
+  const pos = Math.max(0, Math.min(100, ((currentVol - sliderMin) / (sliderMax - sliderMin)) * 100));
+  const ticks =
+    sliderMax <= 200
+      ? [5, 25, 50, 75, 100, 150, 200]
+      : [5, 50, 100, 200, Math.round(sliderMax / 2), sliderMax];
 
   return (
     <AdminFrame>
@@ -165,12 +171,25 @@ function EventDetails() {
                   id="vol-count"
                   className="ad-input ad-input--num"
                   type="number"
-                  min={5}
-                  max={50}
-                  value={draft.volunteers}
-                  onChange={(e) =>
-                    update({ volunteers: Math.max(5, Math.min(50, Number(e.target.value) || 5)) })
-                  }
+                  min={1}
+                  value={draft.volunteers === 0 ? "" : draft.volunteers}
+                  placeholder="e.g. 50"
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    if (raw === "") {
+                      update({ volunteers: 0 });
+                    } else {
+                      const n = parseInt(raw, 10);
+                      if (!isNaN(n)) {
+                        update({ volunteers: Math.max(0, n) });
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (!draft.volunteers || draft.volunteers < 1) {
+                      update({ volunteers: 5 });
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -180,14 +199,14 @@ function EventDetails() {
               className="ad-slider__bubble"
               style={{ left: `calc(${pos}% + ${10 - pos * 0.2}px)` }}
             >
-              {draft.volunteers}
+              {draft.volunteers || 0}
             </span>
             <input
               type="range"
-              min={5}
-              max={50}
+              min={sliderMin}
+              max={sliderMax}
               step={1}
-              value={draft.volunteers}
+              value={currentVol}
               aria-label="Volunteers needed"
               onChange={(e) => update({ volunteers: Number(e.target.value) })}
               style={{ ["--pos" as string]: `${pos}%` }}

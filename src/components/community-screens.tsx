@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -52,6 +52,11 @@ export function getCommunity(id: string) {
 export function CommunitiesScreen() {
   const [query, setQuery] = useState("");
   const state = useMaatramState();
+
+  useEffect(() => {
+    state.resetAttendance();
+  }, []);
+
   return (
     <Page active="Community">
       <Header />
@@ -136,7 +141,12 @@ export function CommunityScreen({ id }: { id: string }) {
   const [tab, setTab] = useState("Overview");
   const [menu, setMenu] = useState(false);
   const [notice, setNotice] = useState("");
-  const { joined } = useMaatramState();
+  const state = useMaatramState();
+  const { joined } = state;
+
+  useEffect(() => {
+    state.resetAttendance();
+  }, []);
   if (!c) return null;
   return (
     <Page className="ma-community-detail">
@@ -359,7 +369,7 @@ export function CommunityScreen({ id }: { id: string }) {
           {notice}
         </p>
       )}
-      <Forward to={`/community/${c.id}/chat`}>
+      <Forward to={`/community/${c.id}/chat`} onClick={() => state.resetAttendance()}>
         <MessageCircle />
         Open Community Chat
       </Forward>

@@ -4,15 +4,18 @@ import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  Award,
   BarChart3,
   Camera,
   CheckCheck,
   ChevronRight,
+  Download,
   Eye,
   FileText,
   Hourglass,
   Image,
   LayoutGrid,
+  Linkedin,
   MapPin,
   Megaphone,
   MessageSquare,
@@ -126,48 +129,6 @@ export function ChatScreen({ id }: { id: string }) {
     }
   }
 
-  // Swipe handling for switching tabs
-  const touchStartX = useRef<number | null>(null);
-  const touchStartY = useRef<number | null>(null);
-
-  function handleTouchStart(e: React.TouchEvent) {
-    const t = e.touches[0];
-    if (!t) return;
-    touchStartX.current = t.clientX;
-    touchStartY.current = t.clientY;
-  }
-
-  function handleTouchEnd(e: React.TouchEvent) {
-    if (touchStartX.current === null || touchStartY.current === null) return;
-    const t = e.changedTouches[0];
-    if (!t) return;
-    const deltaX = t.clientX - touchStartX.current;
-    const deltaY = t.clientY - touchStartY.current;
-
-    // Horizontal swipe threshold: at least 45px, predominantly horizontal
-    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25) {
-      if (isPhysicalVerification) {
-        if (deltaX < 0) {
-          // Swipe right-to-left -> go next
-          if (activeTab === "chats") switchTab("assigned");
-          else if (activeTab === "assigned") switchTab("action");
-        } else if (deltaX > 0) {
-          // Swipe left-to-right -> go previous
-          if (activeTab === "action") switchTab("assigned");
-          else if (activeTab === "assigned") switchTab("chats");
-        }
-      } else {
-        if (deltaX < 0 && activeTab === "chats") {
-          switchTab("action");
-        } else if (deltaX > 0 && activeTab === "action") {
-          switchTab("chats");
-        }
-      }
-    }
-
-    touchStartX.current = null;
-    touchStartY.current = null;
-  }
 
   const [text, setText] = useState("");
   const [proofModalOpen, setProofModalOpen] = useState(false);
@@ -188,12 +149,13 @@ export function ChatScreen({ id }: { id: string }) {
   const picker = useRef<HTMLInputElement>(null);
   const [votes, setVotes] = useState<Record<number, string>>({});
 
-  // Reset attendance when leaving the group / unmounting so reopening is always fresh for judges demonstration
+  // Reset attendance when entering or leaving the group so reopening is always 100% fresh for judges demonstration
   useEffect(() => {
+    state.resetAttendance();
     return () => {
       state.resetAttendance();
     };
-  }, [state.resetAttendance]);
+  }, []);
   if (!c) return null;
   function send() {
     if (text.trim()) {
@@ -211,7 +173,11 @@ export function ChatScreen({ id }: { id: string }) {
       <div className="ma-chat-pinned-top">
         <header className="ma-chat-header">
           <Action asChild className="ma-icon">
-            <Link to="/community" aria-label="Back to my communities">
+            <Link
+              to="/community"
+              aria-label="Back to my communities"
+              onClick={() => state.resetAttendance()}
+            >
               <ArrowLeft />
             </Link>
           </Action>
@@ -219,6 +185,7 @@ export function ChatScreen({ id }: { id: string }) {
             to="/community/$communityId"
             params={{ communityId: id }}
             aria-label="Open community overview"
+            onClick={() => state.resetAttendance()}
             style={{ display: "flex", alignItems: "center", gap: 7, flex: 1, minWidth: 0 }}
           >
             <img
@@ -376,11 +343,9 @@ export function ChatScreen({ id }: { id: string }) {
         )}
       </div>
 
-      {/* 2. SCROLLABLE & SWIPEABLE CONTENT BODY */}
+      {/* 2. SCROLLABLE CONTENT BODY */}
       <div
         className={`ma-chat-scrollable-content ${activeTab === "assigned" ? "is-assigned-tab" : ""}`}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         {activeTab === "action" ? (
           <ActionCentreView
@@ -2207,6 +2172,269 @@ function FundingRequestReviewModal({
   );
 }
 
+function ThankNoteCertificateModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [downloadNotice, setDownloadNotice] = useState(false);
+
+  if (!open) return null;
+
+  const handleLinkedInShare = () => {
+    const certUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/assets/impact/maatram-thank-you-certificate.png`
+        : "https://maatramfoundation.org/certificates/sample";
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(certUrl)}`;
+    window.open(linkedInUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = "/assets/impact/maatram-thank-you-certificate.png";
+    link.download = "Maatram_Volunteer_Certificate_Sanjai_R.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setDownloadNotice(true);
+    setTimeout(() => setDownloadNotice(false), 3500);
+  };
+
+  return (
+    <div className="ma-assigned-modal-backdrop" onClick={onClose}>
+      <div
+        className="ma-assigned-modal ma-thank-note-modal"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="thank-note-modal-title"
+      >
+        {/* Modal Header */}
+        <div className="ma-assigned-modal-head">
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                background: "#FEF3C7",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#D97706",
+                flexShrink: 0,
+              }}
+            >
+              <Award size={22} strokeWidth={2.4} />
+            </div>
+            <div>
+              <h3 id="thank-note-modal-title" style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#0F172A" }}>
+                Thank You Note &amp; Certificate
+              </h3>
+              <p style={{ fontSize: 11, color: "#64748B", margin: "2px 0 0" }}>
+                Palm Seeds Plantation · Ref #CERT-2026-0914
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="ma-assigned-modal-close"
+            onClick={onClose}
+            aria-label="Close dialog"
+            style={{
+              background: "#F1F5F9",
+              border: "none",
+              borderRadius: "50%",
+              width: 32,
+              height: 32,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#64748B",
+            }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="ma-assigned-modal-body" style={{ maxHeight: "78vh", overflowY: "auto", padding: "14px 16px" }}>
+          {/* Status Delivery Banner */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              background: "#ECFDF5",
+              border: "1.5px solid #A7F3D0",
+              borderRadius: 12,
+              padding: "9px 12px",
+              marginBottom: 14,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: "50%",
+                  background: "#10B981",
+                  color: "#FFFFFF",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Check size={13} strokeWidth={3} />
+              </div>
+              <div>
+                <span style={{ fontSize: 12, fontWeight: 800, color: "#065F46", display: "block" }}>
+                  Official Certificate Received &amp; Verified
+                </span>
+                <small style={{ fontSize: 10, color: "#047857" }}>
+                  Dispatched by Aravind K (Admin Operations)
+                </small>
+              </div>
+            </div>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: "#065F46",
+                background: "#D1FAE5",
+                padding: "3px 8px",
+                borderRadius: 9999,
+              }}
+            >
+              Received
+            </span>
+          </div>
+
+          {/* Official Certificate Graphic Preview */}
+          <div className="ma-cert-card-wrap">
+            <div className="ma-cert-img-frame">
+              <img
+                src="/assets/impact/maatram-thank-you-certificate.png"
+                alt="Official Maatram Appreciation Certificate"
+                className="ma-cert-display-img"
+              />
+            </div>
+            <div className="ma-cert-meta-strip">
+              <div>
+                <strong style={{ fontSize: 12, color: "#0F172A", display: "block" }}>
+                  Certificate of Appreciation
+                </strong>
+                <small style={{ fontSize: 10.5, color: "#475569" }}>
+                  Recipient: <strong style={{ color: "#0F172A" }}>Sanjai R</strong> (MT4507) · Palm Seeds Plantation
+                </small>
+              </div>
+              <span className="ma-cert-badge-pill">
+                <Sparkles size={11} />
+                Verified Credential
+              </span>
+            </div>
+          </div>
+
+          {/* Personalized Thank You Note from Admin */}
+          <div className="ma-thank-note-box">
+            <div className="ma-thank-note-head">
+              <Sparkles size={14} className="ma-thank-note-sparkle" />
+              <h4>Personalized Note from Leadership</h4>
+            </div>
+            <p className="ma-thank-note-quote">
+              &ldquo;Dear Sanjai R, On behalf of the entire Maatram Foundation team, we express our heartfelt gratitude
+              for your dedicated volunteering at <strong>Palm Seeds Plantation</strong>. Your proactive service, teamwork,
+              and positive energy made a real impact on our green environmental drive. You truly embody the spirit of
+              giving back!&rdquo;
+            </p>
+            <div className="ma-thank-note-signatures">
+              <div className="ma-thank-sign-item">
+                <strong>Sujith Kumar</strong>
+                <span>Founder &amp; Managing Trustee</span>
+              </div>
+              <div className="ma-thank-sign-divider" />
+              <div className="ma-thank-sign-item">
+                <strong>Aravind K</strong>
+                <span>Lead Operations &amp; Coordinator</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Download Notification Toast */}
+          {downloadNotice && (
+            <div className="ma-cert-toast-notice">
+              <Check size={14} strokeWidth={3} />
+              <span>Certificate downloaded successfully! (Maatram_Volunteer_Certificate_Sanjai_R.png)</span>
+            </div>
+          )}
+
+          {/* Action Buttons Below Certificate: LinkedIn Share & Download */}
+          <div className="ma-cert-actions-grid">
+            {/* Share to LinkedIn */}
+            <button
+              type="button"
+              className="ma-cert-btn-linkedin"
+              onClick={handleLinkedInShare}
+            >
+              <Linkedin size={18} />
+              <span>Share to LinkedIn</span>
+            </button>
+
+            {/* Download Certificate */}
+            <button
+              type="button"
+              className="ma-cert-btn-download"
+              onClick={handleDownload}
+            >
+              <Download size={18} />
+              <span>Download Certificate</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Modal Footer */}
+        <div
+          className="ma-assigned-modal-foot"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "10px 16px",
+            borderTop: "1px solid #E2E8F0",
+            background: "#FFFFFF",
+          }}
+        >
+          <button
+            type="button"
+            className="ma-modal-btn-cancel"
+            onClick={onClose}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              border: "1px solid #CBD5E1",
+              background: "#F8FAFC",
+              color: "#334155",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Close
+          </button>
+          <span style={{ fontSize: 11, color: "#64748B", fontWeight: 500 }}>
+            Stored in your Impact Profile &amp; Portfolio
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ActionCentreView({
   onMarkAttendance,
   onUploadProof,
@@ -2225,6 +2453,7 @@ function ActionCentreView({
   const [fabOpen, setFabOpen] = useState(false);
   const [rejectedProofModalOpen, setRejectedProofModalOpen] = useState(false);
   const [fundingModalOpen, setFundingModalOpen] = useState(false);
+  const [thankNoteModalOpen, setThankNoteModalOpen] = useState(false);
 
   return (
     <div className="ma-action-centre-view">
@@ -2246,7 +2475,7 @@ function ActionCentreView({
       <div className="ma-action-title-row">
         <h2>Action Centre</h2>
         <span className="ma-action-new-badge">
-          {3 + reportedIssues.length} new <span className="ma-action-red-dot" />
+          {4 + reportedIssues.length} new <span className="ma-action-red-dot" />
         </span>
       </div>
 
@@ -2379,7 +2608,38 @@ function ActionCentreView({
           </div>
         </div>
 
-        {/* Card 5: Contribution Hours */}
+        {/* Card 5: Thank You Note (Received) */}
+        <div
+          className="ma-action-card ma-action-card--clickable"
+          onClick={() => setThankNoteModalOpen(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") setThankNoteModalOpen(true);
+          }}
+        >
+          <div className="ma-action-card-icon ma-action-card-icon--gold-star">
+            <Award size={20} strokeWidth={2.2} />
+          </div>
+          <div className="ma-action-card-body">
+            <h3 className="ma-action-card-title">Thank You Note</h3>
+            <p className="ma-action-card-desc">
+              Official appreciation certificate &amp; thank note received from Admin.
+            </p>
+            <div className="ma-action-card-subtime">
+              <Clock3 size={12} />
+              <span>Today, 12:45 PM · CERT-2026-0914</span>
+            </div>
+          </div>
+          <div className="ma-action-card-aside">
+            <span className="ma-status-pill ma-status-pill--green">
+              <Check size={12} strokeWidth={3} />
+              Received
+            </span>
+          </div>
+        </div>
+
+        {/* Card 6: Contribution Hours */}
         <div className="ma-action-card">
           <div className="ma-action-card-icon ma-action-card-icon--purple">
             <Trophy size={20} strokeWidth={2.2} />
@@ -2518,6 +2778,11 @@ function ActionCentreView({
           setFundingModalOpen(false);
           window.location.href = "/fund-request";
         }}
+      />
+
+      <ThankNoteCertificateModal
+        open={thankNoteModalOpen}
+        onClose={() => setThankNoteModalOpen(false)}
       />
     </div>
   );

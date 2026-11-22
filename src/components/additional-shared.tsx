@@ -169,10 +169,18 @@ export function Modal({
     </Dialog.Root>
   );
 }
-export function Forward({ children, to }: { children: ReactNode; to: string }) {
+export function Forward({
+  children,
+  to,
+  onClick,
+}: {
+  children: ReactNode;
+  to: string;
+  onClick?: () => void;
+}) {
   return (
-    <Primary asChild>
-      <Link to={to}>
+    <Primary asChild onClick={onClick}>
+      <Link to={to} onClick={onClick}>
         {children}
         <ArrowRight />
       </Link>

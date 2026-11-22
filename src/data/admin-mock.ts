@@ -277,7 +277,7 @@ export function validateDetails(d: EventDraft) {
   if (!d.type) e.type = "Select an event type.";
   if (d.name.trim().length < 3) e.name = "Enter an event name (at least 3 characters).";
   if (!d.location.trim()) e.location = "Enter a location.";
-  if (d.volunteers < 5 || d.volunteers > 50) e.volunteers = "Choose between 5 and 50 volunteers.";
+  if (!d.volunteers || d.volunteers < 1) e.volunteers = "Enter the number of volunteers needed (at least 1).";
   if (!d.description.trim()) e.description = "Add or generate an event description.";
   if (!d.image) e.image = "Upload an event image.";
   return e;

@@ -16,9 +16,10 @@ describe("Admin rules", () => {
   });
   it("totals 6,300 matches", () => expect(totalMatches()).toBe(6300));
   it("shows 84% filled for 42 of 50", () => expect(fillPercent(42, 50)).toBe(84));
-  it("limits volunteers needed to 5–50", () => {
-    expect(validateDetails({ ...defaultDraft, volunteers: 51 })["volunteers"]).toBeTruthy();
+  it("validates volunteers needed is at least 1 and allows custom numbers above 50", () => {
+    expect(validateDetails({ ...defaultDraft, volunteers: 0 })["volunteers"]).toBeTruthy();
     expect(validateDetails({ ...defaultDraft, volunteers: 50 })["volunteers"]).toBeUndefined();
+    expect(validateDetails({ ...defaultDraft, volunteers: 120 })["volunteers"]).toBeUndefined();
   });
   it("requires an event image", () =>
     expect(validateDetails({ ...defaultDraft, image: null })["image"]).toBeTruthy());
