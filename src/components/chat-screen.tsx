@@ -8,6 +8,7 @@ import {
   Camera,
   CheckCheck,
   ChevronRight,
+  Eye,
   FileText,
   Hourglass,
   Image,
@@ -28,14 +29,21 @@ import {
   Check,
   CalendarDays,
   Clock3,
+  Compass,
+  Crosshair,
+  Navigation,
+  Radio,
   ShieldCheck,
   Plus,
+  X,
+  XCircle,
 } from "lucide-react";
 import { GeotagProofModal, FeedbackModal, ReportIssueModal } from "@/components/geotag-proof-flow";
 import { LiveDeviceCameraModal, useRealtimeVoiceRecorder, PlayableVoiceMessage } from "@/components/chat-media-capture";
 import { attendanceMock, isWithinAttendanceRadius } from "@/data/mock";
 import { getCommunity } from "@/components/community-screens";
 import { downloadGuide, getOpportunity } from "@/components/opportunity-screens";
+import { AssignedStudentsView } from "@/components/assigned-students-view";
 import {
   Action,
   Forward,
@@ -50,7 +58,27 @@ import { useMaatramState } from "@/components/MaatramState";
 export function ChatScreen({ id }: { id: string }) {
   const c = getCommunity(id);
   const state = useMaatramState();
-  const [activeTab, setActiveTab] = useState<"chats" | "action">("chats");
+
+  const isPhysicalVerification =
+    id === "physical-verification" ||
+    id === "bgv" ||
+    id?.toLowerCase().includes("physical") ||
+    id?.toLowerCase().includes("verification") ||
+    c?.id === "physical-verification" ||
+    c?.id === "bgv" ||
+    c?.category === "Physical Verification" ||
+    c?.category === "BGV" ||
+    c?.name?.toLowerCase().includes("physical verification") ||
+    c?.name?.toLowerCase().includes("bgv");
+
+  const [activeTab, setActiveTab] = useState<"chats" | "assigned" | "action">(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search).get("tab");
+      if (p === "action") return "action";
+      if (p === "assigned") return "assigned";
+    }
+    return "chats";
+  });
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [showActionCentreGuide, setShowActionCentreGuide] = useState(true);
   const [showFabGuide, setShowFabGuide] = useState(false);
@@ -67,18 +95,23 @@ export function ChatScreen({ id }: { id: string }) {
         setActiveTab("action");
         setShowActionCentreGuide(false);
         setTimeout(() => setShowFabGuide(true), 350);
+      } else if (params.get("tab") === "assigned" && isPhysicalVerification) {
+        setActiveTab("assigned");
+        setShowActionCentreGuide(false);
       } else {
         setShowActionCentreGuide(true);
       }
     }
-  }, []);
+  }, [isPhysicalVerification]);
 
-  function switchTab(tab: "chats" | "action") {
+  function switchTab(tab: "chats" | "assigned" | "action") {
     setActiveTab(tab);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       if (tab === "action") {
         url.searchParams.set("tab", "action");
+      } else if (tab === "assigned") {
+        url.searchParams.set("tab", "assigned");
       } else {
         url.searchParams.delete("tab");
       }
@@ -113,12 +146,22 @@ export function ChatScreen({ id }: { id: string }) {
 
     // Horizontal swipe threshold: at least 45px, predominantly horizontal
     if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25) {
-      if (deltaX < 0 && activeTab === "chats") {
-        // Swipe right-to-left -> switch to Action Centre
-        switchTab("action");
-      } else if (deltaX > 0 && activeTab === "action") {
-        // Swipe left-to-right -> switch to Chats
-        switchTab("chats");
+      if (isPhysicalVerification) {
+        if (deltaX < 0) {
+          // Swipe right-to-left -> go next
+          if (activeTab === "chats") switchTab("assigned");
+          else if (activeTab === "assigned") switchTab("action");
+        } else if (deltaX > 0) {
+          // Swipe left-to-right -> go previous
+          if (activeTab === "action") switchTab("assigned");
+          else if (activeTab === "assigned") switchTab("chats");
+        }
+      } else {
+        if (deltaX < 0 && activeTab === "chats") {
+          switchTab("action");
+        } else if (deltaX > 0 && activeTab === "action") {
+          switchTab("chats");
+        }
       }
     }
 
@@ -132,6 +175,7 @@ export function ChatScreen({ id }: { id: string }) {
   const [sheet, setSheet] = useState(false);
   const [panel, setPanel] = useState<null | "poll" | "proof" | "media">(null);
   const [success, setSuccess] = useState(false);
+  const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
   const [recording, setRecording] = useState(false);
   const [menu, setMenu] = useState(false);
   const [emoji, setEmoji] = useState(false);
@@ -143,6 +187,13 @@ export function ChatScreen({ id }: { id: string }) {
   const [accept, setAccept] = useState("*/*");
   const picker = useRef<HTMLInputElement>(null);
   const [votes, setVotes] = useState<Record<number, string>>({});
+
+  // Reset attendance when leaving the group / unmounting so reopening is always fresh for judges demonstration
+  useEffect(() => {
+    return () => {
+      state.resetAttendance();
+    };
+  }, [state.resetAttendance]);
   if (!c) return null;
   function send() {
     if (text.trim()) {
@@ -213,6 +264,15 @@ export function ChatScreen({ id }: { id: string }) {
             </Action>
             <Action
               onClick={() => {
+                state.resetAttendance();
+                setNotice("Attendance reset to fresh demo state!");
+                setMenu(false);
+              }}
+            >
+              Reset Attendance (Demo)
+            </Action>
+            <Action
+              onClick={() => {
                 setNotice("Chat notifications muted.");
                 setMenu(false);
               }}
@@ -230,7 +290,11 @@ export function ChatScreen({ id }: { id: string }) {
           </div>
         )}
 
-        <div className="ma-chat-tabs-card" role="tablist" aria-label="Community navigation">
+        <div
+          className={`ma-chat-tabs-card ${isPhysicalVerification ? "has-three-tabs" : ""}`}
+          role="tablist"
+          aria-label="Community navigation"
+        >
           <button
             type="button"
             role="tab"
@@ -241,6 +305,21 @@ export function ChatScreen({ id }: { id: string }) {
             <MessageSquare size={16} strokeWidth={2.4} />
             <span>Chats</span>
           </button>
+
+          {isPhysicalVerification && (
+            <button
+              type="button"
+              role="tab"
+              id="ma-tab-assigned-students"
+              aria-selected={activeTab === "assigned"}
+              className={`ma-chat-tab ${activeTab === "assigned" ? "is-active" : ""}`}
+              onClick={() => switchTab("assigned")}
+            >
+              <Users size={16} strokeWidth={2.2} />
+              <span>Assigned Students</span>
+            </button>
+          )}
+
           <button
             type="button"
             role="tab"
@@ -268,18 +347,11 @@ export function ChatScreen({ id }: { id: string }) {
             role="button"
             tabIndex={0}
             onClick={() => {
-              const el = document.getElementById("chat-attendance-section");
-              if (el) {
-                el.scrollIntoView({ behavior: "smooth", block: "center" });
-              } else {
-                state.markAttendance();
-                setSuccess(true);
-              }
+              setAttendanceModalOpen(true);
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
-                const el = document.getElementById("chat-attendance-section");
-                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                setAttendanceModalOpen(true);
               }
             }}
           >
@@ -287,9 +359,17 @@ export function ChatScreen({ id }: { id: string }) {
               <Megaphone size={20} strokeWidth={2.2} />
             </div>
             <div className="ma-attendance-banner-content">
-              <h3 className="ma-attendance-banner-title">Mark Your Attendance!</h3>
-              <p className="ma-attendance-banner-desc">Attendance for Sangamam Event is now open.</p>
-              <span className="ma-attendance-banner-link">Click to confirm your attendance.</span>
+              <h3 className="ma-attendance-banner-title">
+                {state.attended ? "Attendance Confirmed ✓" : "Mark Your Attendance!"}
+              </h3>
+              <p className="ma-attendance-banner-desc">
+                {state.attended
+                  ? "You have successfully marked GPS attendance for this event."
+                  : `Attendance for ${c.name.replace(/ Team$/, "")} Event is now open.`}
+              </p>
+              <span className="ma-attendance-banner-link">
+                {state.attended ? "View verified GPS coordinates" : "Click to confirm your attendance."}
+              </span>
             </div>
             <ChevronRight size={18} strokeWidth={2.2} className="ma-attendance-banner-arrow" />
           </div>
@@ -298,15 +378,14 @@ export function ChatScreen({ id }: { id: string }) {
 
       {/* 2. SCROLLABLE & SWIPEABLE CONTENT BODY */}
       <div
-        className="ma-chat-scrollable-content"
+        className={`ma-chat-scrollable-content ${activeTab === "assigned" ? "is-assigned-tab" : ""}`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         {activeTab === "action" ? (
           <ActionCentreView
             onMarkAttendance={() => {
-              state.markAttendance();
-              setSuccess(true);
+              setAttendanceModalOpen(true);
             }}
             onUploadProof={() => setProofModalOpen(true)}
             onReport={() => setReportModalOpen(true)}
@@ -314,58 +393,95 @@ export function ChatScreen({ id }: { id: string }) {
             reportedIssues={reportedIssues}
             isFabGuideActive={showFabGuide}
           />
+        ) : activeTab === "assigned" && isPhysicalVerification ? (
+          <AssignedStudentsView community={c} />
         ) : (
           <>
             <div className="ma-chat-timeline">
               <div className="ma-date">Today</div>
-              <Incoming sender="Aravind K" role="Coordinator" avatar="coordinator" time="10:24 AM">
-                <p>
-                  Hi team! 👋
-                  <br />
-                  Quick reminder – our Palm Seeds Plantation event is on Nov 02 (Sat),
-                  <br />
-                  9:00 AM – 12:00 PM at Chennai.
-                </p>
-                <p>Please confirm your availability. ✅</p>
-              </Incoming>
-              <Outgoing time="10:26 AM">I’ll be there! 👍</Outgoing>
-              <Incoming sender="Kaviya S" avatar="kaviya" time="10:28 AM">
-                I’m in! Do we need to bring any
-                <br />
-                specific items? 🤔
-              </Incoming>
-              <Incoming sender="Aravind K" role="Coordinator" avatar="coordinator" time="10:31 AM">
-                <Action
-                  className="ma-file-message"
-                  onClick={() => void downloadGuide(getOpportunity("palm-seeds"))}
-                >
-                  <FileText />
-                  <span>
-                    <b>Event_Guide.pdf</b>
-                    <small>1.2 MB · Event details, what to bring…</small>
-                  </span>
-                  <ArrowRight />
-                </Action>
-              </Incoming>
-              <div className="ma-followup">
-                Here’s the event guide. Please check
-                <br />
-                the “Preparation Requirements” section. 📄<small>10:31 AM</small>
-              </div>
-              <Outgoing time="10:33 AM">Got it! 🙌</Outgoing>
-              <Incoming sender="Aravind K" role="Admin" avatar="coordinator" time="9:01 AM">
-                <div id="chat-attendance-section">
-                  <AttendanceCard
-                    onMark={() => {
-                      state.markAttendance();
-                      setSuccess(true);
-                    }}
-                  />
-                </div>
-              </Incoming>
-              <Incoming sender="Kaviya S" avatar="kaviya" time="9:02 AM">
-                Marked my attendance! ✅
-              </Incoming>
+              {isPhysicalVerification ? (
+                <>
+                  <Incoming sender="Aravind K" role="Coordinator" avatar="coordinator" time="9:45 AM">
+                    <p>
+                      Good morning Physical Verification Team! 👋
+                      <br />
+                      Welcome to the Coimbatore District Candidate Background Verification drive.
+                      <br />
+                      Please open the <b>Assigned Students</b> tab to review your assigned candidates and contact details. 📋
+                    </p>
+                  </Incoming>
+                  <Incoming sender="Sujith Kumar" role="Admin" avatar="coordinator" time="9:50 AM">
+                    <p>
+                      Volunteers, please verify the candidate&apos;s 10th and 12th original marksheets, check the family income certificate, and capture a geotagged photo of the residence. Your ground check ensures scholarships reach the truly deserving students! 🎓✨
+                    </p>
+                  </Incoming>
+                  <Outgoing time="9:58 AM">Understood! Heading to Pollachi Rural for the first candidate visit now. 👍</Outgoing>
+                  <Incoming sender="Aravind K" role="Coordinator" avatar="coordinator" time="10:02 AM">
+                    <p>
+                      Excellent Sanjai! You can submit the verification checklist and geotag proof directly inside each candidate card in the <b>Assigned Students</b> tab. 🚀
+                    </p>
+                  </Incoming>
+                  <Incoming sender="Aravind K" role="Admin" avatar="coordinator" time="10:05 AM">
+                    <div id="chat-attendance-section">
+                      <AttendanceCard
+                        onMark={() => {
+                          setAttendanceModalOpen(true);
+                        }}
+                      />
+                    </div>
+                  </Incoming>
+                </>
+              ) : (
+                <>
+                  <Incoming sender="Aravind K" role="Coordinator" avatar="coordinator" time="10:24 AM">
+                    <p>
+                      Hi team! 👋
+                      <br />
+                      Quick reminder – our Palm Seeds Plantation event is on Nov 02 (Sat),
+                      <br />
+                      9:00 AM – 12:00 PM at Chennai.
+                    </p>
+                    <p>Please confirm your availability. ✅</p>
+                  </Incoming>
+                  <Outgoing time="10:26 AM">I’ll be there! 👍</Outgoing>
+                  <Incoming sender="Kaviya S" avatar="kaviya" time="10:28 AM">
+                    I’m in! Do we need to bring any
+                    <br />
+                    specific items? 🤔
+                  </Incoming>
+                  <Incoming sender="Aravind K" role="Coordinator" avatar="coordinator" time="10:31 AM">
+                    <Action
+                      className="ma-file-message"
+                      onClick={() => void downloadGuide(getOpportunity("palm-seeds"))}
+                    >
+                      <FileText />
+                      <span>
+                        <b>Event_Guide.pdf</b>
+                        <small>1.2 MB · Event details, what to bring…</small>
+                      </span>
+                      <ArrowRight />
+                    </Action>
+                  </Incoming>
+                  <div className="ma-followup">
+                    Here’s the event guide. Please check
+                    <br />
+                    the “Preparation Requirements” section. 📄<small>10:31 AM</small>
+                  </div>
+                  <Outgoing time="10:33 AM">Got it! 🙌</Outgoing>
+                  <Incoming sender="Aravind K" role="Admin" avatar="coordinator" time="9:01 AM">
+                    <div id="chat-attendance-section">
+                      <AttendanceCard
+                        onMark={() => {
+                          setAttendanceModalOpen(true);
+                        }}
+                      />
+                    </div>
+                  </Incoming>
+                  <Incoming sender="Kaviya S" avatar="kaviya" time="9:02 AM">
+                    Marked my attendance! ✅
+                  </Incoming>
+                </>
+              )}
               {state.messages.map((m) => (
                 <Outgoing time="Now" key={m.id}>
                   {m.kind === "voice" ? (
@@ -757,47 +873,16 @@ export function ChatScreen({ id }: { id: string }) {
           </>
         )}
       </Modal>
-      <Modal
-        open={success}
-        onClose={() => setSuccess(false)}
-        title="Attendance Marked Successfully"
-      >
-        <div className="ma-success-art">
-          <img src="/assets/illustrations/success-checkmark.png" alt="Attendance success" />
-          <span>🌱 ✨</span>
-        </div>
-        <h2 className="ma-success-title">
-          Attendance
-          <br />
-          Marked Successfully!
-        </h2>
-        <p className="ma-centered">
-          You’re checked in for
-          <br />
-          Palm Seeds Plantation. 🎉
-        </p>
-        <div className="ma-success-meta">
-          <span>
-            <CalendarDays />
-            Nov 02, 2026
-          </span>
-          <span>
-            <Clock3 />
-            9:01 AM
-          </span>
-          <span>
-            <MapPin />
-            Chennai
-          </span>
-        </div>
-        <p className="ma-verified">
-          <ShieldCheck />
-          Location Verified · Simulated
-        </p>
-        <Primary onClick={() => setSuccess(false)}>
-          Great! <Check />
-        </Primary>
-      </Modal>
+      <GPSAttendanceRadiusModal
+        open={attendanceModalOpen}
+        onClose={() => setAttendanceModalOpen(false)}
+        onConfirmed={() => {
+          state.markAttendance();
+        }}
+        eventName={c.name.replace(/ Team$/, "")}
+        initialAttended={state.attended}
+        onSwitchToActionCentre={() => setActiveTab("action")}
+      />
       <GeotagProofModal
         open={proofModalOpen}
         onClose={() => setProofModalOpen(false)}
@@ -935,6 +1020,474 @@ function ShareTile({
     </Action>
   );
 }
+
+function GPSAttendanceRadiusModal({
+  open,
+  onClose,
+  onConfirmed,
+  eventName = "Palm Seeds Plantation",
+  initialAttended = false,
+  onSwitchToActionCentre,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirmed: () => void;
+  eventName?: string;
+  initialAttended?: boolean;
+  onSwitchToActionCentre?: () => void;
+}) {
+  const [step, setStep] = useState<"precision" | "scanning" | "confirmed">("precision");
+  const [precisionMode, setPrecisionMode] = useState<"high" | "standard">("high");
+  const [scanPhase, setScanPhase] = useState(0);
+  const [distanceDisplay, setDistanceDisplay] = useState(300);
+  const [statusMessage, setStatusMessage] = useState("Calibrating High-Precision GPS...");
+
+  // Reset or initialize when opened
+  useEffect(() => {
+    if (open) {
+      if (initialAttended) {
+        setStep("confirmed");
+      } else {
+        setStep("precision");
+        setPrecisionMode("high");
+        setScanPhase(0);
+        setDistanceDisplay(300);
+        setStatusMessage("Calibrating High-Precision GPS...");
+      }
+    }
+  }, [open, initialAttended]);
+
+  // Handle Scanning Animation
+  useEffect(() => {
+    if (step !== "scanning") return;
+
+    const t1 = setTimeout(() => {
+      setScanPhase(1);
+      setStatusMessage("Locking onto Satellites (14 NavIC/GPS signals)...");
+      setDistanceDisplay(235);
+    }, 700);
+
+    const t2 = setTimeout(() => {
+      setScanPhase(2);
+      setStatusMessage("Acquiring High-Precision Coordinates (Accuracy: ±2.1m)...");
+      setDistanceDisplay(158);
+    }, 1500);
+
+    const t3 = setTimeout(() => {
+      setScanPhase(3);
+      setStatusMessage("Measuring Geofence Radius to Event Ground Zero...");
+      setDistanceDisplay(98);
+    }, 2300);
+
+    const t4 = setTimeout(() => {
+      setScanPhase(4);
+      setStatusMessage("Geofence Verified! You are 72m inside the 300m Zone.");
+      setDistanceDisplay(72);
+    }, 3100);
+
+    const t5 = setTimeout(() => {
+      setStep("confirmed");
+      onConfirmed();
+    }, 3900);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+    };
+  }, [step, onConfirmed]);
+
+  if (!open) return null;
+
+  return (
+    <div className="ma-assigned-modal-backdrop" onClick={onClose}>
+      <div
+        className="ma-assigned-modal ma-gps-radius-modal"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="gps-radius-title"
+      >
+        {/* Step 1: Ask Location Perfection */}
+        {step === "precision" && (
+          <>
+            <div className="ma-assigned-modal-head">
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    background: "#FEF3C7",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#D97706",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Navigation size={20} strokeWidth={2.4} />
+                </div>
+                <div>
+                  <h3 id="gps-radius-title" style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "#0F172A" }}>
+                    Location Precision &amp; Perfection
+                  </h3>
+                  <p style={{ margin: "2px 0 0", fontSize: 11, color: "#64748B" }}>
+                    High-Accuracy GPS Geofence Check
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="ma-assigned-modal-close"
+                onClick={onClose}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="ma-assigned-modal-body" style={{ maxHeight: "78vh", overflowY: "auto", padding: "16px" }}>
+              {/* Event Location Target Card */}
+              <div className="ma-gps-target-card">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: "#D97706", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Target Geofence Zone
+                  </span>
+                  <span className="ma-status-pill ma-status-pill--green" style={{ fontSize: 10, padding: "2px 8px" }}>
+                    ● Active Event
+                  </span>
+                </div>
+                <h4 style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 800, color: "#0F172A" }}>
+                  {eventName}
+                </h4>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "#475569" }}>
+                  <MapPin size={13} style={{ color: "#D97706", flexShrink: 0 }} />
+                  <span>Chembarambakkam Lake Bund, Chennai</span>
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                  <div className="ma-gps-chip">
+                    <span>Allowed Radius:</span>
+                    <strong>300 meters</strong>
+                  </div>
+                  <div className="ma-gps-chip">
+                    <span>Perimeter:</span>
+                    <strong>Strict Geofence</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location Precision Options */}
+              <div style={{ marginTop: 14 }}>
+                <h4 style={{ margin: "0 0 8px", fontSize: 12.5, fontWeight: 700, color: "#1E293B" }}>
+                  Select Location Accuracy Level:
+                </h4>
+
+                <div
+                  className={`ma-precision-option ${precisionMode === "high" ? "is-selected" : ""}`}
+                  onClick={() => setPrecisionMode("high")}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="ma-precision-radio">
+                    <span className="ma-precision-radio-dot" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+                      <strong style={{ fontSize: 12.5, color: "#0F172A" }}>High-Precision Ground GPS</strong>
+                      <span className="ma-status-pill ma-status-pill--amber" style={{ fontSize: 9.5, padding: "2px 6px" }}>
+                        Recommended
+                      </span>
+                    </div>
+                    <p style={{ margin: "3px 0 0", fontSize: 11, color: "#64748B", lineHeight: 1.35 }}>
+                      Combines Multi-Band GPS, GLONASS &amp; Wi-Fi for sub-3 meter accuracy. Required for real-time radius matching.
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={`ma-precision-option ${precisionMode === "standard" ? "is-selected" : ""}`}
+                  onClick={() => setPrecisionMode("standard")}
+                  role="button"
+                  tabIndex={0}
+                  style={{ marginTop: 8 }}
+                >
+                  <div className="ma-precision-radio">
+                    <span className="ma-precision-radio-dot" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ fontSize: 12.5, color: "#0F172A" }}>Standard Cellular Location</strong>
+                    <p style={{ margin: "3px 0 0", fontSize: 11, color: "#64748B", lineHeight: 1.35 }}>
+                      Cell tower triangulation only (~50m - 100m accuracy). May require re-scanning if outside radius.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sensor Perfection Checklist */}
+              <div className="ma-gps-checklist">
+                <div className="ma-gps-check-item">
+                  <Check size={13} strokeWidth={3} className="ma-gps-check-icon" />
+                  <span>Hardware GPS Sensor Active</span>
+                </div>
+                <div className="ma-gps-check-item">
+                  <Check size={13} strokeWidth={3} className="ma-gps-check-icon" />
+                  <span>Digital Compass &amp; Gyroscope Calibrated</span>
+                </div>
+                <div className="ma-gps-check-item">
+                  <Check size={13} strokeWidth={3} className="ma-gps-check-icon" />
+                  <span>Event Radius Threshold Configured (300m)</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="ma-assigned-modal-foot" style={{ padding: "12px 16px", borderTop: "1px solid #E2E8F0", background: "#FFFFFF", display: "flex", gap: 10 }}>
+              <button
+                type="button"
+                className="ma-modal-btn-cancel"
+                onClick={onClose}
+                style={{
+                  padding: "9px 16px",
+                  borderRadius: 10,
+                  border: "1px solid #CBD5E1",
+                  background: "#F8FAFC",
+                  color: "#334155",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="ma-modal-btn-submit"
+                style={{
+                  flex: 1,
+                  background: "#FEC802",
+                  color: "#0F172A",
+                  fontWeight: 800,
+                  border: "none",
+                  padding: "9px 16px",
+                  borderRadius: 10,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  fontSize: 13,
+                  boxShadow: "0 2px 8px rgba(254, 200, 2, 0.4)",
+                }}
+                onClick={() => setStep("scanning")}
+              >
+                <Radio size={16} strokeWidth={2.4} />
+                <span>Fetch &amp; Scan Location Radius</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 2: Super Attractive Loading Fetching Animation of Radius */}
+        {step === "scanning" && (
+          <div style={{ padding: "20px 16px 24px", textAlign: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ textAlign: "left" }}>
+                <span className="ma-status-pill ma-status-pill--blue" style={{ fontSize: 10, padding: "2px 8px" }}>
+                  <Radio size={12} className="ma-spin-pulse" />
+                  Live Satellite Scan
+                </span>
+                <h3 style={{ margin: "4px 0 0", fontSize: 16, fontWeight: 800, color: "#0F172A" }}>
+                  Measuring Geofence Radius
+                </h3>
+              </div>
+              <div className="ma-gps-accuracy-badge">
+                <span style={{ fontSize: 9.5, color: "#64748B" }}>Precision</span>
+                <strong style={{ fontSize: 12, color: "#0284C7" }}>±2.1 m</strong>
+              </div>
+            </div>
+
+            {/* RADAR SCREEN CONTAINER */}
+            <div className="ma-radar-container">
+              {/* Radar Crosshairs */}
+              <div className="ma-radar-crosshair-h" />
+              <div className="ma-radar-crosshair-v" />
+
+              {/* Concentric Range Rings */}
+              <div className="ma-radar-ring ma-radar-ring--300m">
+                <span className="ma-radar-ring-label">300m Perimeter</span>
+              </div>
+              <div className="ma-radar-ring ma-radar-ring--150m" />
+              <div className="ma-radar-ring ma-radar-ring--75m" />
+
+              {/* Rotating Radar Sweep Beam */}
+              <div className="ma-radar-sweep-beam" />
+
+              {/* Pulsing Sonar Ripples */}
+              <div className="ma-radar-ripple-pulse ring-1" />
+              <div className="ma-radar-ripple-pulse ring-2" />
+              <div className="ma-radar-ripple-pulse ring-3" />
+
+              {/* Center Event Beacon */}
+              <div className="ma-radar-center-beacon">
+                <div className="ma-beacon-dot" />
+                <span className="ma-beacon-label">Event Center</span>
+              </div>
+
+              {/* Volunteer Blip Ping (Appears after phase 1) */}
+              {scanPhase >= 1 && (
+                <div className="ma-radar-volunteer-blip" style={{ transform: `scale(${scanPhase >= 3 ? 1 : 0.8})` }}>
+                  <div className="ma-blip-dot" />
+                  <div className="ma-blip-wave" />
+                  <div className="ma-blip-tag">
+                    <span>You · 72m</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* LIVE TELEMETRY DISPLAY */}
+            <div className="ma-radar-telemetry-hud">
+              <div className="ma-distance-readout">
+                <span className="ma-dist-num">{distanceDisplay}</span>
+                <span className="ma-dist-unit">meters</span>
+              </div>
+              <p className="ma-dist-label">Current Distance to Event Location</p>
+
+              {/* Geofence Progress Meter */}
+              <div className="ma-radius-bar-track">
+                <div
+                  className="ma-radius-bar-fill"
+                  style={{ width: `${Math.max(15, ((300 - distanceDisplay) / 300) * 100)}%` }}
+                />
+                <span className="ma-radius-bar-marker">300m Limit</span>
+              </div>
+
+              {/* Status Message Terminal */}
+              <div className="ma-scan-status-terminal">
+                <span className="ma-radar-blinking-dot" />
+                <span style={{ fontSize: 11.5, fontWeight: 600, color: "#38BDF8" }}>
+                  {statusMessage}
+                </span>
+              </div>
+
+              {/* Satellite Metrics Grid */}
+              <div className="ma-scan-metrics-grid">
+                <div>
+                  <small>Satellites</small>
+                  <strong>14 Locked</strong>
+                </div>
+                <div>
+                  <small>Allowed Radius</small>
+                  <strong>300 m</strong>
+                </div>
+                <div>
+                  <small>Current Radius</small>
+                  <strong style={{ color: scanPhase >= 3 ? "#10B981" : "#F59E0B" }}>
+                    {distanceDisplay} m {scanPhase >= 3 ? "(PASS)" : ""}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Confirmed Attendance Mark */}
+        {step === "confirmed" && (
+          <div style={{ padding: "20px 16px 20px", textAlign: "center" }}>
+            <div className="ma-success-art" style={{ margin: "0 auto 12px" }}>
+              <img
+                src="/assets/illustrations/success-checkmark.png"
+                alt="Attendance confirmed"
+                style={{ width: 84, height: 84, display: "block", margin: "0 auto" }}
+              />
+              <span style={{ fontSize: 22 }}>🎉 🛡️</span>
+            </div>
+
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", margin: "4px 0" }}>
+              Attendance Marked Successfully!
+            </h2>
+            <p style={{ fontSize: 12, color: "#475569", margin: "0 0 16px", lineHeight: 1.45 }}>
+              You have been verified within the event perimeter for <strong>{eventName}</strong>.
+            </p>
+
+            {/* Verification Dossier Card */}
+            <div className="ma-confirmed-dossier-card">
+              <div className="ma-confirmed-status-bar">
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <ShieldCheck size={16} style={{ color: "#059669" }} />
+                  <strong style={{ fontSize: 12, color: "#065F46" }}>GPS Geofence Verified &amp; Confirmed</strong>
+                </div>
+                <span className="ma-status-pill ma-status-pill--green" style={{ fontSize: 10 }}>
+                  ● Confirmed
+                </span>
+              </div>
+
+              <div className="ma-confirmed-grid">
+                <div className="ma-confirmed-item">
+                  <span className="ma-confirmed-lbl">Volunteer</span>
+                  <span className="ma-confirmed-val">Sanjai R (MT4507)</span>
+                </div>
+                <div className="ma-confirmed-item">
+                  <span className="ma-confirmed-lbl">Verified Distance</span>
+                  <span className="ma-confirmed-val" style={{ color: "#059669" }}>
+                    72 meters (Within 300m)
+                  </span>
+                </div>
+                <div className="ma-confirmed-item">
+                  <span className="ma-confirmed-lbl">GPS Precision</span>
+                  <span className="ma-confirmed-val">High (±2.1m Accuracy)</span>
+                </div>
+                <div className="ma-confirmed-item">
+                  <span className="ma-confirmed-lbl">Check-In Time</span>
+                  <span className="ma-confirmed-val">Today · 9:15 AM</span>
+                </div>
+              </div>
+
+              <div className="ma-confirmed-hours-badge">
+                <Clock3 size={14} style={{ color: "#D97706" }} />
+                <span>3 Volunteering Contribution Hours Recorded in Roster</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="ma-modal-btn-submit"
+              style={{
+                width: "100%",
+                background: "#FEC802",
+                color: "#0F172A",
+                fontWeight: 800,
+                border: "none",
+                padding: "12px 18px",
+                borderRadius: 12,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                cursor: "pointer",
+                fontSize: 14,
+                marginTop: 18,
+                boxShadow: "0 3px 10px rgba(254, 200, 2, 0.4)",
+              }}
+              onClick={() => {
+                onClose();
+                if (onSwitchToActionCentre) {
+                  onSwitchToActionCentre();
+                }
+              }}
+            >
+              <Check size={18} strokeWidth={2.8} />
+              <span>Great! View in Action Centre</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 function AttendanceCard({ onMark }: { onMark: () => void }) {
   const state = useMaatramState();
   const within = isWithinAttendanceRadius(
@@ -1032,6 +1585,628 @@ function WalkieTalkie() {
   );
 }
 
+function RejectedProofModal({
+  open,
+  onClose,
+  onResubmit,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onResubmit: () => void;
+}) {
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  if (!open) return null;
+
+  return (
+    <div className="ma-assigned-modal-backdrop" onClick={onClose}>
+      <div
+        className="ma-assigned-modal ma-rejected-proof-modal"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rejected-proof-title"
+      >
+        {/* Modal Header */}
+        <div className="ma-assigned-modal-head">
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: "#FEF2F2",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#DC2626",
+                flexShrink: 0,
+              }}
+            >
+              <Camera size={18} strokeWidth={2.4} />
+            </div>
+            <div>
+              <h3 id="rejected-proof-title" style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "#0F172A" }}>
+                Proof Submission Review
+              </h3>
+              <p style={{ margin: "2px 0 0", fontSize: 11, color: "#64748B" }}>
+                Palm Seeds Plantation · Ref #PRF-8924
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="ma-assigned-modal-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="ma-assigned-modal-body" style={{ maxHeight: "78vh", overflowY: "auto", padding: "14px" }}>
+          {/* Status Banner */}
+          <div className="ma-proof-status-banner">
+            <div className="ma-proof-status-pill">
+              <XCircle size={15} strokeWidth={2.6} />
+              <span>Rejected by Admin Operations</span>
+            </div>
+            <span className="ma-proof-status-time">Today · 11:30 AM</span>
+          </div>
+
+          {/* Reason for Rejection Box */}
+          <div className="ma-proof-reason-card">
+            <div className="ma-proof-reason-header">
+              <AlertTriangle size={17} className="ma-proof-alert-icon" />
+              <h4>Reason for Rejection:</h4>
+            </div>
+            <p className="ma-proof-reason-text">
+              "Photograph is blurred and does not clearly show active plantation work or volunteer badge. GPS coordinates were also slightly outside the permitted lake bund planting perimeter. Please retake clear, well-lit photos with face and saplings clearly visible."
+            </p>
+            <div className="ma-proof-flags-list">
+              <div className="ma-proof-flag-item">
+                <span className="ma-proof-flag-bullet">✕</span>
+                <span>Photograph is blurred & low resolution</span>
+              </div>
+              <div className="ma-proof-flag-item">
+                <span className="ma-proof-flag-bullet">✕</span>
+                <span>Volunteer face / Maatram badge not recognizable</span>
+              </div>
+              <div className="ma-proof-flag-item">
+                <span className="ma-proof-flag-bullet">✕</span>
+                <span>GPS coordinates (+42m) outside lake bund boundary</span>
+              </div>
+            </div>
+            <div className="ma-proof-admin-reviewer">
+              <span>Reviewed by: <strong>Karthikeyan M (Operations Lead)</strong></span>
+            </div>
+          </div>
+
+          {/* Attached Proof Images */}
+          <div className="ma-proof-section">
+            <div className="ma-proof-section-head">
+              <Image size={15} />
+              <h4>Attached Proof Images (2 Photos)</h4>
+            </div>
+
+            <div className="ma-proof-photos-grid">
+              <div
+                className="ma-proof-photo-card"
+                onClick={() => setSelectedPhoto("/assets/additional/planting-clean.jpg")}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="ma-proof-img-wrap">
+                  <img
+                    src="/assets/additional/planting-clean.jpg"
+                    alt="Proof 1 - Palm seed plantation"
+                    className="ma-proof-thumb"
+                  />
+                  <span className="ma-proof-flag-badge">Flagged: Blurry</span>
+                  <div className="ma-proof-geotag-overlay">
+                    <MapPin size={9} />
+                    <span>13.0827° N, 80.2707° E</span>
+                  </div>
+                </div>
+                <div className="ma-proof-photo-meta">
+                  <strong>Photo 1: Sapling Bed 04</strong>
+                  <small>Taken Today, 09:42 AM · 2.4 MB</small>
+                </div>
+              </div>
+
+              <div
+                className="ma-proof-photo-card"
+                onClick={() => setSelectedPhoto("/assets/additional/palm-team.jpg")}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="ma-proof-img-wrap">
+                  <img
+                    src="/assets/additional/palm-team.jpg"
+                    alt="Proof 2 - Lake bund plantation"
+                    className="ma-proof-thumb"
+                  />
+                  <span className="ma-proof-flag-badge">Flagged: Out of bounds</span>
+                  <div className="ma-proof-geotag-overlay">
+                    <MapPin size={9} />
+                    <span>13.0831° N, 80.2714° E</span>
+                  </div>
+                </div>
+                <div className="ma-proof-photo-meta">
+                  <strong>Photo 2: Lake Bund Work Area</strong>
+                  <small>Taken Today, 09:44 AM · 3.1 MB</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Verification Timeline */}
+          <div className="ma-proof-section" style={{ marginTop: 14 }}>
+            <div className="ma-proof-section-head">
+              <Clock3 size={15} />
+              <h4>Verification Timeline</h4>
+            </div>
+
+            <div className="ma-proof-timeline">
+              {/* Step 1 */}
+              <div className="ma-timeline-step is-complete">
+                <div className="ma-timeline-marker">
+                  <Check size={11} strokeWidth={3} />
+                </div>
+                <div className="ma-timeline-content">
+                  <div className="ma-timeline-row">
+                    <strong>Proof Uploaded & Submitted</strong>
+                    <span className="ma-timeline-time">09:45 AM</span>
+                  </div>
+                  <p>2 geotagged photos uploaded with GPS telemetry by Sanjai R.</p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="ma-timeline-step is-complete">
+                <div className="ma-timeline-marker">
+                  <Check size={11} strokeWidth={3} />
+                </div>
+                <div className="ma-timeline-content">
+                  <div className="ma-timeline-row">
+                    <strong>Admin Verification Underway</strong>
+                    <span className="ma-timeline-time">10:15 AM</span>
+                  </div>
+                  <p>Assigned to Admin Operations team for perimeter & quality inspection.</p>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="ma-timeline-step is-rejected">
+                <div className="ma-timeline-marker ma-timeline-marker--red">
+                  <X size={11} strokeWidth={3.5} />
+                </div>
+                <div className="ma-timeline-content">
+                  <div className="ma-timeline-row">
+                    <strong style={{ color: "#DC2626" }}>Rejected by Admin</strong>
+                    <span className="ma-timeline-time">11:30 AM</span>
+                  </div>
+                  <p>
+                    Verification declined by Admin Operations. Reason logged with resubmission request.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Expanded Photo Preview Modal (if clicked) */}
+          {selectedPhoto && (
+            <div
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(0,0,0,0.85)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 16,
+                zIndex: 1000,
+              }}
+              onClick={() => setSelectedPhoto(null)}
+            >
+              <img
+                src={selectedPhoto}
+                alt="Enlarged proof"
+                style={{
+                  maxWidth: "92vw",
+                  maxHeight: "75vh",
+                  borderRadius: 12,
+                  boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
+                }}
+              />
+              <button
+                type="button"
+                style={{
+                  marginTop: 12,
+                  padding: "6px 16px",
+                  borderRadius: 20,
+                  background: "#FFFFFF",
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: "pointer",
+                }}
+                onClick={() => setSelectedPhoto(null)}
+              >
+                Close Full Photo
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer Actions */}
+        <div className="ma-assigned-modal-foot" style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+          <button
+            type="button"
+            className="ma-modal-btn-cancel"
+            onClick={onClose}
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            className="ma-modal-btn-submit"
+            style={{
+              background: "#FEC802",
+              color: "#0F172A",
+              fontWeight: 700,
+              border: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+            onClick={onResubmit}
+          >
+            <Camera size={15} />
+            <span>Resubmit Proof</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FundingRequestReviewModal({
+  open,
+  onClose,
+  onNewRequest,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onNewRequest: () => void;
+}) {
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  if (!open) return null;
+
+  return (
+    <div className="ma-assigned-modal-backdrop" onClick={onClose}>
+      <div
+        className="ma-assigned-modal ma-funding-review-modal"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="funding-review-title"
+      >
+        {/* Modal Header */}
+        <div className="ma-assigned-modal-head">
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: "#EFF6FF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#2563EB",
+                flexShrink: 0,
+              }}
+            >
+              <Wallet size={18} strokeWidth={2.4} />
+            </div>
+            <div>
+              <h3 id="funding-review-title" style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "#0F172A" }}>
+                Funding Request Details
+              </h3>
+              <p style={{ margin: "2px 0 0", fontSize: 11, color: "#64748B" }}>
+                Palm Seeds Plantation · Ref #FND-2026-0842
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="ma-assigned-modal-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="ma-assigned-modal-body" style={{ maxHeight: "78vh", overflowY: "auto", padding: "14px" }}>
+          {/* Status Banner */}
+          <div className="ma-fund-status-banner">
+            <div className="ma-fund-status-pill">
+              <Hourglass size={15} />
+              <span>Under Review by Admin Operations</span>
+            </div>
+            <span className="ma-fund-status-time">1d ago</span>
+          </div>
+
+          {/* Request Overview Card */}
+          <div className="ma-fund-summary-card">
+            <div className="ma-fund-summary-top">
+              <div>
+                <span className="ma-fund-label">Requested Reimbursement</span>
+                <div className="ma-fund-amount">₹ 250</div>
+              </div>
+              <span className="ma-fund-category-tag">Travel Allowance</span>
+            </div>
+
+            <div className="ma-fund-desc-box">
+              <strong>Expense Purpose:</strong> Travelled to the event location (Chennai) for Palm Seeds Plantation.
+            </div>
+
+            <div className="ma-fund-meta-grid">
+              <div className="ma-fund-meta-item">
+                <span className="ma-fund-meta-lbl">Expense Category</span>
+                <span className="ma-fund-meta-val">Travel</span>
+              </div>
+              <div className="ma-fund-meta-item">
+                <span className="ma-fund-meta-lbl">Payment Mode</span>
+                <span className="ma-fund-meta-val">UPI (GPay / PhonePe)</span>
+              </div>
+              <div className="ma-fund-meta-item">
+                <span className="ma-fund-meta-lbl">UPI ID</span>
+                <span className="ma-fund-meta-val">sanjai-1806@okaxis</span>
+              </div>
+              <div className="ma-fund-meta-item">
+                <span className="ma-fund-meta-lbl">Claimant Volunteer</span>
+                <span className="ma-fund-meta-val">Sanjai R (MT4507)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Attached Bill / Receipt Proof */}
+          <div className="ma-proof-section">
+            <div className="ma-proof-section-head">
+              <FileText size={15} />
+              <h4>Attached Bill / Proof (1 Document)</h4>
+            </div>
+
+            <div
+              className="ma-fund-bill-card"
+              onClick={() => setSelectedPhoto("/assets/additional/bus-ticket-receipt.png")}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") setSelectedPhoto("/assets/additional/bus-ticket-receipt.png");
+              }}
+            >
+              <div className="ma-fund-bill-preview-wrap">
+                <img
+                  src="/assets/additional/bus-ticket-receipt.png"
+                  alt="Attached Bus Travel Ticket Bill"
+                  className="ma-fund-bill-img"
+                />
+                <div className="ma-fund-bill-overlay">
+                  <Eye size={13} />
+                  <span>Tap to view bill</span>
+                </div>
+              </div>
+              <div className="ma-fund-bill-meta">
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 6,
+                      background: "#F1F5F9",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#475569",
+                    }}
+                  >
+                    <FileText size={16} />
+                  </div>
+                  <div>
+                    <strong style={{ fontSize: 12, color: "#0F172A", display: "block" }}>Bus_Ticket.jpg</strong>
+                    <small style={{ fontSize: 10, color: "#64748B" }}>TNSTC Express · Kuzhithurai Depot · Rs. 61 · 44 KB</small>
+                  </div>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#2563EB" }}>Verified Proof</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Verification Timeline */}
+          <div className="ma-proof-section" style={{ marginTop: 14 }}>
+            <div className="ma-proof-section-head">
+              <Clock3 size={15} />
+              <h4>Request Status & Timeline</h4>
+            </div>
+
+            <div className="ma-proof-timeline">
+              {/* Step 1: Submitted */}
+              <div className="ma-timeline-step is-complete">
+                <div className="ma-timeline-marker">
+                  <Check size={11} strokeWidth={3} />
+                </div>
+                <div className="ma-timeline-content">
+                  <div className="ma-timeline-row">
+                    <strong>Reimbursement Request Submitted</strong>
+                    <span className="ma-timeline-time">Yesterday · 10:30 AM</span>
+                  </div>
+                  <p>Claim for ₹250 submitted with travel bill (Bus_Ticket.jpg) and UPI ID.</p>
+                </div>
+              </div>
+
+              {/* Step 2: Under Review */}
+              <div className="ma-timeline-step is-active-review">
+                <div className="ma-timeline-marker ma-timeline-marker--blue">
+                  <Hourglass size={11} strokeWidth={2.5} />
+                </div>
+                <div className="ma-timeline-content">
+                  <div className="ma-timeline-row">
+                    <strong style={{ color: "#1D4ED8" }}>Under Review by Finance Desk</strong>
+                    <span className="ma-timeline-time" style={{ color: "#2563EB", fontWeight: 700 }}>In Progress</span>
+                  </div>
+                  <p>Accounts team is verifying the travel receipt and attendance log. Expected turnaround: 24h.</p>
+                </div>
+              </div>
+
+              {/* Step 3: Disbursement */}
+              <div className="ma-timeline-step is-pending">
+                <div className="ma-timeline-marker ma-timeline-marker--gray">
+                  <span style={{ fontSize: 10, fontWeight: 700 }}>3</span>
+                </div>
+                <div className="ma-timeline-content">
+                  <div className="ma-timeline-row">
+                    <strong style={{ color: "#64748B" }}>Disbursement & Credit</strong>
+                    <span className="ma-timeline-time">Upcoming</span>
+                  </div>
+                  <p>Upon approval, ₹250 will be credited directly to <strong>sanjai-1806@okaxis</strong> via UPI.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Footer Actions */}
+        <div
+          className="ma-assigned-modal-foot"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "10px 14px",
+            borderTop: "1px solid #E2E8F0",
+            background: "#FFFFFF",
+          }}
+        >
+          <button
+            type="button"
+            className="ma-modal-btn-cancel"
+            onClick={onClose}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 8,
+              border: "1px solid #CBD5E1",
+              background: "#F8FAFC",
+              color: "#334155",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            className="ma-modal-btn-submit"
+            style={{
+              background: "#FEC802",
+              color: "#0F172A",
+              fontWeight: 700,
+              border: "none",
+              padding: "8px 14px",
+              borderRadius: 8,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              cursor: "pointer",
+              fontSize: 12,
+            }}
+            onClick={onNewRequest}
+          >
+            <Plus size={15} strokeWidth={2.4} />
+            <span>New Fund Request</span>
+          </button>
+        </div>
+
+        {/* Full Image Zoom Lightbox */}
+        {selectedPhoto && (
+          <div
+            className="ma-assigned-modal-backdrop"
+            style={{ zIndex: 1200, background: "rgba(0,0,0,0.88)" }}
+            onClick={() => setSelectedPhoto(null)}
+          >
+            <div
+              style={{
+                maxWidth: 440,
+                width: "92%",
+                background: "#0F172A",
+                borderRadius: 16,
+                padding: 14,
+                position: "relative",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setSelectedPhoto(null)}
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  background: "rgba(255,255,255,0.25)",
+                  border: "none",
+                  color: "#FFF",
+                  borderRadius: "50%",
+                  width: 32,
+                  height: 32,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10,
+                }}
+              >
+                <X size={18} />
+              </button>
+              <img
+                src={selectedPhoto}
+                alt="Enlarged Bus Ticket"
+                style={{
+                  width: "100%",
+                  maxHeight: "75vh",
+                  objectFit: "contain",
+                  borderRadius: 8,
+                  display: "block",
+                  background: "#1E293B",
+                }}
+              />
+              <div
+                style={{
+                  textAlign: "center",
+                  marginTop: 10,
+                  color: "#CBD5E1",
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                Official Bus Ticket & Receipt · ₹250 (MTC Chennai)
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ActionCentreView({
   onMarkAttendance,
   onUploadProof,
@@ -1048,6 +2223,8 @@ function ActionCentreView({
   isFabGuideActive?: boolean;
 }) {
   const [fabOpen, setFabOpen] = useState(false);
+  const [rejectedProofModalOpen, setRejectedProofModalOpen] = useState(false);
+  const [fundingModalOpen, setFundingModalOpen] = useState(false);
 
   return (
     <div className="ma-action-centre-view">
@@ -1141,11 +2318,16 @@ function ActionCentreView({
           </div>
         </div>
 
-        {/* Card 3: Funding Request */}
-        <Link
-          to="/fund-request"
-          className="ma-action-card"
-          style={{ textDecoration: "none", color: "inherit" }}
+        {/* Card 3: Funding Request (Under Review Details Modal) */}
+        <div
+          className="ma-action-card ma-action-card--clickable"
+          onClick={() => setFundingModalOpen(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") setFundingModalOpen(true);
+          }}
+          style={{ cursor: "pointer" }}
         >
           <div className="ma-action-card-icon ma-action-card-icon--blue">
             <Wallet size={20} strokeWidth={2.2} />
@@ -1164,9 +2346,40 @@ function ActionCentreView({
               Under Review
             </span>
           </div>
-        </Link>
+        </div>
 
-        {/* Card 4: Contribution Hours */}
+        {/* Card 4: Proof Submission (Rejected by Admin) */}
+        <div
+          className="ma-action-card ma-action-card--clickable"
+          onClick={() => setRejectedProofModalOpen(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") setRejectedProofModalOpen(true);
+          }}
+        >
+          <div className="ma-action-card-icon ma-action-card-icon--red">
+            <Camera size={20} strokeWidth={2.2} />
+          </div>
+          <div className="ma-action-card-body">
+            <h3 className="ma-action-card-title">Proof Submission</h3>
+            <p className="ma-action-card-desc">
+              Your submitted proof for Palm Seeds Plantation was rejected.
+            </p>
+            <div className="ma-action-card-subtime">
+              <Clock3 size={12} />
+              <span>Today, 11:30 AM · PRF-8924</span>
+            </div>
+          </div>
+          <div className="ma-action-card-aside">
+            <span className="ma-status-pill ma-status-pill--red">
+              <XCircle size={12} strokeWidth={2.6} />
+              Rejected
+            </span>
+          </div>
+        </div>
+
+        {/* Card 5: Contribution Hours */}
         <div className="ma-action-card">
           <div className="ma-action-card-icon ma-action-card-icon--purple">
             <Trophy size={20} strokeWidth={2.2} />
@@ -1288,6 +2501,24 @@ function ActionCentreView({
           </button>
         </div>
       </div>
+
+      <RejectedProofModal
+        open={rejectedProofModalOpen}
+        onClose={() => setRejectedProofModalOpen(false)}
+        onResubmit={() => {
+          setRejectedProofModalOpen(false);
+          onUploadProof();
+        }}
+      />
+
+      <FundingRequestReviewModal
+        open={fundingModalOpen}
+        onClose={() => setFundingModalOpen(false)}
+        onNewRequest={() => {
+          setFundingModalOpen(false);
+          window.location.href = "/fund-request";
+        }}
+      />
     </div>
   );
 }

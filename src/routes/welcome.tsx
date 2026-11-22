@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronRight, GraduationCap, ShieldCheck, UserPlus, Users } from "lucide-react";
+import { ChevronRight, GraduationCap, Menu, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { A, Hl, Logo, Screen, Strokes } from "@/components/mq";
 import { seo } from "@/lib/seo";
 
@@ -40,6 +40,41 @@ function Welcome() {
   ];
   return (
     <Screen deco="tr" footer="waves">
+      <button
+        type="button"
+        aria-label="Direct to Student Dashboard"
+        onClick={() => {
+          try {
+            sessionStorage.setItem("maatram-role", "student");
+            sessionStorage.setItem("maatram-dashboard-entered", "true");
+            sessionStorage.setItem("maatram-blast-shown", "true");
+            sessionStorage.removeItem("maatram-blast-pending");
+          } catch {
+            /* ignore */
+          }
+          navigate({ to: "/dashboard" });
+        }}
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          width: 32,
+          height: 32,
+          borderRadius: 8,
+          border: "none",
+          background: "transparent",
+          color: "#0F172A",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          zIndex: 99,
+          padding: 0,
+        }}
+      >
+        <Menu size={20} strokeWidth={2.4} />
+      </button>
+
       <div style={{ marginTop: 26 }}>
         <Logo />
       </div>

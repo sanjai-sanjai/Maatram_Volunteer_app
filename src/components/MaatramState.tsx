@@ -5,9 +5,9 @@ export type Message = {
   id: number;
   text: string;
   kind?: "poll" | "proof" | "file" | "voice" | "image" | undefined;
-  photoUrl?: string;
-  audioUrl?: string;
-  audioDuration?: string;
+  photoUrl?: string | undefined;
+  audioUrl?: string | undefined;
+  audioDuration?: string | undefined;
 };
 type State = {
   joined: string[];
@@ -15,11 +15,12 @@ type State = {
   attended: boolean;
   markedCount: number;
   markAttendance: () => void;
+  resetAttendance: () => void;
   messages: Message[];
   send: (
     text: string,
     kind?: Message["kind"],
-    extra?: { photoUrl?: string; audioUrl?: string; audioDuration?: string }
+    extra?: { photoUrl?: string | undefined; audioUrl?: string | undefined; audioDuration?: string | undefined }
   ) => void;
   fundRequest: FundRequestDraft | null;
   submitFund: (draft: FundRequestDraft) => void;
@@ -41,11 +42,15 @@ export function MaatramState({ children }: { children: ReactNode }) {
     setAttended(true);
   }, []);
 
+  const resetAttendance = useCallback(() => {
+    setAttended(false);
+  }, []);
+
   const send = useCallback(
     (
       text: string,
       kind?: Message["kind"],
-      extra?: { photoUrl?: string; audioUrl?: string; audioDuration?: string }
+      extra?: { photoUrl?: string | undefined; audioUrl?: string | undefined; audioDuration?: string | undefined }
     ) => {
       setMessages((old) => [
         ...old,
@@ -68,6 +73,7 @@ export function MaatramState({ children }: { children: ReactNode }) {
       attended,
       markedCount,
       markAttendance,
+      resetAttendance,
       messages,
       send,
       fundRequest,
@@ -79,6 +85,7 @@ export function MaatramState({ children }: { children: ReactNode }) {
       attended,
       markedCount,
       markAttendance,
+      resetAttendance,
       messages,
       send,
       fundRequest,

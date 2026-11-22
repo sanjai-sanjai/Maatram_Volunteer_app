@@ -35,10 +35,12 @@ export function AdminState({ children }: { children: ReactNode }) {
       const raw = sessionStorage.getItem(KEY);
       if (raw) {
         const s = JSON.parse(raw);
-        if (s.draft) setDraft({ ...defaultDraft, ...s.draft });
-        if (s.created) setCreated(s.created);
-        if (s.published) setPublished(s.published);
-        if (s.sent) setSent(s.sent);
+        if (s && typeof s === "object") {
+          if (s.draft && typeof s.draft === "object") setDraft({ ...defaultDraft, ...s.draft });
+          if (Array.isArray(s.created)) setCreated(s.created);
+          if (s.published && typeof s.published === "object") setPublished(s.published);
+          if (Array.isArray(s.sent)) setSent(s.sent);
+        }
       }
     } catch {
       /* ignore */
@@ -95,7 +97,10 @@ export function AdminState({ children }: { children: ReactNode }) {
     return ev;
   }, [draft]);
 
-  const events = useMemo(() => [...created, ...adminEvents], [created]);
+  const events = useMemo(
+    () => [...(Array.isArray(created) ? created : []), ...adminEvents],
+    [created],
+  );
 
   const value = useMemo(
     () => ({

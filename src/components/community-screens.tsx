@@ -34,7 +34,20 @@ import {
 import { Category, downloadGuide, getOpportunity } from "@/components/opportunity-screens";
 import { useMaatramState } from "@/components/MaatramState";
 export function getCommunity(id: string) {
-  return additionalCommunities.find((c) => c.id === id) ?? additionalCommunities[0];
+  const direct = additionalCommunities.find((c) => c.id === id);
+  if (direct) return direct;
+  const low = (id || "").toLowerCase();
+  if (
+    low === "physical-verification" ||
+    low === "bgv" ||
+    low.includes("physical") ||
+    low.includes("verification") ||
+    low.startsWith("pv-")
+  ) {
+    const pv = additionalCommunities.find((c) => c.id === "physical-verification");
+    if (pv) return pv;
+  }
+  return additionalCommunities[0];
 }
 export function CommunitiesScreen() {
   const [query, setQuery] = useState("");
@@ -228,44 +241,77 @@ export function CommunityScreen({ id }: { id: string }) {
       )}
       {tab === "Overview" && (
         <>
-          <div className="ma-community-columns">
-            <section className="ma-info-section">
-              <BookOpen />
-              <div>
+          {/* Card 1: Event Guide (Full-width row) */}
+          <section className="ma-community-guide-card">
+            <div className="ma-community-guide-head">
+              <div className="ma-community-guide-icon">
+                <BookOpen size={20} />
+              </div>
+              <div className="ma-community-guide-meta">
                 <h2>Event Guide</h2>
-                <p>
-                  Step-by-step plan, roles,
-                  <br />
-                  requirements & Do’s/Don’ts.
-                </p>
-                <Action onClick={() => void downloadGuide(getOpportunity("palm-seeds"))}>
-                  <Download />
-                  Download Guide
-                </Action>
-                <Action asChild>
-                  <Link
-                    to="/opportunities/$opportunityId/guide"
-                    params={{ opportunityId: c.eventId }}
-                  >
-                    Read Guide
-                    <ChevronRight />
-                  </Link>
-                </Action>
+                <p>Step-by-step plan, volunteer roles, requirements &amp; Do’s/Don’ts.</p>
               </div>
-            </section>
-            <section className="ma-info-section">
-              <ClipboardList />
-              <div>
+            </div>
+            <div className="ma-community-guide-actions">
+              <Action asChild className="ma-guide-btn-read">
+                <Link
+                  to="/opportunities/$opportunityId/guide"
+                  params={{ opportunityId: c.eventId }}
+                >
+                  <BookOpen size={16} />
+                  <span>Read Guide</span>
+                  <ChevronRight size={16} />
+                </Link>
+              </Action>
+              <Action
+                className="ma-guide-btn-download"
+                onClick={() => void downloadGuide(getOpportunity("palm-seeds"))}
+              >
+                <Download size={16} />
+                <span>Download Guide PDF</span>
+              </Action>
+            </div>
+          </section>
+
+          {/* Card 2: What to Bring (Full-width row) */}
+          <section className="ma-community-bring-card">
+            <div className="ma-community-bring-head">
+              <div className="ma-community-bring-icon">
+                <ClipboardList size={20} />
+              </div>
+              <div className="ma-community-bring-meta">
                 <h2>What to Bring</h2>
-                <ul>
-                  <li>Water bottle (Reusable)</li>
-                  <li>Cap / Hat</li>
-                  <li>Comfortable shoes</li>
-                  <li>Gloves (If available)</li>
-                </ul>
+                <p>Essential checklist for the event day</p>
               </div>
-            </section>
-          </div>
+            </div>
+            <div className="ma-community-bring-grid">
+              <div className="ma-bring-item">
+                <div className="ma-bring-check-wrap">
+                  <Check size={12} strokeWidth={3} className="ma-bring-check" />
+                </div>
+                <span>Water bottle (Reusable)</span>
+              </div>
+              <div className="ma-bring-item">
+                <div className="ma-bring-check-wrap">
+                  <Check size={12} strokeWidth={3} className="ma-bring-check" />
+                </div>
+                <span>Cap / Hat</span>
+              </div>
+              <div className="ma-bring-item">
+                <div className="ma-bring-check-wrap">
+                  <Check size={12} strokeWidth={3} className="ma-bring-check" />
+                </div>
+                <span>Comfortable shoes</span>
+              </div>
+              <div className="ma-bring-item">
+                <div className="ma-bring-check-wrap">
+                  <Check size={12} strokeWidth={3} className="ma-bring-check" />
+                </div>
+                <span>Gloves (If available)</span>
+              </div>
+            </div>
+          </section>
+
           <AboutCommunity />
           <AdditionalInfo members={c.members} />
         </>

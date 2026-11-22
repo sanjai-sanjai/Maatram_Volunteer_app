@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Flashlight, Image as ImageIcon } from "lucide-react";
+import { Flashlight, Image as ImageIcon, Menu } from "lucide-react";
 import { A, Hl, Screen, Strokes, TopNav } from "@/components/mq";
 import { seo } from "@/lib/seo";
 
@@ -24,6 +24,40 @@ function Scanner() {
   return (
     <Screen deco="tr" footer="waves">
       <TopNav back="/welcome" />
+      <button
+        type="button"
+        aria-label="Direct to Student Dashboard"
+        onClick={() => {
+          try {
+            sessionStorage.setItem("maatram-role", "student");
+            sessionStorage.setItem("maatram-dashboard-entered", "true");
+            sessionStorage.setItem("maatram-blast-shown", "true");
+            sessionStorage.removeItem("maatram-blast-pending");
+          } catch {
+            /* ignore */
+          }
+          navigate({ to: "/dashboard" });
+        }}
+        style={{
+          position: "absolute",
+          top: 14,
+          right: 16,
+          width: 32,
+          height: 32,
+          borderRadius: 8,
+          border: "none",
+          background: "transparent",
+          color: "#0F172A",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          zIndex: 99,
+          padding: 0,
+        }}
+      >
+        <Menu size={20} strokeWidth={2.4} />
+      </button>
       <div style={{ position: "relative", marginTop: 18 }}>
         <h1 className="mq-title mq-title--lg">
           Scan Your <Hl>Maatram ID</Hl>

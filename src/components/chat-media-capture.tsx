@@ -127,26 +127,27 @@ export function LiveDeviceCameraModal({
   };
 
   useEffect(() => {
-    if (open) {
-      setCapturedPhoto(null);
-      setCaption("");
-      // Small timeout to guarantee video element is mounted in DOM
-      const timer = setTimeout(() => {
-        startCamera(facingMode);
-      }, 50);
-      return () => {
-        clearTimeout(timer);
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach((t) => t.stop());
-          streamRef.current = null;
-        }
-      };
-    } else {
+    if (!open) {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
       }
+      return;
     }
+
+    setCapturedPhoto(null);
+    setCaption("");
+    // Small timeout to guarantee video element is mounted in DOM
+    const timer = setTimeout(() => {
+      startCamera(facingMode);
+    }, 50);
+    return () => {
+      clearTimeout(timer);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+    };
   }, [open, facingMode]);
 
   const toggleFacingMode = () => {
@@ -674,9 +675,9 @@ export function PlayableVoiceMessage({
   duration = "0:08",
   senderName,
 }: {
-  audioUrl?: string;
-  duration?: string;
-  senderName?: string;
+  audioUrl?: string | undefined;
+  duration?: string | undefined;
+  senderName?: string | undefined;
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);

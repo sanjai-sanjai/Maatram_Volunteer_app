@@ -24,7 +24,7 @@ import {
 import { useState } from "react";
 import { AdminFrame, Chip, Progress } from "@/components/admin/admin-ui";
 import { useAdmin } from "@/components/admin/AdminState";
-import { adminStats, fillPercent, pendingActions } from "@/data/admin-mock";
+import { adminEvents, adminStats, fillPercent, pendingActions } from "@/data/admin-mock";
 import { seo } from "@/lib/seo";
 import avatar from "@/assets/admin/admin-profile-avatar.png";
 import logoBadge from "@/assets/admin/maatram-logo-badge.png";
@@ -50,11 +50,20 @@ function AdminDashboard() {
   const { events, published, sent } = useAdmin();
   const [menu, setMenu] = useState(false);
   const [bell, setBell] = useState(false);
-  const ongoing = events.find((e) => e.id === "palm-seeds")!;
-  const pct = fillPercent(ongoing.registered, ongoing.needed);
+  const ongoing =
+    (Array.isArray(events) ? events : []).find((e) => e?.id === "palm-seeds") ??
+    events?.[0] ??
+    adminEvents[0];
+  const pct =
+    ongoing && typeof ongoing.registered === "number" && typeof ongoing.needed === "number" && ongoing.needed > 0
+      ? fillPercent(ongoing.registered, ongoing.needed)
+      : 0;
+  const safeSent = Array.isArray(sent) ? sent : [];
   const notes = [
-    ...(published ? [`“${published.name}” is live for volunteers`] : []),
-    ...sent.map((s) => `Announcement sent to ${s.count.toLocaleString("en-IN")} volunteers`),
+    ...(published?.name ? [`“${published.name}” is live for volunteers`] : []),
+    ...safeSent.map(
+      (s) => `Announcement sent to ${(s?.count ?? 0).toLocaleString("en-IN")} volunteers`,
+    ),
     "8 new proofs uploaded for Palm Seeds Plantation",
     "3 fund requests are waiting for approval",
     "Book Donation Drive opens registrations on Nov 10",
@@ -221,30 +230,32 @@ function AdminDashboard() {
             View All <ArrowRight size={16} />
           </Link>
         </div>
-        <Link to="/admin/manage/$section" params={{ section: "events" }} className="ad-ongoing">
-          <img src={ongoing.image} alt="" />
-          <div className="ad-ongoing__body">
-            <div className="ad-ongoing__top">
-              <h3>{ongoing.name}</h3>
-              <Chip tone="green">In Progress</Chip>
+        {ongoing && (
+          <Link to="/admin/manage/$section" params={{ section: "events" }} className="ad-ongoing">
+            <img src={ongoing.image} alt={ongoing.name ?? ""} />
+            <div className="ad-ongoing__body">
+              <div className="ad-ongoing__top">
+                <h3>{ongoing.name}</h3>
+                <Chip tone="green">{ongoing.status ?? "In Progress"}</Chip>
+              </div>
+              <p className="ad-inline-meta">
+                <MapPin />
+                {ongoing.location ?? "Tamil Nadu"} <span>•</span>
+                <CalendarDays />
+                {ongoing.date ?? ""}
+              </p>
+              <p className="ad-inline-meta">
+                <UsersRound />
+                {ongoing.registered ?? 0} / {ongoing.needed ?? 0} Volunteers
+              </p>
+              <div className="ad-progress-row">
+                <Progress value={pct} />
+                <span>{pct}% Filled</span>
+              </div>
             </div>
-            <p className="ad-inline-meta">
-              <MapPin />
-              Chennai <span>•</span>
-              <CalendarDays />
-              {ongoing.date}
-            </p>
-            <p className="ad-inline-meta">
-              <UsersRound />
-              {ongoing.registered} / {ongoing.needed} Volunteers
-            </p>
-            <div className="ad-progress-row">
-              <Progress value={pct} />
-              <span>{pct}% Filled</span>
-            </div>
-          </div>
-          <ChevronRight className="ad-chev" />
-        </Link>
+            <ChevronRight className="ad-chev" />
+          </Link>
+        )}
       </section>
 
       <section className="ad-card ad-block">
@@ -260,7 +271,9 @@ function AdminDashboard() {
           {pendingActions.map((p) => (
             <li key={p.id}>
               <Link to="/admin/manage/$section" params={{ section: "pending" }} hash={p.id}>
-                <span className="ad-icon-circle">{pendingIcons[p.icon]}</span>
+                <span className="ad-icon-circle">
+                  {pendingIcons[p.icon as keyof typeof pendingIcons] ?? <Hourglass />}
+                </span>
                 <span className="ad-pending__text">
                   <strong>{p.title}</strong>
                   <small>{p.sub}</small>

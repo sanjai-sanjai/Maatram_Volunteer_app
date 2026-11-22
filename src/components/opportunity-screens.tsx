@@ -47,8 +47,24 @@ import {
   Progress,
 } from "@/components/additional-shared";
 import { Logo } from "@/components/mq";
+import goldenBadge from "@/assets/profile/golden-checkmark-badge.png";
 export type Opportunity = (typeof additionalOpportunities)[number];
 const guideIcons = [Target, Users, ClipboardList, CalendarDays, Phone];
+const confettiColors = ["#FEC802", "#FFD000", "#20B83A", "#FF8A00", "#2B4EBC", "#E53935"];
+const confettiPieces = Array.from({ length: 32 }, (_, i) => {
+  const angle = (i / 32) * Math.PI * 2;
+  const dist = 90 + (i % 6) * 28;
+  return {
+    id: i,
+    tx: Math.cos(angle) * dist,
+    ty: Math.sin(angle) * dist - 20,
+    rot: (i * 47) % 360,
+    delay: (i % 8) * 0.035,
+    color: confettiColors[i % confettiColors.length],
+    w: 6 + (i % 3) * 3,
+    h: 10 + (i % 4) * 3,
+  };
+});
 export function getOpportunity(id: string): Opportunity {
   return additionalOpportunities.find((op) => op.id === id) ?? additionalOpportunities[0]!;
 }
@@ -61,73 +77,197 @@ export function RegistrationModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [checks, setChecks] = useState([false, false, false, false]);
+  const [checks, setChecks] = useState([true, true, true, true]);
+  const [celebrate, setCelebrate] = useState(false);
   const state = useMaatramState();
   const navigate = useNavigate();
+
+  const handleRegister = () => {
+    state.register(op.id);
+    setCelebrate(true);
+  };
+
+  const handleGoToCommunity = () => {
+    setCelebrate(false);
+    onClose();
+    navigate({
+      to: "/community/$communityId",
+      params: {
+        communityId: op.id === "palm-seeds" ? "palm-plantation" : "physical-verification",
+      },
+    });
+  };
+
   return (
-    <Modal open={open} onClose={onClose} title="Registration Confirmation">
-      <Logo small />
-      <Heading
-        title="Registration Confirmation"
-        subtitle="Review the details before officially joining"
-      />
-      <div className="ma-confirm-summary">
-        <img src={photos[op.photo]} alt={op.name} />
-        <div>
-          <h3>{op.name}</h3>
-          <Category text={op.category} />
-          <Meta op={op} />
-          <small>
-            <Users /> {op.joined} / {op.capacity} Volunteers Joined
-          </small>
-          <Progress value={op.joined} max={op.capacity} />
+    <>
+      <Modal open={open && !celebrate} onClose={onClose} title="Registration Confirmation">
+        <Logo small />
+        <Heading
+          title="Registration Confirmation"
+          subtitle="Review the details before officially joining"
+        />
+        <div className="ma-confirm-summary">
+          <img src={photos[op.photo]} alt={op.name} />
+          <div>
+            <h3>{op.name}</h3>
+            <Category text={op.category} />
+            <Meta op={op} />
+            <small>
+              <Users /> {op.joined} / {op.capacity} Volunteers Joined
+            </small>
+            <Progress value={op.joined} max={op.capacity} />
+          </div>
         </div>
-      </div>
-      <Heading
-        title="Confirm Your Registration"
-        subtitle="By joining, you agree to the following."
-      />
-      <div className="ma-checklist">
-        {registrationAcknowledgements.map((text, i) => (
-          <label key={text}>
-            <input
-              type="checkbox"
-              checked={checks[i]}
-              onChange={(e) =>
-                setChecks((old) => old.map((v, n) => (n === i ? e.target.checked : v)))
-              }
-            />
-            <span>{text}</span>
-          </label>
-        ))}
-      </div>
-      <p className="ma-notice">
-        <Info /> Once you confirm, you will be added to the event community for all updates and
-        coordination.
-      </p>
-      <Primary
-        disabled={!canConfirmRegistration(checks)}
-        onClick={() => {
-          state.register(op.id);
-          onClose();
-          navigate({
-            to: "/community/$communityId",
-            params: {
-              communityId: op.id === "palm-seeds" ? "palm-plantation" : "physical-verification",
-            },
-          });
-        }}
-      >
-        <HandHeart />{" "}
-        <span>
-          Yes, Register Me<small>Join the opportunity</small>
-        </span>
-        <ArrowRight />
-      </Primary>
-      <Action className="ma-cancel" onClick={onClose}>
-        <XCircle /> Cancel
-      </Action>
-    </Modal>
+        <Heading
+          title="Confirm Your Registration"
+          subtitle="By joining, you agree to the following."
+        />
+        <div className="ma-checklist">
+          {registrationAcknowledgements.map((text, i) => (
+            <label key={text}>
+              <input
+                type="checkbox"
+                checked={checks[i]}
+                onChange={(e) =>
+                  setChecks((old) => old.map((v, n) => (n === i ? e.target.checked : v)))
+                }
+              />
+              <span>{text}</span>
+            </label>
+          ))}
+        </div>
+        <p className="ma-notice">
+          <Info /> Once you confirm, you will be added to the event community for all updates and
+          coordination.
+        </p>
+        <Primary onClick={handleRegister}>
+          <HandHeart />{" "}
+          <span>
+            Yes, Register Me<small>Join the opportunity</small>
+          </span>
+          <ArrowRight />
+        </Primary>
+        <Action className="ma-cancel" onClick={onClose}>
+          <XCircle /> Cancel
+        </Action>
+      </Modal>
+
+      {/* ATTRACTIVE POPUP CONGRATULATIONS ANIMATION */}
+      {open && celebrate && (
+        <div
+          className="ma-celebrate ma-reg-celebrate"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Registration confirmed celebration"
+        >
+          <div className="ma-celebrate-card ma-reg-celebrate-card">
+            <button
+              type="button"
+              className="ma-celebrate-close"
+              aria-label="Close"
+              onClick={() => {
+                setCelebrate(false);
+                onClose();
+              }}
+            >
+              <XCircle size={20} />
+            </button>
+
+            {/* Glowing Golden Badge & Bursting Confetti */}
+            <div className="ma-celebrate-badge ma-reg-celebrate-badge">
+              <img src={goldenBadge} alt="Registration badge" />
+              {confettiPieces.map((p) => (
+                <span
+                  key={p.id}
+                  className="ma-celebrate-confetti"
+                  style={
+                    {
+                      width: p.w,
+                      height: p.h,
+                      background: p.color,
+                      "--tx": `${p.tx}px`,
+                      "--ty": `${p.ty}px`,
+                      "--rot": `${p.rot}deg`,
+                      "--delay": `${p.delay}s`,
+                    } as React.CSSProperties
+                  }
+                />
+              ))}
+            </div>
+
+            <div className="ma-reg-badge-tag">
+              <span>🎉 SEAT CONFIRMED</span>
+            </div>
+
+            <h2 className="ma-reg-congrats-title">
+              Congratulations!
+            </h2>
+            <p className="ma-reg-congrats-sub">
+              You are officially registered as a volunteer for
+            </p>
+
+            {/* Event Dossier Pass */}
+            <div className="ma-reg-pass-card">
+              <h3 className="ma-reg-pass-event">{op.name}</h3>
+              <div className="ma-reg-pass-meta">
+                <span>
+                  <CalendarDays size={13} />
+                  {op.date}
+                </span>
+                <span>
+                  <Clock3 size={13} />
+                  {op.time}
+                </span>
+                <span>
+                  <MapPin size={13} />
+                  {op.location}
+                </span>
+              </div>
+              <div className="ma-reg-pass-volunteer">
+                <span>Volunteer: <strong>Sanjai R · MT4507</strong></span>
+                <span className="ma-status-pill ma-status-pill--green">✓ Enrolled</span>
+              </div>
+            </div>
+
+            {/* Perks & What's Next */}
+            <div className="ma-reg-perks-list">
+              <div className="ma-reg-perk-item">
+                <span className="ma-reg-perk-icon">💬</span>
+                <span>Community group chat unlocked</span>
+              </div>
+              <div className="ma-reg-perk-item">
+                <span className="ma-reg-perk-icon">📍</span>
+                <span>GPS geofence check-in pass active</span>
+              </div>
+              <div className="ma-reg-perk-item">
+                <span className="ma-reg-perk-icon">🏆</span>
+                <span>Hours eligible for volunteer certificate</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="ma-reg-btn-primary"
+              onClick={handleGoToCommunity}
+            >
+              <span>Enter Event Community &amp; Chats</span>
+              <ArrowRight size={17} />
+            </button>
+
+            <button
+              type="button"
+              className="ma-reg-btn-secondary"
+              onClick={() => {
+                setCelebrate(false);
+                onClose();
+              }}
+            >
+              Done, Stay Here
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 export function Category({ text }: { text: string }) {
@@ -386,23 +526,27 @@ export function DetailsScreen({ id }: { id: string }) {
         </p>
       )}
       <div className="ma-detail-actions">
-        <Primary onClick={() => setModal(true)}>
-          <HandHeart />
-          <span>
-            {joined.includes(op.id) ? "Joined" : "Interested"}
-            <small>(Contribute)</small>
-          </span>
-        </Primary>
-        <Action onClick={() => setNotOpen(true)}>
-          <XCircle />
-          Not Interested
-        </Action>
-        <Action asChild>
-          <Link to="/opportunities/$opportunityId/guide" params={{ opportunityId: op.id }}>
-            <BookOpen />
-            Read Guide
-          </Link>
-        </Action>
+        <div className="ma-detail-actions-primary-row">
+          <Primary onClick={() => setModal(true)} className="ma-detail-btn-interested">
+            <HandHeart />
+            <span>
+              {joined.includes(op.id) ? "Joined" : "Interested"}
+              <small>(Contribute)</small>
+            </span>
+          </Primary>
+          <Action onClick={() => setNotOpen(true)} className="ma-detail-btn-not-interested">
+            <XCircle />
+            <span>Not Interested</span>
+          </Action>
+        </div>
+        <div className="ma-detail-actions-secondary-row">
+          <Action asChild className="ma-detail-btn-guide">
+            <Link to="/opportunities/$opportunityId/guide" params={{ opportunityId: op.id }}>
+              <BookOpen />
+              <span>Read Guide</span>
+            </Link>
+          </Action>
+        </div>
       </div>
       <RegistrationModal op={op} open={modal} onClose={() => setModal(false)} />
       <Modal open={notOpen} onClose={() => setNotOpen(false)} title="Not interested confirmation">

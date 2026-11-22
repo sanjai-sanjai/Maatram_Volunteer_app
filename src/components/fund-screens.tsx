@@ -43,7 +43,19 @@ export function FundScreen() {
   }
   return (
     <Page className="ma-fund">
-      <Header back="/community/palm-plantation/chat" />
+      <Header
+        back="/community/palm-plantation/chat"
+        onBack={() => {
+          if (typeof window !== "undefined" && window.history.length > 1) {
+            window.history.back();
+          } else {
+            navigate({
+              to: "/community/$communityId/chat",
+              params: { communityId: "palm-plantation" },
+            } as never);
+          }
+        }}
+      />
       <div className="ma-fund-title">
         <h1>Fund Request</h1>
         <p>Palm Seeds Plantation</p>

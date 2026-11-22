@@ -154,35 +154,37 @@ export function ProfileScreen() {
           alt={`Portrait of ${mockStudent.firstName}`}
         />
         <div className="ma-profile-identity-main">
-          <h2>{mockStudent.firstName} R</h2>
+          <div className="ma-profile-identity-header">
+            <h2>{mockStudent.firstName} R</h2>
+            <button type="button" className="ma-profile-edit" onClick={() => setDialog("edit")}>
+              <Pencil size={12} />
+              <span>Edit Profile</span>
+            </button>
+          </div>
           <p className="ma-profile-role">
             {mockStudent.category} · <b>{mockStudent.maatramId}</b>
           </p>
-          <p>
-            <GraduationCap />
-            {mockStudent.college}
+          <p className="ma-profile-college">
+            <GraduationCap size={14} />
+            <span>{mockStudent.college}</span>
           </p>
           <div className="ma-profile-location-row">
             <p>
-              <MapPin />
-              {mockStudent.collegeLocation}
+              <MapPin size={13} />
+              <span>{mockStudent.collegeLocation}</span>
             </p>
             <span className="ma-profile-verified">
-              <CheckCircle2 />
-              Verified Volunteer
+              <CheckCircle2 size={12} />
+              <span>Verified Volunteer</span>
             </span>
           </div>
         </div>
-        <button type="button" className="ma-profile-edit" onClick={() => setDialog("edit")}>
-          <Pencil />
-          Edit Profile
-        </button>
       </section>
 
       <section className="ma-profile-availability" aria-label="Volunteer availability">
         <div className="ma-profile-availability-top">
           <img className="ma-profile-availability-heart" src={handHeartIcon} alt="" />
-          <div>
+          <div className="ma-profile-availability-text">
             <h2>Volunteer Availability</h2>
             <p>Let Maatram know when you're ready to contribute.</p>
           </div>
@@ -201,18 +203,22 @@ export function ProfileScreen() {
             <span />
           </button>
         </div>
-        <p className="ma-profile-availability-note">
-          <Info />
-          When enabled, you'll be considered for relevant volunteering opportunities and receive
-          event notifications.
-        </p>
+        <div className="ma-profile-availability-note">
+          <Info size={14} />
+          <span>
+            When enabled, you'll be considered for relevant volunteering opportunities and receive
+            event notifications.
+          </span>
+        </div>
       </section>
 
       <h2 className="ma-profile-section-title">My Volunteer Stats</h2>
       <section className="ma-profile-stats" aria-label="Volunteer statistics">
         {stats.map(({ Icon, value, label }) => (
-          <div key={label}>
-            <Icon />
+          <div key={label} className="ma-profile-stat-col">
+            <div className="ma-profile-stat-icon-wrap">
+              <Icon size={17} />
+            </div>
             <strong>{value}</strong>
             <span>{label}</span>
           </div>
@@ -241,8 +247,8 @@ export function ProfileScreen() {
             className={tab === key ? "ma-profile-tab ma-profile-tab--active" : "ma-profile-tab"}
             onClick={() => setTab(key)}
           >
-            <Icon />
-            {label}
+            <Icon size={14} />
+            <span>{label}</span>
           </button>
         ))}
       </div>
@@ -262,20 +268,24 @@ export function ProfileScreen() {
           <section className="ma-profile-recent" aria-label="Recent volunteering">
             {recentActivity.map((item) => (
               <article key={item.name} className="ma-profile-activity-card">
-                <img src={item.photo} alt="" />
-                <div>
+                <img src={item.photo} alt={item.name} />
+                <div className="ma-profile-activity-body">
                   <h3>{item.name}</h3>
-                  <p>
-                    <CalendarDays />
-                    {item.date}
-                    <i>|</i>
-                    <Clock3 />
-                    {item.hours}
-                  </p>
+                  <div className="ma-profile-activity-meta">
+                    <span className="ma-profile-meta-item">
+                      <CalendarDays size={12} />
+                      <span>{item.date}</span>
+                    </span>
+                    <span className="ma-profile-meta-sep">|</span>
+                    <span className="ma-profile-meta-item">
+                      <Clock3 size={12} />
+                      <span>{item.hours}</span>
+                    </span>
+                  </div>
                 </div>
                 <span className="ma-profile-completed">
-                  <CheckCircle2 />
-                  Completed
+                  <CheckCircle2 size={12} />
+                  <span>Completed</span>
                 </span>
               </article>
             ))}

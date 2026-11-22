@@ -1,0 +1,146 @@
+import fs from "fs";
+import sharp from "sharp";
+
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1020" viewBox="0 0 800 1020" style="background:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <!-- Receipt Card Background -->
+  <g transform="translate(40, 30)" filter="url(#shadow)">
+    <!-- White Paper Container -->
+    <rect x="0" y="0" width="720" height="960" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" />
+
+    <!-- Top Navy Header Banner -->
+    <path d="M 0 16 Q 0 0 16 0 L 704 0 Q 720 0 720 16 L 720 115 L 0 115 Z" fill="#0F172A" />
+    
+    <!-- Top Gold Accent Line -->
+    <rect x="0" y="115" width="720" height="5" fill="#FEC802" />
+
+    <!-- Header Text -->
+    <text x="360" y="44" fill="#FFFFFF" font-size="19" font-weight="800" text-anchor="middle" letter-spacing="1">METROPOLITAN TRANSPORT CORPORATION (CHENNAI)</text>
+    <text x="360" y="70" fill="#94A3B8" font-size="13" font-weight="600" text-anchor="middle" letter-spacing="0.5">TAMIL NADU STATE TRANSPORT PASSENGER INVOICE</text>
+    <text x="360" y="94" fill="#FEC802" font-size="12" font-weight="700" text-anchor="middle">OFFICIAL EVENT TRAVEL EXPENSE REIMBURSEMENT PROOF</text>
+
+    <!-- Ticket No & Date Bar -->
+    <rect x="24" y="135" width="672" height="48" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+    <text x="44" y="165" fill="#64748B" font-size="13" font-weight="600">TICKET NO : <tspan fill="#0F172A" font-weight="800">TN-MTC-2026-982415</tspan></text>
+    <text x="676" y="165" fill="#64748B" font-size="13" font-weight="600" text-anchor="end">DATE : <tspan fill="#0F172A" font-weight="800">21-NOV-2026 · 07:15 AM</tspan></text>
+
+    <!-- Journey Details Card -->
+    <g transform="translate(24, 202)">
+      <rect x="0" y="0" width="672" height="152" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+      
+      <!-- Route Header -->
+      <rect x="0" y="0" width="672" height="36" rx="12" fill="#F1F5F9" />
+      <rect x="0" y="24" width="672" height="12" fill="#F1F5F9" />
+      <text x="20" y="24" fill="#475569" font-size="12" font-weight="700" letter-spacing="0.5">JOURNEY &amp; ROUTE DETAILS</text>
+      <text x="652" y="24" fill="#15803D" font-size="12" font-weight="800" text-anchor="end">CONFIRMED TICKET</text>
+
+      <!-- From & To Route -->
+      <circle cx="34" cy="62" r="6" fill="#0284C7" />
+      <line x1="34" y1="68" x2="34" y2="108" stroke="#94A3B8" stroke-width="2" stroke-dasharray="3 3" />
+      <circle cx="34" cy="114" r="6" fill="#15803D" />
+
+      <text x="54" y="58" fill="#64748B" font-size="11" font-weight="600">BOARDING POINT (ORIGIN)</text>
+      <text x="54" y="78" fill="#0F172A" font-size="15" font-weight="800">Tambaram West Bus Terminus, Chennai</text>
+
+      <text x="54" y="110" fill="#64748B" font-size="11" font-weight="600">DESTINATION (EVENT LOCATION)</text>
+      <text x="54" y="130" fill="#0F172A" font-size="15" font-weight="800">Chembarambakkam Lake Bund (Palm Plantation Site)</text>
+
+      <text x="652" y="78" fill="#0F172A" font-size="13" font-weight="700" text-anchor="end">Route: 570-X Deluxe</text>
+      <text x="652" y="130" fill="#0F172A" font-size="13" font-weight="700" text-anchor="end">Seat: 14 (Window)</text>
+    </g>
+
+    <!-- Passenger Info -->
+    <g transform="translate(24, 372)">
+      <rect x="0" y="0" width="672" height="100" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+      <text x="20" y="32" fill="#64748B" font-size="12" font-weight="600">PASSENGER NAME</text>
+      <text x="20" y="55" fill="#0F172A" font-size="16" font-weight="800">Sanjai R</text>
+      <text x="20" y="76" fill="#0284C7" font-size="12" font-weight="700">Maatram ID: MT4507 · Palm Plantation Team Volunteer</text>
+
+      <text x="440" y="32" fill="#64748B" font-size="12" font-weight="600">SERVICE CATEGORY</text>
+      <text x="440" y="55" fill="#0F172A" font-size="14" font-weight="700">Express Deluxe Transit</text>
+      <text x="440" y="76" fill="#64748B" font-size="12">Single Passenger · Adult (1)</text>
+    </g>
+
+    <!-- Fare Breakdown Table -->
+    <g transform="translate(24, 492)">
+      <rect x="0" y="0" width="672" height="200" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" />
+      <rect x="0" y="0" width="672" height="34" rx="12" fill="#F1F5F9" />
+      <rect x="0" y="22" width="672" height="12" fill="#F1F5F9" />
+      <text x="20" y="23" fill="#475569" font-size="12" font-weight="700">FARE &amp; EXPENSE BREAKDOWN</text>
+      <text x="652" y="23" fill="#475569" font-size="12" font-weight="700" text-anchor="end">AMOUNT (INR)</text>
+
+      <text x="20" y="62" fill="#334155" font-size="13" font-weight="500">Basic Bus Passenger Fare (Tambaram → Chembarambakkam)</text>
+      <text x="652" y="62" fill="#0F172A" font-size="13" font-weight="700" text-anchor="end">₹ 222.00</text>
+
+      <text x="20" y="90" fill="#334155" font-size="13" font-weight="500">Toll Gate Highway Fee &amp; Infrastructure Cess</text>
+      <text x="652" y="90" fill="#0F172A" font-size="13" font-weight="700" text-anchor="end">₹ 18.00</text>
+
+      <text x="20" y="118" fill="#334155" font-size="13" font-weight="500">CGST (2.5%) + SGST (2.5%) GST Tax</text>
+      <text x="652" y="118" fill="#0F172A" font-size="13" font-weight="700" text-anchor="end">₹ 10.00</text>
+
+      <line x1="16" y1="138" x2="656" y2="138" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 3" />
+
+      <rect x="10" y="148" width="652" height="42" rx="8" fill="#FEF9C3" />
+      <text x="24" y="176" fill="#854D0E" font-size="15" font-weight="900">TOTAL CLAIM REIMBURSEMENT AMOUNT</text>
+      <text x="646" y="176" fill="#854D0E" font-size="20" font-weight="900" text-anchor="end">₹ 250.00</text>
+    </g>
+
+    <!-- Payment & Verification Stamp -->
+    <g transform="translate(24, 710)">
+      <rect x="0" y="0" width="450" height="96" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+      <text x="16" y="28" fill="#64748B" font-size="11" font-weight="700">PAYMENT INFORMATION &amp; VPA</text>
+      <text x="16" y="52" fill="#0F172A" font-size="14" font-weight="800">UPI (GPay / PhonePe / Paytm)</text>
+      <text x="16" y="74" fill="#475569" font-size="12" font-family="monospace">VPA: sanjai-1806@okaxis · Txn Ref: 432890184712</text>
+
+      <!-- Paid Stamp Badge -->
+      <g transform="translate(470, 0)">
+        <rect x="0" y="0" width="202" height="96" rx="10" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="2" />
+        <circle cx="34" cy="48" r="18" fill="#10B981" />
+        <path d="M 26 48 L 32 54 L 43 42" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+        <text x="66" y="42" fill="#065F46" font-size="15" font-weight="900">PAID ₹ 250</text>
+        <text x="66" y="60" fill="#047857" font-size="11" font-weight="700">ONLINE TICKET VOUCHER</text>
+        <text x="66" y="78" fill="#059669" font-size="10">21-Nov-2026 · 07:15</text>
+      </g>
+    </g>
+
+    <!-- Bottom QR Code & Barcode -->
+    <g transform="translate(24, 824)">
+      <rect x="0" y="0" width="672" height="106" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" />
+      
+      <!-- Simulated QR Code -->
+      <g transform="translate(20, 18)">
+        <rect x="0" y="0" width="70" height="70" fill="#F8FAFC" stroke="#0F172A" stroke-width="2" />
+        <rect x="6" y="6" width="20" height="20" fill="#0F172A" />
+        <rect x="10" y="10" width="12" height="12" fill="#FFFFFF" />
+        <rect x="44" y="6" width="20" height="20" fill="#0F172A" />
+        <rect x="48" y="10" width="12" height="12" fill="#FFFFFF" />
+        <rect x="6" y="44" width="20" height="20" fill="#0F172A" />
+        <rect x="10" y="48" width="12" height="12" fill="#FFFFFF" />
+        <rect x="30" y="14" width="8" height="18" fill="#0F172A" />
+        <rect x="34" y="36" width="14" height="10" fill="#0F172A" />
+        <rect x="18" y="32" width="10" height="8" fill="#0F172A" />
+        <rect x="44" y="48" width="18" height="16" fill="#0F172A" />
+      </g>
+
+      <!-- Barcode Lines -->
+      <g transform="translate(110, 26)">
+        <text x="0" y="14" fill="#0F172A" font-family="monospace" font-size="15" letter-spacing="4">|||| | ||||| || |||||| | ||| ||||||| | || ||||</text>
+        <text x="0" y="36" fill="#0F172A" font-family="monospace" font-size="15" letter-spacing="4">|||| | ||||| || |||||| | ||| ||||||| | || ||||</text>
+        <text x="0" y="58" fill="#64748B" font-family="monospace" font-size="11">AUTH HASH: 7F8E-094A-MTC-CHENNAI-PALM-2026-FND0842</text>
+      </g>
+    </g>
+  </g>
+</svg>`;
+
+fs.writeFileSync("public/assets/additional/bus-ticket-receipt.svg", svg);
+console.log("Saved SVG");
+
+const pngBuf = await sharp(Buffer.from(svg)).png().toBuffer();
+fs.writeFileSync("public/assets/additional/bus-ticket-receipt.png", pngBuf);
+fs.writeFileSync("public/assets/additional/Bus_Ticket.jpg", pngBuf);
+console.log("Successfully generated bus-ticket-receipt.png and Bus_Ticket.jpg!");

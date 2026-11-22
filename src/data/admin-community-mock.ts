@@ -137,8 +137,8 @@ export interface CommunityChatMessage {
     fileSize: string;
   };
   voice?: {
-    audioUrl?: string;
-    duration?: string;
+    audioUrl?: string | undefined;
+    duration?: string | undefined;
   };
 }
 

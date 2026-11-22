@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock3, MapPin, X } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -44,11 +44,37 @@ export function IconAction({ label, children, ...props }: ButtonProps & { label:
     </Action>
   );
 }
-export function Header({ back = "/dashboard", tools }: { back?: string; tools?: ReactNode }) {
+export function Header({
+  back = "/dashboard",
+  tools,
+  onBack,
+}: {
+  back?: string;
+  tools?: ReactNode;
+  onBack?: () => void;
+}) {
+  const navigate = useNavigate();
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onBack) {
+      onBack();
+      return;
+    }
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      window.history.back();
+    } else {
+      try {
+        navigate({ to: back } as never);
+      } catch {
+        /* ignore */
+      }
+    }
+  };
+
   return (
     <header className="ma-header">
-      <Action asChild className="ma-icon">
-        <Link to={back} aria-label="Go back">
+      <Action asChild className="ma-icon" onClick={handleClick}>
+        <Link to={back} aria-label="Go back" onClick={handleClick}>
           <ArrowLeft />
         </Link>
       </Action>
